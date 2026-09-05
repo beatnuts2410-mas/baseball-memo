@@ -1,15 +1,27 @@
 {
   "name": "野球メモ",
   "short_name": "野球メモ",
-  "description": "高校野球を観戦しながら、自チームの攻撃と試合の思い出を簡単に記録するPWA",
-  "start_url": "./index.html",
+  "description": "観戦しながら、少ないタップで自チームの野球を記録するメモアプリ。",
+  "lang": "ja",
+  "dir": "ltr",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#08111f",
-  "theme_color": "#08111f",
+  "background_color": "#080d16",
+  "theme_color": "#0b1220",
   "icons": [
-    {"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
-    {"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
