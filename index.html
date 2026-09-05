@@ -70,6 +70,7 @@ current:null,
 lastLineup:[]
 };
 let tab="record";
+let gameHistory = [];
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function toast(t){let x=document.createElement("div");x.className="toast";x.textContent=t;document.body.appendChild(x);setTimeout(()=>x.remove(),1800)}
@@ -293,7 +294,6 @@ function refreshSubReplacement(){let sel=document.getElementById('subReplacement
 function applyInGameSub(){let g=db.current;if(!g||inGameSubSlot==null)return;let name=document.getElementById('subReplacement').value,replacement=db.team.players.find(p=>p.name===name);if(!replacement)return;let before=g.lineup[inGameSubSlot];g.subs=g.subs||[];g.subs.push({time:new Date().toISOString(),type:inGameSubType,slot:inGameSubSlot,from:before,to:replacement});g.lineup[inGameSubSlot]=Object.assign({},replacement,{pos:before?.pos||''});save();closeInGameSub();render();toast(`${inGameSubType}：${replacement.name}`)}
 
 let gameOrder = '先攻';
-let gameHistory = [];
 
 function setGameOrder(order){
   gameOrder=order;
@@ -329,7 +329,7 @@ function addGameBackButton(){
 }
 
 window.addEventListener('popstate', function(){
-  if(g && gameHistory.length){
+  if(gameHistory.length){
     undoGame();
   }
 });
