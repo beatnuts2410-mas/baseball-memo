@@ -15,7 +15,7 @@
 <style>
 :root{--bg:#080d16;--panel:#111a28;--panel2:#172234;--line:#26364d;--text:#f5f7fb;--muted:#9aa8bb;--blue:#3b82f6;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#07101c,#0b1220 45%,#07101a);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
-button,input,select{font:inherit}button{border:0;color:inherit;cursor:pointer}.app{max-width:680px;margin:auto;min-height:100vh;padding-bottom:88px}.top{position:sticky;top:0;z-index:5;padding:14px 16px 12px;background:rgba(8,13,22,.94);backdrop-filter:blur(14px);border-bottom:1px solid #18253a}.brand{font-size:20px;font-weight:800}.sub{font-size:12px;color:var(--muted);margin-top:3px}.content{padding:14px 14px 20px}.card{background:linear-gradient(180deg,#121d2d,#0f1826);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 8px 30px #0003}.title{font-size:15px;font-weight:800;margin-bottom:10px}.row{display:flex;gap:8px;align-items:center}.between{justify-content:space-between}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.input{width:100%;background:#0a1220;border:1px solid #2b3b52;border-radius:10px;padding:11px 12px;color:white;outline:none}.input:focus{border-color:var(--blue)}.btn{background:#1d2b40;border:1px solid #30445f;border-radius:11px;padding:10px 12px;font-weight:700}.btn.primary{background:var(--blue);border-color:#4d90ff}.btn.green{background:#12652f;border-color:#1f9b50}.btn.red{background:#702028;border-color:#a33b47}.btn.small{padding:7px 9px;font-size:12px}.tabs{position:fixed;z-index:10;bottom:0;left:50%;transform:translateX(-50%);width:min(680px,100%);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:rgba(8,13,22,.96);border-top:1px solid #1c2b40;backdrop-filter:blur(14px)}.tab{background:transparent;color:#8291a6;padding:8px 4px;font-size:11px}.tab.active{color:#fff}.tab .ico{font-size:20px;display:block;margin-bottom:2px}.score{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center}.team{font-weight:800}.bigscore{font-size:34px;font-weight:900;letter-spacing:2px}.scoretable{overflow:auto}.scoretable table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}.scoretable th,.scoretable td{padding:7px 5px;border-bottom:1px solid #243248;text-align:center}.scoretable th:first-child,.scoretable td:first-child{text-align:left}.current{border:1px solid #315fa9;background:linear-gradient(180deg,#12294a,#101c2d)}.batter{font-size:28px;font-weight:900}.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;background:#24334a;color:#b9c7d9}.resultgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.result{min-height:54px;border-radius:12px;background:#1b2a3f;border:1px solid #31445f;font-weight:800}.result.hit{border-color:#2563eb}.result.selected{outline:2px solid #fff;box-shadow:0 0 0 2px #3b82f6 inset}.result.good{border-color:#16a34a}.result.out{border-color:#b91c1c}.result.walk{border-color:#ca8a04}.history{display:flex;flex-direction:column;gap:7px}.hist{padding:9px 10px;background:#0b1422;border:1px solid #223148;border-radius:10px;font-size:13px}.muted{color:var(--muted)}.hidden{display:none!important}.lineup{display:flex;flex-direction:column;gap:7px}.playerrow{display:grid;grid-template-columns:38px 1fr 110px 40px;gap:7px;align-items:center;background:#0b1422;border:1px solid #223148;border-radius:10px;padding:7px}.num{font-weight:900;color:#8fb8ff;text-align:center}.select{width:100%;background:#111d2d;border:1px solid #2b3b52;border-radius:8px;color:white;padding:8px}.field{width:210px;height:210px;margin:8px auto;position:relative}.diamond{position:absolute;width:110px;height:110px;border:2px solid #60708a;transform:rotate(45deg);left:50px;top:50px}.base{position:absolute;width:18px;height:18px;border:2px solid white;background:#101a29;transform:rotate(45deg)}.b1{left:97px;top:31px}.b2{right:27px;top:97px}.b3{left:31px;top:97px}.home{left:97px;bottom:31px}.pos{position:absolute;transform:translate(-50%,-50%);font-size:12px;color:#b8c6d8}.p{font-weight:800;color:white}.p1{left:50%;top:10%}.p2{left:50%;top:50%}.p3{left:13%;top:50%}.p4{left:87%;top:50%}.p5{left:24%;top:27%}.p6{left:34%;top:39%}.p7{left:22%;top:8%}.p8{left:50%;top:2%}.p9{left:78%;top:8%}.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.stat{background:#0b1422;border:1px solid #223148;border-radius:10px;padding:8px;text-align:center}.stat b{font-size:18px;display:block}.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#fff;color:#07101c;padding:10px 14px;border-radius:999px;font-size:12px;font-weight:800;z-index:30;box-shadow:0 10px 30px #0007}.empty{padding:28px 10px;text-align:center;color:var(--muted)}@media(max-width:430px){.playerrow{grid-template-columns:30px 1fr 92px 34px}.resultgrid{grid-template-columns:repeat(3,1fr)}.result{font-size:12px}}
+button,input,select{font:inherit}button{border:0;color:inherit;cursor:pointer}.app{max-width:680px;margin:auto;min-height:100vh;padding-bottom:88px}.top{position:sticky;top:0;z-index:5;padding:14px 16px 12px;background:rgba(8,13,22,.94);backdrop-filter:blur(14px);border-bottom:1px solid #18253a}.brand{font-size:20px;font-weight:800}.sub{font-size:12px;color:var(--muted);margin-top:3px}.content{padding:14px 14px 20px}.card{background:linear-gradient(180deg,#121d2d,#0f1826);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 8px 30px #0003}.title{font-size:15px;font-weight:800;margin-bottom:10px}.row{display:flex;gap:8px;align-items:center}.between{justify-content:space-between}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.input{width:100%;background:#0a1220;border:1px solid #2b3b52;border-radius:10px;padding:11px 12px;color:white;outline:none}.input:focus{border-color:var(--blue)}.btn{background:#1d2b40;border:1px solid #30445f;border-radius:11px;padding:10px 12px;font-weight:700}.btn.primary{background:var(--blue);border-color:#4d90ff}.btn.green{background:#12652f;border-color:#1f9b50}.btn.red{background:#702028;border-color:#a33b47}.btn.small{padding:7px 9px;font-size:12px}.tabs{position:fixed;z-index:10;bottom:0;left:50%;transform:translateX(-50%);width:min(680px,100%);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:rgba(8,13,22,.96);border-top:1px solid #1c2b40;backdrop-filter:blur(14px)}.tab{background:transparent;color:#8291a6;padding:8px 4px;font-size:11px}.tab.active{color:#fff}.tab .ico{font-size:20px;display:block;margin-bottom:2px}.score{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center}.team{font-weight:800}.bigscore{font-size:34px;font-weight:900;letter-spacing:2px}.scoretable{overflow:auto}.scoretable table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}.scoretable th,.scoretable td{padding:7px 5px;border-bottom:1px solid #243248;text-align:center}.scoretable th:first-child,.scoretable td:first-child{text-align:left}.current{border:1px solid #315fa9;background:linear-gradient(180deg,#12294a,#101c2d)}.batter{font-size:28px;font-weight:900}.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;background:#24334a;color:#b9c7d9}.resultgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.result{min-height:54px;border-radius:12px;background:#1b2a3f;border:1px solid #31445f;font-weight:800}.result.hit{border-color:#2563eb}.result.selected{outline:2px solid #fff;box-shadow:0 0 0 2px #3b82f6 inset}.result.good{border-color:#16a34a}.result.out{border-color:#b91c1c}.result.walk{border-color:#ca8a04}.history{display:flex;flex-direction:column;gap:7px}.hist{padding:9px 10px;background:#0b1422;border:1px solid #223148;border-radius:10px;font-size:13px}.muted{color:var(--muted)}.hidden{display:none!important}.lineup{display:flex;flex-direction:column;gap:7px}.playerrow{display:grid;grid-template-columns:38px 1fr 110px 40px;gap:7px;align-items:center;background:#0b1422;border:1px solid #223148;border-radius:10px;padding:7px}.num{font-weight:900;color:#8fb8ff;text-align:center}.select{width:100%;background:#111d2d;border:1px solid #2b3b52;border-radius:8px;color:white;padding:8px}.field{width:210px;height:210px;margin:8px auto;position:relative}.diamond{position:absolute;width:110px;height:110px;border:2px solid #60708a;transform:rotate(45deg);left:50px;top:50px}.base{position:absolute;width:18px;height:18px;border:2px solid white;background:#101a29;transform:rotate(45deg)}.b1{left:97px;top:31px}.b2{right:27px;top:97px}.b3{left:31px;top:97px}.home{left:97px;bottom:31px}.pos{position:absolute;transform:translate(-50%,-50%);font-size:12px;color:#b8c6d8}.p{font-weight:800;color:white}.p1{left:50%;top:10%}.p2{left:50%;top:50%}.p3{left:13%;top:50%}.p4{left:87%;top:50%}.p5{left:24%;top:27%}.p6{left:34%;top:39%}.p7{left:22%;top:8%}.p8{left:50%;top:2%}.p9{left:78%;top:8%}.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.stat{background:#0b1422;border:1px solid #223148;border-radius:10px;padding:8px;text-align:center}.stat b{font-size:18px;display:block}.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#fff;color:#07101c;padding:10px 14px;border-radius:999px;font-size:12px;font-weight:800;z-index:30;box-shadow:0 10px 30px #0007}.empty{padding:28px 10px;text-align:center;color:var(--muted)}.resultHero{background:linear-gradient(160deg,#12294a,#0f1826);border:1px solid #315fa9;border-radius:18px;padding:18px;text-align:center}.resultScore{font-size:46px;font-weight:950;letter-spacing:2px;margin:4px 0}.resultWin{font-size:14px;font-weight:900;margin-bottom:4px}.resultTools{display:grid;grid-template-columns:1fr 1fr;gap:8px}.resultTool{padding:13px 8px;border-radius:12px;border:1px solid #33435e;background:#172235;font-weight:900}.resultTool.primary{background:#1d5fbe;border-color:#477fc9}.resultTable{width:100%;border-collapse:collapse;font-size:12px}.resultTable th,.resultTable td{padding:7px 5px;border-bottom:1px solid #26364d;text-align:center}.resultTable th:first-child,.resultTable td:first-child{text-align:left}.statTable{width:100%;border-collapse:collapse;font-size:12px}.statTable th,.statTable td{padding:8px 5px;border-bottom:1px solid #26364d;text-align:center}.statTable th:first-child,.statTable td:first-child{text-align:left}.eventList{display:flex;flex-direction:column;gap:7px}.eventRow{padding:9px 10px;background:#0b1422;border:1px solid #223148;border-radius:10px;font-size:13px}.eventRow .eventTop{display:flex;justify-content:space-between;gap:8px}.eventTag{font-size:11px;color:#9fb0c8}.shareNote{font-size:12px;color:#91a2bb;line-height:1.5;margin:8px 0 0}.resultBack{width:100%;margin-top:8px}@media(max-width:430px){.playerrow{grid-template-columns:30px 1fr 92px 34px}.resultgrid{grid-template-columns:repeat(3,1fr)}.result{font-size:12px}}
 
 .batterRow{display:flex;align-items:center;justify-content:center;gap:10px}
 .secondaryBtn{border:1px solid #3b4a63;background:#172235;color:#eaf2ff;border-radius:12px;padding:10px 14px;font-weight:800}
@@ -72,6 +72,7 @@ current:null,
 lastLineup:[]
 };
 let tab="record";
+let resultGameId=null;
 let gameHistory = [];
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
@@ -84,7 +85,7 @@ function newGame(order='先攻',opts={}){
  const half=opts.half || '表';
  const outs=Math.min(2,Math.max(0,Number(opts.outs)||0));
  const scoreUs=Math.max(0,Number(opts.scoreUs)||0), scoreOpp=Math.max(0,Number(opts.scoreOpp)||0);
- db.current={id:Date.now(),date:ds,tournament:'',stadium:'',opponent:opts.opponent||'桜ヶ丘高校',innings:opts.initialInnings||[],pa:[],lineup:[],batterIndex:Math.min(8,Math.max(0,Number(opts.batterIndex)||0)),scoreUs,scoreOpp,inning,half,order:o,outs,runners:[0,0,0],runnerNames:[null,null,null],finished:false,pitcher:null,dh:null,subs:[],startedLate:!!opts.startedLate};
+ db.current={id:Date.now(),date:ds,tournament:'',stadium:'',opponent:opts.opponent||'桜ヶ丘高校',innings:opts.initialInnings||[],pa:[],lineup:[],batterIndex:Math.min(8,Math.max(0,Number(opts.batterIndex)||0)),scoreUs,scoreOpp,inning,half,order:o,outs,runners:[0,0,0],runnerNames:[null,null,null],finished:false,pitcher:null,dh:null,subs:[],startedLate:!!opts.startedLate,eventSeq:0};
  gameHistory=[]; save(); render();
 }
 function startNewGame(order){newGame(order);toast(order==='先攻'?'先攻で試合を開始':'後攻で試合を開始')}
@@ -125,19 +126,40 @@ function gameHeader(){
  let g=db.current;if(!g)return `<div class="card"><div class="title">試合を始める</div><p class="muted">先攻・後攻を選んでから試合を開始します。</p><div class="orderGrid"><button class="orderBtn active" onclick="startNewGame('先攻')">先攻</button><button class="orderBtn" onclick="startNewGame('後攻')">後攻</button></div><p class="hint">先攻なら1回表から、後攻なら相手の1回表を経て自チームの1回裏から記録します。</p></div>`;
  return `<div class="card"><div class="score"><div><div class="team">${esc(db.team.name)}</div></div><div><div class="bigscore">${g.scoreUs} - ${g.scoreOpp}</div><span class="badge">${g.inning}回${g.half}</span>${g.startedLate?`<div class="hint" style="margin-top:5px">途中開始・開始時スコア ${g.scoreUs} - ${g.scoreOpp}</div>`:""}</div><div><div class="team">${esc(g.opponent||"相手校")}</div></div></div></div>`;
 }
-function ensureInning(g,idx){if(!g.innings)g.innings=[];if(!g.innings[idx])g.innings[idx]={us:0,opp:0};return g.innings[idx]}
-function advanceHalf(g){
+function ensureInning(g,index){
  if(!g)return;
- // イニングの進行は先攻/後攻に関係なく「表→裏→次の回の表」で固定。
- if(g.half==='表'){
-   g.half='裏';
- }else{
-   g.inning=Math.max(1,Number(g.inning)||1)+1;
-   g.half='表';
- }
- ensureInning(g,g.inning-1);
- g.outs=0;g.runners=[0,0,0];g.runnerNames=[null,null,null];
+ const i=Math.max(0,Number(index)||0);
+ while(g.innings.length<=i) g.innings.push({us:0,opp:0});
+ if(!g.innings[i]) g.innings[i]={us:0,opp:0};
 }
+function advanceHalf(g){
+ if(!g)return false;
+ const inning=Math.max(1,Number(g.inning)||1);
+ const own=ownHalf(g), opp=opponentHalf(g);
+ ensureInning(g,inning-1);
+ // 必ず「現在の回の自チーム攻撃→同じ回の相手攻撃→次の回の自チーム攻撃」
+ // の順で進める。3アウト時はこの関数だけがイニング/表裏を変更する。
+ if(g.half===own){
+   g.inning=inning;
+   g.half=opp;
+ }else{
+   g.inning=inning+1;
+   g.half=own;
+   ensureInning(g,g.inning-1);
+ }
+ g.outs=0;
+ g.runners=[0,0,0];
+ g.runnerNames=[null,null,null];
+ return true;
+}
+function endHalfOnThreeOuts(g){
+ if(!g)return false;
+ g.outs=Math.max(0,Number(g.outs)||0);
+ if(g.outs<3)return false;
+ advanceHalf(g);
+ return true;
+}
+
 function scoreTable(g){
  let max=Math.max(9,g.innings.length||0), cols="";
  for(let i=1;i<=max;i++){let x=g.innings[i-1]||{us:"",opp:""};cols+=`<tr><td>${i}</td><td>${x.us??""}</td><td>${x.opp??""}</td></tr>`}
@@ -174,10 +196,10 @@ function opponentView(){
  return gameHeader()+`<div class="card current"><div class="muted">現在：${g.inning}回${g.half}・相手チーム攻撃</div><div style="font-size:26px;font-weight:900;margin:8px 0">相手は何点入りましたか？</div><div class="hint">得点を選ぶと、その回の相手攻撃を終了して自チームの攻撃へ切り替わります。</div><div class="grid2"><button class="btn" onclick="setOppRuns(-1)">−</button><div class="input" style="text-align:center;font-weight:900;font-size:24px">${x.opp||0} 点</div></div><div class="row" style="flex-wrap:wrap;margin-top:10px">${[0,1,2,3,4,5,6,7,8,9].map(n=>`<button class="btn ${x.opp===n?'primary':''}" onclick="setOppRuns(${n})">${n}</button>`).join('')}</div><div class="title" style="margin-top:16px">相手のアウト</div><div class="row"><button class="btn" onclick="oppOut()">アウト＋1</button><span class="badge">${g.outs} / 3</span></div><div class="hint" style="margin-top:8px">3アウトになると自動で次の攻撃へ切り替わります。</div></div>
  <div class="card"><div class="title">イニングスコア</div>${scoreTable(g)}</div>`;
 }
-function setOppRuns(n){pushGameHistory();let g=db.current;if(!g)return;let x=g.innings[g.inning-1]||{us:0,opp:0};x.opp=Math.max(0,n);g.innings[g.inning-1]=x;g.scoreOpp=g.innings.reduce((a,v)=>a+(Number(v.opp)||0),0);advanceHalf(g);save();render();toast(`${g.inning}回${g.half}へ`)}
+function setOppRuns(n){const g=db.current;if(!g)return;pushGameHistory();ensureInning(g,g.inning-1);const x=g.innings[g.inning-1];x.opp=Math.max(0,Number(n)||0);g.scoreOpp=g.innings.reduce((a,v)=>a+(Number(v.opp)||0),0);advanceHalf(g);save();render();toast(`${g.inning}回${g.half}へ`)}
 function oppOut(){
- const g=db.current;if(!g)return;pushGameHistory();g.outs=Math.min(3,(Number(g.outs)||0)+1);
- if(g.outs>=3){advanceHalf(g);save();render();toast(`${g.inning}回${g.half}へ`);return;}
+ const g=db.current;if(!g)return;pushGameHistory();g.outs=(Number(g.outs)||0)+1;
+ if(endHalfOnThreeOuts(g)){save();render();toast(`${g.inning}回${g.half}へ`);return;}
  save();render();
 }
 function finishHalf(){pushGameHistory();const g=db.current;if(!g)return;const x=g.innings[g.inning-1]||{us:0,opp:0};x.us=Number(x.us)||0;x.opp=Number(x.opp)||0;g.innings[g.inning-1]=x;advanceHalf(g);save();render();toast(`${g.inning}回${g.half}へ`)}
@@ -237,9 +259,8 @@ function judgeSteal(judgement){
  pushGameHistory();
  if(judgement==='アウト'){
    g.runners[from]=0;g.runnerNames[from]=null;g.outs=Math.min(3,(Number(g.outs)||0)+1);
-   g.runnerMoves=g.runnerMoves||[];g.runnerMoves.push({type:'盗塁',judgement:'アウト',from,dest:null,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(g.runners),afterNames:cloneRunnerNames(g.runnerNames),runs:0});
-   const outNow=g.outs>=3;
-   if(outNow)advanceHalf(g);
+   g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:'盗塁',judgement:'アウト',inning:g.inning,half:g.half,from,dest:null,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(g.runners),afterNames:cloneRunnerNames(g.runnerNames),runs:0});
+   const outNow=endHalfOnThreeOuts(g);
    save();closeRunnerMove();render();toast(`盗塁：${name} → アウト${outNow?'・3アウト':''}`);return;
  }
  runnerMoveJudged=true;
@@ -254,7 +275,7 @@ function applyRunnerMove(dest){
  pushGameHistory();
  g.runners[from]=0;g.runnerNames[from]=null;let scored=0;
  if(dest===4){scored=1;g.scoreUs=(Number(g.scoreUs)||0)+1}else{g.runners[dest-1]=1;g.runnerNames[dest-1]=name}
- g.runnerMoves=g.runnerMoves||[];g.runnerMoves.push({type:runnerMoveMode,judgement:runnerMoveMode==='盗塁'?'セーフ':null,from,dest,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(g.runners),afterNames:cloneRunnerNames(g.runnerNames),runs:scored});
+ g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:runnerMoveMode,judgement:runnerMoveMode==='盗塁'?'セーフ':null,inning:g.inning,half:g.half,from,dest,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(g.runners),afterNames:cloneRunnerNames(g.runnerNames),runs:scored});
  updateInningScore(g);save();closeRunnerMove();render();toast(`${runnerMoveMode}：${name} → ${dest===4?'本塁・得点':dest+'塁'}`);
 }
 function applyBalk(){
@@ -267,7 +288,7 @@ function applyBalk(){
  if(before[0]){after[1]=1;afterNames[1]=beforeNames[0]||'走者';}
  pushGameHistory();
  g.runners=after;g.runnerNames=afterNames;g.scoreUs=(Number(g.scoreUs)||0)+scored;
- g.runnerMoves=g.runnerMoves||[];g.runnerMoves.push({type:'ボーク',from:'auto',dest:'auto',name:'走者自動進塁',beforeRunners:before,beforeNames,afterRunners:cloneRunners(after),afterNames:cloneRunnerNames(afterNames),runs:scored});
+ g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:'ボーク',inning:g.inning,half:g.half,from:'auto',dest:'auto',name:'走者自動進塁',beforeRunners:before,beforeNames,afterRunners:cloneRunners(after),afterNames:cloneRunnerNames(afterNames),runs:scored});
  updateInningScore(g);save();render();toast(`ボーク：${scored?scored+'点・':''}走者を自動進塁`);
 }
 function openSteal(i){openRunnerMove('盗塁');selectRunnerToMove(i)}
@@ -285,11 +306,11 @@ function pa(result){
   const mv=advanceRunners(g,result,b.name);
   g.runners=mv.runners; g.runnerNames=cloneRunnerNames(mv.names); g.scoreUs=(Number(g.scoreUs)||0)+mv.scored;
   g.outs+=out;
-  g.pa.push({inning:g.inning,half:g.half,batter:b.name,result,rbi:mv.rbi,runs:mv.scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(g.runners),afterRunnerNames:cloneRunnerNames(g.runnerNames),outsAfter:g.outs,beforeScoreUs:Number(g.scoreUs)-mv.scored,beforeScoreUsSnapshot:Number(g.scoreUs)-mv.scored,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:g.outs-out,beforeBatterIndex:g.batterIndex});
+  g.eventSeq=(Number(g.eventSeq)||0)+1; g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:b.name,result,rbi:mv.rbi,runs:mv.scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(g.runners),afterRunnerNames:cloneRunnerNames(g.runnerNames),outsAfter:g.outs,beforeScoreUs:Number(g.scoreUs)-mv.scored,beforeScoreUsSnapshot:Number(g.scoreUs)-mv.scored,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:g.outs-out,beforeBatterIndex:g.batterIndex});
   updateInningScore(g);
   g.batterIndex++;
   const summary=mv.scored?` ${mv.scored}点`:(mv.detail?` ${mv.detail}`:'');
-  if(g.outs>=3){advanceHalf(g);}
+  if(endHalfOnThreeOuts(g)){}
   save();render();toast(`${b.name}：${result}${summary}`);
 }
 function openSteal(i){openRunnerMove('盗塁');selectRunnerToMove(i)}
@@ -297,7 +318,7 @@ function closeSteal(){closeRunnerMove()}
 function restartFromPA(index){
  const g=db.current;if(!g||!g.pa[index])return; const p=g.pa[index]; if(!confirm(`${p.inning}回${p.half} ${p.batter}の打席から修正します。
 この打席以降の記録をいったん削除して、そこから再入力します。`))return;
- pushGameHistory(); g.scoreUs=Number(p.beforeScoreUsSnapshot ?? p.beforeScoreUs ?? 0);g.inning=p.beforeInning;g.half=p.beforeHalf;g.outs=p.beforeOuts;g.runners=cloneRunners(p.beforeRunners);g.runnerNames=cloneRunnerNames(p.beforeRunnerNames);g.batterIndex=p.beforeBatterIndex;g.pa=g.pa.slice(0,index);g.steals=(g.steals||[]).filter(x=>x.inning<p.inning || (x.inning===p.inning && x.half!==p.half));updateInningScore(g);save();render();toast('この打席から再入力できます');
+ pushGameHistory(); g.scoreUs=Number(p.beforeScoreUsSnapshot ?? p.beforeScoreUs ?? 0);g.inning=p.beforeInning;g.half=p.beforeHalf;g.outs=p.beforeOuts;g.runners=cloneRunners(p.beforeRunners);g.runnerNames=cloneRunnerNames(p.beforeRunnerNames);g.batterIndex=p.beforeBatterIndex;g.pa=g.pa.slice(0,index);g.steals=(g.steals||[]).filter(x=>x.inning<p.inning || (x.inning===p.inning && x.half!==p.half));g.runnerMoves=(g.runnerMoves||[]).filter(x=>x.inning<p.inning || (x.inning===p.inning && x.half!==p.half));updateInningScore(g);save();render();toast('この打席から再入力できます');
 }
 const PA_RESULTS=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['四球','walk'],['死球','walk'],['三振','out'],['犠打','good'],['犠飛','good'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['その他','']];
 function openPACorrection(){
@@ -336,7 +357,7 @@ function applyPACorrection(){
  if(p.beforeScoreUsSnapshot==null) p.beforeScoreUsSnapshot=Number(g.scoreUs)-mv.scored;
  updateInningScore(g);
  g.batterIndex=p.beforeBatterIndex+1;
- if(g.outs>=3){advanceHalf(g);}
+ if(endHalfOnThreeOuts(g)){}
  save();closePACorrection();render();toast(`${p.batter}：${result} に修正しました`);
 }
 function openRunnerCorrection(){
@@ -372,7 +393,7 @@ function applyRunnerCorrection(){
  g.outs=p.outsAfter;
  g.batterIndex=p.beforeBatterIndex+1;
  // 直前の打席が3アウトなら、元の攻守交代状態を復元
- if(p.outsAfter>=3){g.outs=0;g.runners=[0,0,0];g.half=opponentHalf(g);if(g.half===ownHalf(g))g.inning++;}
+ if(p.outsAfter>=3){g.outs=3;endHalfOnThreeOuts(g);}
  save();closeRunnerCorrection();render();toast(`走者・得点を修正しました（${runs}点）`);
 }
 function toggleRunner(i){ensureGame();pushGameHistory();const g=db.current;g.runners[i]=g.runners[i]?0:1;g.runnerNames[i]=g.runners[i]?(g.runnerNames[i]||'走者'):null;save();render()}
@@ -412,17 +433,73 @@ function saveLineup(){
  g.lineup=arr.map((n,i)=>Object.assign({},db.team.players.find(p=>p.name===n)||{name:n},{pos:poss[i]||''}));g.pitcher=pitcher?db.team.players.find(p=>p.name===pitcher):null;g.dh=dh?db.team.players.find(p=>p.name===dh):null;
  g.innings=g.innings||[];g.lastLineup=g.lineup;db.lastLineup=g.lineup;save();tab='record';render();toast('オーダーを確定しました')
 }
+function finishGame(){
+ let g=db.current;if(!g)return;
+ if(!confirm("試合を終了して結果を保存しますか？"))return;
+ g.finished=true;g.finishedAt=new Date().toISOString();
+ g.eventSeq=Number(g.eventSeq)||0;
+ const saved=JSON.parse(JSON.stringify(g));
+ const idx=db.games.findIndex(x=>x.id===g.id);
+ if(idx>=0)db.games[idx]=saved;else db.games.push(saved);
+ db.current=null;resultGameId=saved.id;tab="data";save();render();
+ setTimeout(()=>viewGameResult(saved.id),80);
+}
+function loadGame(id){viewGameResult(id)}
+function viewGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return toast('試合結果が見つかりません');resultGameId=id;tab='data';render();setTimeout(()=>{const el=document.getElementById('gameResultView');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},0)}
+function battingStats(g){
+ const stats={};
+ const arr=g.pa||[];
+ arr.forEach(p=>{
+   const n=p.batter||'不明'; if(!stats[n])stats[n]={name:n,pa:0,ab:0,h:0,d2:0,d3:0,hr:0,rbi:0,bb:0,hbp:0,so:0,sac:0};
+   const s=stats[n];s.pa++;s.rbi+=Number(p.rbi)||0;
+   if(['四球'].includes(p.result)){s.bb++;return}
+   if(['死球'].includes(p.result)){s.hbp++;return}
+   if(['犠打','犠飛'].includes(p.result)){s.sac++;return}
+   s.ab++;
+   if(p.result==='単打'){s.h++;}
+   if(p.result==='二塁打'){s.h++;s.d2++;}
+   if(p.result==='三塁打'){s.h++;s.d3++;}
+   if(p.result==='本塁打'){s.h++;s.hr++;}
+   if(p.result==='三振')s.so++;
+ });
+ return Object.values(stats);
+}
+function resultEvents(g){
+ const events=[...(g.pa||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.batter} → ${x.result}${x.runs?`・${x.runs}点`:''}`,kind:'打席'})),...(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.type}${x.judgement?`・${x.judgement}`:''}：${x.name||'走者'}${x.dest===4?' → 本塁・得点':x.dest?` → ${x.dest}塁`:''}${x.runs?`・${x.runs}点`:''}`,kind:'走者'}))];
+ events.sort((a,b)=>a.seq-b.seq || a.inning-b.inning || (a.half==='表'?0:1)-(b.half==='表'?0:1));
+ return events;
+}
+function resultInningRows(g){
+ const max=Math.max(1,g.innings?.length||0,Math.ceil((g.pa||[]).reduce((m,p)=>Math.max(m,Number(p.inning)||1),0)));
+ let rows='';for(let i=1;i<=max;i++){const x=g.innings?.[i-1]||{us:0,opp:0};rows+=`<tr><td>${i}</td><td>${Number(x.us)||0}</td><td>${Number(x.opp)||0}</td><td>${i===max&&g.finished?'—':''}</td></tr>`}return rows;
+}
+function renderGameResult(g){
+ const win=g.scoreUs>g.scoreOpp?'勝利':g.scoreUs<g.scoreOpp?'敗戦':'引き分け';
+ const stats=battingStats(g),events=resultEvents(g);
+ const batting=stats.length?`<div class="scoretable"><table class="statTable"><thead><tr><th>選手</th><th>打</th><th>安</th><th>二</th><th>三</th><th>本</th><th>点</th><th>四</th><th>死</th><th>三振</th><th>率</th></tr></thead><tbody>${stats.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.d2}</td><td>${s.d3}</td><td>${s.hr}</td><td>${s.rbi}</td><td>${s.bb}</td><td>${s.hbp}</td><td>${s.so}</td><td>${s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">打席記録はありません</div>`;
+ return `<div id="gameResultView"><div class="resultHero"><div class="muted">${esc(g.date||'')}　${esc(g.tournament||'')}</div><div class="resultWin">${win}</div><div class="team">${esc(db.team.name)}　vs　${esc(g.opponent||'相手校')}</div><div class="resultScore">${g.scoreUs} - ${g.scoreOpp}</div><div class="muted">${esc(g.stadium||'')}　${g.finishedAt?new Date(g.finishedAt).toLocaleString('ja-JP'):''}</div></div>
+ <div class="card"><div class="title">結果を保存・共有</div><div class="resultTools"><button class="resultTool primary" onclick="saveResultImage(${g.id})">📷 写真として保存</button><button class="resultTool" onclick="shareGameResult(${g.id})">📤 SNS・共有</button></div><p class="shareNote">「写真として保存」は試合結果画像を端末に保存。「SNS・共有」はLINE・Instagramなど、端末が対応している共有先を開きます。</p></div>
+ <div class="card"><div class="title">イニング別スコア</div><div class="scoretable"><table class="resultTable"><thead><tr><th>回</th><th>${esc(db.team.name)}</th><th>${esc(g.opponent||'相手')}</th><th></th></tr></thead><tbody>${resultInningRows(g)}</tbody></table></div></div>
+ <div class="card"><div class="title">打撃成績</div>${batting}</div>
+ <div class="card"><div class="title">試合経過・全記録</div><div class="eventList">${events.length?events.map(e=>`<div class="eventRow"><div class="eventTop"><b>${e.inning}回${e.half}　${esc(e.text)}</b><span class="eventTag">${e.kind}</span></div></div>`).join(''):`<div class="empty">記録がありません</div>`}</div></div>
+ <button class="btn resultBack" onclick="resultGameId=null;render()">← 試合データへ戻る</button></div>`;
+}
 function dataView(){
  let games=db.games.slice().reverse();
+ if(resultGameId){const g=db.games.find(x=>x.id===resultGameId);if(g)return `<div class="content">${renderGameResult(g)}</div>`;resultGameId=null;}
  return `<div class="card"><div class="title">試合データ</div><div class="statgrid"><div class="stat"><b>${games.length}</b><span class="muted">試合</span></div><div class="stat"><b>${games.filter(g=>g.scoreUs>g.scoreOpp).length}</b><span class="muted">勝利</span></div><div class="stat"><b>${games.reduce((a,g)=>a+g.scoreUs,0)}</b><span class="muted">総得点</span></div><div class="stat"><b>${db.team.players.length}</b><span class="muted">登録選手</span></div></div></div>
- ${games.length?games.map(g=>`<div class="card"><div class="row between"><div><b>${esc(g.date)}　${esc(db.team.name)} ${g.scoreUs}-${g.scoreOpp} ${esc(g.opponent)}</b><div class="muted">${esc(g.tournament||"")} ${esc(g.stadium||"")}</div></div><button class="btn small" onclick="loadGame(${g.id})">見る</button></div></div>`).join(""):`<div class="card empty">試合終了すると、ここに試合結果が残ります。</div>`}
- <div class="card"><div class="title">データ管理</div><div class="row"><button class="btn" onclick="exportData()">バックアップ保存</button><button class="btn red" onclick="resetAll()">全データ削除</button></div><p class="muted">現在版はブラウザ保存方式です。同じ端末・同じブラウザならデータが残ります。</p></div>`;
+ ${games.length?games.map(g=>`<div class="card"><div class="row between"><div><b>${esc(g.date)}　${esc(db.team.name)} ${g.scoreUs}-${g.scoreOpp} ${esc(g.opponent)}</b><div class="muted">${esc(g.tournament||"")} ${esc(g.stadium||"")}</div></div><button class="btn small" onclick="viewGameResult(${g.id})">結果を見る</button></div></div>`).join(""):`<div class="card empty">試合終了すると、ここに試合結果が残ります。</div>`}
+ <div class="card"><div class="title">データ管理</div><div class="row"><button class="btn" onclick="exportData()">バックアップ保存</button><button class="btn red" onclick="resetAll()">全データ削除</button></div><p class="muted">試合結果はブラウザに保存され、後からいつでも確認できます。</p></div>`;
 }
-function finishGame(){
- let g=db.current;if(!confirm("試合を終了してデータに保存しますか？"))return;
- g.finished=true;db.games.push(JSON.parse(JSON.stringify(g)));save();toast("試合を保存しました");setTimeout(()=>{tab="data";render()},400)
+function resultCanvas(g){
+ const W=1080, events=resultEvents(g), stats=battingStats(g); const H=Math.min(6500,1050+Math.max(1,events.length)*54+stats.length*48);const c=document.createElement('canvas');c.width=W;c.height=H;const ctx=c.getContext('2d');
+ ctx.fillStyle='#0b1220';ctx.fillRect(0,0,W,H);ctx.fillStyle='#f5f7fb';ctx.textAlign='center';ctx.font='900 52px -apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';ctx.fillText('野球メモ',W/2,85);ctx.font='800 30px -apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';ctx.fillText(`${g.date||''}  ${db.team.name} vs ${g.opponent||'相手校'}`,W/2,140);ctx.font='950 78px -apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';ctx.fillText(`${g.scoreUs} - ${g.scoreOpp}`,W/2,235);ctx.font='900 28px -apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';ctx.fillText(g.scoreUs>g.scoreOpp?'勝利':g.scoreUs<g.scoreOpp?'敗戦':'引き分け',W/2,285);
+ ctx.textAlign='left';ctx.font='800 30px -apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';ctx.fillText('イニング別スコア',70,360);let y=405;ctx.font='700 24px -apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';ctx.fillText('回',70,y);ctx.fillText(db.team.name,170,y);ctx.fillText(g.opponent||'相手',600,y);for(let i=0;i<Math.max(1,g.innings?.length||0);i++){y+=42;const x=g.innings[i]||{us:0,opp:0};ctx.fillText(String(i+1),70,y);ctx.fillText(String(x.us||0),170,y);ctx.fillText(String(x.opp||0),600,y)}
+ y+=70;ctx.font='800 30px -apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';ctx.fillText('打撃成績',70,y);y+=42;ctx.font='700 21px -apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';ctx.fillText('選手　打数 安打 二 三 本 点 四 死 三振',70,y);stats.forEach(s=>{y+=38;ctx.fillText(`${s.name}  ${s.ab} ${s.h} ${s.d2} ${s.d3} ${s.hr} ${s.rbi} ${s.bb} ${s.hbp} ${s.so}`,70,y)});
+ y+=65;ctx.font='800 30px -apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';ctx.fillText('試合経過',70,y);ctx.font='700 22px -apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';events.forEach(e=>{y+=42;let text=`${e.inning}回${e.half} ${e.text}`;if(text.length>42)text=text.slice(0,41)+'…';ctx.fillText(text,70,y)});ctx.font='600 18px -apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';ctx.fillText('野球メモ　— 観戦しながら、思い出を残そう。',70,H-35);return c;
 }
-function loadGame(id){let g=db.games.find(x=>x.id===id);if(!g)return;db.current=JSON.parse(JSON.stringify(g));save();tab="record";render()}
+async function saveResultImage(id){const g=db.games.find(x=>x.id===id);if(!g)return;try{const c=resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(!blob)return toast('画像作成に失敗しました');const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`野球メモ_${g.date||'試合結果'}_${g.opponent||'相手'}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('試合結果画像を保存しました')}catch(e){toast('画像保存に失敗しました')}}
+async function shareGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return;const text=`${g.date||''} 野球メモ\n${db.team.name} ${g.scoreUs}-${g.scoreOpp} ${g.opponent||'相手校'}\n試合結果・打撃成績・試合経過を記録しました。`;try{const c=resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=blob?new File([blob],`野球メモ_${g.date||'試合結果'}.png`,{type:'image/png'}):null;if(navigator.share){if(file && (!navigator.canShare || navigator.canShare({files:[file]}))){await navigator.share({title:'野球メモ 試合結果',text,files:[file]})}else{await navigator.share({title:'野球メモ 試合結果',text})}toast('共有しました')}else{await navigator.clipboard?.writeText(text);toast('共有機能がないため、結果文をコピーしました')}}catch(e){if(e?.name!=='AbortError')toast('共有をキャンセルしました')}}
 function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="野球メモ_バックアップ.json";a.click();URL.revokeObjectURL(a.href)}
 function resetAll(){if(!confirm("全データを削除します。よろしいですか？"))return;localStorage.removeItem(KEY);location.reload()}
 function render(){
