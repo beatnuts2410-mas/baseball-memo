@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="application-name" content="野球メモ">
+<meta name="application-name" content="西春ノート">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="野球メモ">
+<meta name="apple-mobile-web-app-title" content="西春ノート">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>野球メモ</title>
+<title>西春ノート</title>
 <style>
 :root{--bg:#080d16;--panel:#111a28;--panel2:#172234;--line:#26364d;--text:#f5f7fb;--muted:#9aa8bb;--blue:#3b82f6;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#07101c,#0b1220 45%,#07101a);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
@@ -49,11 +49,13 @@ button,input,select{font:inherit}button{border:0;color:inherit;cursor:pointer}.a
 .homeInstallBtn{width:100%;padding:14px 16px;margin-top:0;border-radius:14px;font-size:16px;background:#17345d;border-color:#477fc9}
 .installGuide{margin-top:10px;color:#91a2bb;font-size:12px;line-height:1.55}
 .runnerModal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:flex-end;justify-content:center;z-index:60}.runnerCard{width:min(560px,100%);background:#0f1725;border:1px solid #26344b;border-radius:22px 22px 0 0;padding:18px;box-shadow:0 -10px 40px rgba(0,0,0,.45)}.runnerBases{position:relative;width:250px;height:210px;margin:10px auto}.runnerBase{position:absolute;width:70px;height:70px;transform:rotate(45deg);border:2px solid #52647e;background:#111c2c;border-radius:8px;display:flex;align-items:center;justify-content:center}.runnerBase span{transform:rotate(-45deg);font-weight:900;font-size:14px}.runnerBase.on{background:#12652f;border-color:#39c96b}.rb1{right:25px;top:70px}.rb2{left:90px;top:0}.rb3{left:25px;top:70px}.runnerScore{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.runnerScore button{padding:11px 5px}.runnerActions{display:flex;gap:8px;margin-top:12px}.runnerActions button{flex:1}.corrNote{font-size:12px;color:#91a2bb;line-height:1.5}
+
+.rosterImportGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.rosterBox{background:#0b1422;border:1px solid #26364d;border-radius:12px;padding:12px}.rosterBoxTitle{font-weight:900;font-size:13px;margin-bottom:7px}.rosterTextarea{width:100%;min-height:150px;resize:vertical;background:#08111d;color:#fff;border:1px solid #33445d;border-radius:10px;padding:10px;line-height:1.6;outline:none}.rosterTextarea:focus{border-color:#3b82f6}.fileBtn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:1px dashed #4b6383;background:#101b2b;border-radius:11px;font-weight:900;text-align:center}.fileInput{display:none}.importHelp{font-size:11px;color:#91a2bb;line-height:1.55;margin-top:7px}.rosterPreview{margin-top:9px;font-size:12px;color:#b8c7da}.rosterPreview b{color:#fff}@media(max-width:500px){.rosterImportGrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="app">
-<header class="top"><div class="brand">⚾ 野球メモ</div><div class="sub">高校野球の試合記録を、少ないタップで。</div></header>
+<header class="top"><div class="brand">⚾ 西春ノート</div><div class="sub">高校野球の試合記録を、少ないタップで。</div></header>
 <main class="content" id="app"></main>
 <nav class="tabs">
 <button class="tab active" data-tab="record"><span class="ico">📝</span>記録</button>
@@ -451,13 +453,49 @@ function applyRunnerCorrection(){
 }
 function toggleRunner(i){ensureGame();pushGameHistory();const g=db.current;g.runners[i]=g.runners[i]?0:1;g.runnerNames[i]=g.runners[i]?(g.runnerNames[i]||'走者'):null;save();render()}
 function teamView(){
- return `<div class="card"><div class="title">チーム設定</div><div class="grid2"><input id="teamName" class="input" value="${esc(db.team.name)}" placeholder="チーム名"><button class="btn primary" onclick="setTeam()">保存</button></div></div>
- <div class="card"><div class="row between"><div class="title">選手名簿（${db.team.players.length}人）</div><button class="btn small" onclick="addPlayer()">＋ 選手追加</button></div>
+ const rosterText=db.team.players.map(p=>p.num?`${p.num} ${p.name}`:p.name).join("\n");
+ return `<div class="card"><div class="title">チーム登録</div><div class="grid2"><input id="teamName" class="input" value="${esc(db.team.name)}" placeholder="チーム名"><button class="btn primary" onclick="setTeam()">チーム名を保存</button></div></div>
+ <div class="card"><div class="title">選手名簿をまとめて登録</div><div class="muted" style="margin-bottom:10px">1人ずつ入力する必要はありません。スマホのメモ・ノートから貼り付けるか、.txtファイルを読み込めます。</div>
+ <div class="rosterImportGrid">
+  <div class="rosterBox"><div class="rosterBoxTitle">✍️ 直接入力・貼り付け</div><textarea id="rosterBulkText" class="rosterTextarea" placeholder="例\n1 田中大輔\n2 佐藤翔\n3 山田蓮\n\n背番号なしなら\n田中大輔\n佐藤翔">${esc(rosterText)}</textarea><button class="btn primary" style="width:100%;margin-top:8px" onclick="importRosterText()">この内容で名簿を登録</button></div>
+  <div class="rosterBox"><div class="rosterBoxTitle">📄 .txtから読み込む</div><label class="fileBtn" for="rosterTxtFile">📱 メモ・ノートのTXTを選択</label><input id="rosterTxtFile" class="fileInput" type="file" accept=".txt,text/plain" onchange="importRosterFile(this)"><div class="importHelp">1行に1選手。<br>「1 田中大輔」「#1 田中大輔」「田中大輔」のどれでもOKです。<br>読み込んだ内容は登録前に確認できます。</div><div id="rosterFilePreview" class="rosterPreview"></div></div>
+ </div></div>
+ <div class="card"><div class="row between"><div class="title">現在の選手名簿（${db.team.players.length}人）</div><button class="btn small" onclick="addPlayer()">＋ 1人追加</button></div>
  <div class="history">${db.team.players.map((p,i)=>`<div class="hist row between"><div><b>${p.num?`#${p.num} `:""}${esc(p.name)}</b></div><button class="btn small red" onclick="delPlayer(${i})">削除</button></div>`).join("")}</div></div>
- <div class="card"><div class="title">使い方</div><p class="muted">選手名はここで一度登録。試合ごとのオーダーは保存した名簿から選択します。</p></div>`;
+ <div class="card"><div class="title">登録ルール</div><p class="muted">チーム名は直接入力して保存。選手名はまとめて貼り付け・TXT読み込みができます。登録した名簿は試合ごとのオーダー選択にそのまま使えます。</p></div>`;
 }
 function setTeam(){db.team.name=document.getElementById("teamName").value.trim()||"自校";save();render();toast("チーム名を保存しました")}
-function addPlayer(){let name=prompt("選手名を入力");if(!name)return;let num=prompt("背番号（任意）")||"";db.team.players.push({name,num});save();render()}
+function parseRosterText(text){
+ const lines=String(text||"").replace(/^\uFEFF/,"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ const players=[]; const seen=new Set();
+ for(const raw of lines){
+  let line=raw.replace(/^[-*・、]+\s*/,"").trim();
+  let num="",name=line;
+  let m=line.match(/^#?(\d{1,3})[\s,、:：\-]+(.+)$/);
+  if(m){num=m[1];name=m[2].trim()}
+  name=name.replace(/^#?\d{1,3}[\s]+/,"").trim();
+  if(!name||seen.has(name))continue;
+  seen.add(name); players.push({name,num});
+ }
+ return players;
+}
+function importRosterText(){
+ const text=document.getElementById("rosterBulkText")?.value||""; const players=parseRosterText(text);
+ if(!players.length)return toast("選手名が見つかりません");
+ if(!confirm(`${players.length}人の選手を名簿に登録します。\n現在の名簿は置き換わります。よろしいですか？`))return;
+ db.team.players=players; db.lastLineup=[]; save(); render(); toast(`${players.length}人を登録しました`);
+}
+async function importRosterFile(input){
+ const file=input?.files?.[0]; if(!file)return;
+ try{
+  const text=await file.text(); const players=parseRosterText(text);
+  if(!players.length){document.getElementById("rosterFilePreview").innerHTML="選手名を読み取れませんでした。";return}
+  document.getElementById("rosterFilePreview").innerHTML=`<b>${players.length}人</b>を読み込みました。\n「${esc(players.slice(0,5).map(p=>p.name).join("・"))}${players.length>5?"…":""}」`;
+  if(!confirm(`${file.name} から ${players.length}人を読み込みました。\n現在の名簿は置き換わります。登録しますか？`))return;
+  db.team.players=players; db.lastLineup=[]; save(); render(); toast(`${players.length}人を登録しました`);
+ }catch(e){toast("TXTファイルの読み込みに失敗しました")}
+}
+function addPlayer(){let name=prompt("選手名を入力");if(!name)return;let num=prompt("背番号（任意）")||"";db.team.players.push({name:name.trim(),num:num.trim()});save();render()}
 function delPlayer(i){if(!confirm("この選手を名簿から削除しますか？"))return;db.team.players.splice(i,1);save();render()}
 function lineupView(){
  ensureGame();let g=db.current;
@@ -566,59 +604,54 @@ function dataView(){
 function resultCanvas(g){
  const W=1600, events=resultEvents(g), stats=battingStats(g), max=Math.max(1,g.innings?.length||0);
  const font='-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';
- const H=Math.min(2200,980+Math.ceil(stats.length/9)*250+Math.ceil(events.length/10)*250);
+ const H=Math.min(2400,1040+Math.ceil(stats.length/10)*240+Math.ceil(events.length/12)*220);
  const c=document.createElement('canvas');c.width=W;c.height=H;const ctx=c.getContext('2d');
- const bg='#070d16',panel='#0e1826',panel2='#121f31',line='#2a3d57',text='#f5f7fb',muted='#8fa2bd',accent='#4d8dff';
+ const bg='#060a12',panel='#0d1420',panel2='#131e2d',line='#33465f',text='#f5f7fb',muted='#9aabc0',accent='#3b82f6',accent2='#79aefc';
  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
- // top sports-card header
- ctx.fillStyle=accent;ctx.fillRect(0,0,W,10);
- ctx.fillStyle=text;ctx.textAlign='left';ctx.font=`900 34px ${font}`;ctx.fillText('野球メモ',70,72);
- ctx.fillStyle=muted;ctx.font=`700 18px ${font}`;ctx.fillText(`${g.date||''}  ${g.tournament||''}  ${g.stadium||''}`,70,104);
- ctx.textAlign='right';ctx.fillStyle=muted;ctx.font=`800 16px ${font}`;ctx.fillText('GAME RESULT',W-70,72);
- // score hero
- const heroY=135, heroH=250;
- ctx.fillStyle=panel;ctx.fillRect(60,heroY,W-120,heroH);
- ctx.strokeStyle=line;ctx.lineWidth=2;ctx.strokeRect(60,heroY,W-120,heroH);
- ctx.textAlign='center';ctx.fillStyle=muted;ctx.font=`800 15px ${font}`;ctx.fillText('FINAL',W/2,heroY+38);
- ctx.fillStyle=text;ctx.font=`900 28px ${font}`;ctx.fillText(db.team.name,W/2-260,heroY+94);
- ctx.fillStyle=muted;ctx.font=`800 20px ${font}`;ctx.fillText('VS',W/2,heroY+94);
- ctx.fillStyle=text;ctx.fillText(g.opponent||'相手校',W/2+260,heroY+94);
- ctx.fillStyle=text;ctx.font=`950 92px ${font}`;ctx.fillText(`${g.scoreUs}  -  ${g.scoreOpp}`,W/2,heroY+185);
- const result=g.scoreUs>g.scoreOpp?'WIN':g.scoreUs<g.scoreOpp?'LOSS':'DRAW';
- ctx.fillStyle=result==='WIN'?'#dff7e8':result==='LOSS'?'#ffdfe2':'#e8eef8';ctx.font=`950 18px ${font}`;ctx.fillText(result,W/2,heroY+224);
- let y=heroY+heroH+38;
- // scoreboard panel
- ctx.textAlign='left';ctx.fillStyle=text;ctx.font=`900 25px ${font}`;ctx.fillText('SCOREBOARD',70,y);y+=18;
- const left=70, top=y, rowH=62, teamW=330, totalW=92, usable=W-left*2-teamW-totalW;
- const cellW=Math.max(70,Math.min(105,usable/max));
- const drawCell=(x,yy,w,h,val,bold=false,fill=panel2)=>{ctx.fillStyle=fill;ctx.fillRect(x,yy,w,h);ctx.strokeStyle=line;ctx.lineWidth=1;ctx.strokeRect(x,yy,w,h);ctx.fillStyle=text;ctx.font=`${bold?'900':'750'} ${bold?22:20}px ${font}`;ctx.textAlign='center';ctx.fillText(String(val),x+w/2,yy+h/2+7)};
- drawCell(left,top,teamW,rowH,'TEAM',true,'#1a2a41');
- for(let i=0;i<max;i++)drawCell(left+teamW+i*cellW,top,cellW,rowH,i+1,true,'#1a2a41');
- drawCell(left+teamW+max*cellW,top,totalW,rowH,'R',true,'#243b5d');
- [[db.team.name,'us',g.scoreUs],[g.opponent||'相手','opp',g.scoreOpp]].forEach((r,ri)=>{const yy=top+rowH*(ri+1);drawCell(left,yy,teamW,rowH,r[0],true,panel);for(let i=0;i<max;i++)drawCell(left+teamW+i*cellW,yy,cellW,rowH,Number(g.innings?.[i]?.[r[1]])||0,false,panel);drawCell(left+teamW+max*cellW,yy,totalW,rowH,r[2],true,'#243b5d');});
- y=top+rowH*3+38;
- // key numbers
- const totalAB=stats.reduce((a,s)=>a+s.ab,0), totalH=stats.reduce((a,s)=>a+s.h,0), totalRBI=stats.reduce((a,s)=>a+s.rbi,0);
- ctx.fillStyle=text;ctx.font=`900 25px ${font}`;ctx.textAlign='left';ctx.fillText('TEAM HIGHLIGHTS',70,y);y+=34;
- const kw=470, kh=88;[['H',totalH],['AB',totalAB],['RBI',totalRBI]].forEach((k,i)=>{const x=70+i*(kw+35);ctx.fillStyle=panel;ctx.fillRect(x,y,kw,kh);ctx.strokeStyle=line;ctx.strokeRect(x,y,kw,kh);ctx.fillStyle=muted;ctx.font=`800 15px ${font}`;ctx.fillText(k[0],x+22,y+30);ctx.fillStyle=text;ctx.font=`950 32px ${font}`;ctx.fillText(k[1],x+22,y+65);});
- y+=kh+38;
- // batting stats as wide modern table
- ctx.fillStyle=text;ctx.font=`900 25px ${font}`;ctx.fillText('BATTING',70,y);y+=32;
- const cols=[['選手',300],['PA',70],['AB',70],['H',70],['2B',70],['3B',70],['HR',70],['RBI',80],['BB',70],['HBP',70],['SO',70],['SH',70],['SF',70],['AVG',95]];
- let x=70;cols.forEach(([lab,w])=>{drawCell(x,y,w,42,lab,true,'#1a2a41');x+=w;});
- stats.forEach((s,ri)=>{y+=42;x=70;const vals=[s.name,s.pa,s.ab,s.h,s.d2,s.d3,s.hr,s.rbi,s.bb,s.hbp,s.so,s.sh,s.sf,s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'];cols.forEach(([_,w],i)=>{drawCell(x,y,w,42,vals[i],i===0||i===13, i===0?panel:(ri%2?panel:'#0b1422'));x+=w;});});
+ // 現代プロ野球の結果カードを意識した横長ヘッダー
+ ctx.fillStyle=accent;ctx.fillRect(0,0,W,12);
+ ctx.fillStyle=text;ctx.textAlign='left';ctx.font=`950 42px ${font}`;ctx.fillText('西春ノート',64,76);
+ ctx.fillStyle=muted;ctx.font=`700 18px ${font}`;ctx.fillText(`${g.date||''}  ${g.tournament||''}  ${g.stadium||''}`,64,108);
+ ctx.textAlign='right';ctx.fillStyle=accent2;ctx.font=`900 18px ${font}`;ctx.fillText('試合結果',W-64,76);
+ const heroY=140,heroH=245;
+ ctx.fillStyle=panel;ctx.fillRect(55,heroY,W-110,heroH);ctx.strokeStyle=line;ctx.lineWidth=2;ctx.strokeRect(55,heroY,W-110,heroH);
+ ctx.textAlign='center';ctx.fillStyle=muted;ctx.font=`850 17px ${font}`;ctx.fillText('FINAL',W/2,heroY+38);
+ ctx.fillStyle=text;ctx.font=`950 30px ${font}`;ctx.fillText(db.team.name,W/2-300,heroY+92);ctx.fillText(g.opponent||'相手校',W/2+300,heroY+92);
+ ctx.fillStyle=muted;ctx.font=`900 20px ${font}`;ctx.fillText('VS',W/2,heroY+92);
+ ctx.fillStyle=text;ctx.font=`950 94px ${font}`;ctx.fillText(`${g.scoreUs}  -  ${g.scoreOpp}`,W/2,heroY+184);
+ const result=g.scoreUs>g.scoreOpp?'勝利':g.scoreUs<g.scoreOpp?'敗戦':'引き分け';
+ ctx.fillStyle=text;ctx.font=`950 18px ${font}`;ctx.fillText(result,W/2,heroY+222);
+ let y=heroY+heroH+42;
+ // 得点板
+ ctx.textAlign='left';ctx.fillStyle=text;ctx.font=`950 28px ${font}`;ctx.fillText('得点板',64,y);y+=22;
+ const left=64,top=y,rowH=64,teamW=360,totalW=100,usable=W-left*2-teamW-totalW,cellW=Math.max(70,Math.min(105,usable/max));
+ const cell=(x,yy,w,h,val,bold=false,fill=panel2)=>{ctx.fillStyle=fill;ctx.fillRect(x,yy,w,h);ctx.strokeStyle=line;ctx.lineWidth=1;ctx.strokeRect(x,yy,w,h);ctx.fillStyle=text;ctx.font=`${bold?'950':'800'} ${bold?22:21}px ${font}`;ctx.textAlign='center';ctx.fillText(String(val),x+w/2,yy+h/2+7)};
+ cell(left,top,teamW,rowH,'チーム',true,'#18263a');
+ for(let i=0;i<max;i++)cell(left+teamW+i*cellW,top,cellW,rowH,`${i+1}回`,true,'#18263a');
+ cell(left+teamW+max*cellW,top,totalW,rowH,'R',true,'#203a60');
+ [[db.team.name,'us',g.scoreUs],[g.opponent||'相手','opp',g.scoreOpp]].forEach((r,ri)=>{const yy=top+rowH*(ri+1);cell(left,yy,teamW,rowH,r[0],true,panel);for(let i=0;i<max;i++)cell(left+teamW+i*cellW,yy,cellW,rowH,Number(g.innings?.[i]?.[r[1]])||0,false,panel);cell(left+teamW+max*cellW,yy,totalW,rowH,r[2],true,'#203a60')});
+ y=top+rowH*3+40;
+ // ハイライト
+ const totalAB=stats.reduce((a,s)=>a+s.ab,0),totalH=stats.reduce((a,s)=>a+s.h,0),totalRBI=stats.reduce((a,s)=>a+s.rbi,0);
+ ctx.fillStyle=text;ctx.font=`950 28px ${font}`;ctx.textAlign='left';ctx.fillText('チームハイライト',64,y);y+=36;
+ const kw=(W-128-40)/3,kh=90;[['安打',totalH],['打数',totalAB],['打点',totalRBI]].forEach((k,i)=>{const x=64+i*(kw+20);ctx.fillStyle=panel;ctx.fillRect(x,y,kw,kh);ctx.strokeStyle=line;ctx.strokeRect(x,y,kw,kh);ctx.fillStyle=muted;ctx.font=`800 15px ${font}`;ctx.fillText(k[0],x+20,y+29);ctx.fillStyle=text;ctx.font=`950 34px ${font}`;ctx.fillText(k[1],x+20,y+67)});y+=kh+42;
+ // 打撃成績
+ ctx.fillStyle=text;ctx.font=`950 28px ${font}`;ctx.fillText('打撃成績',64,y);y+=34;
+ const cols=[['選手',300],['打席',70],['打数',70],['安打',70],['2B',70],['3B',70],['HR',70],['打点',80],['四球',70],['死球',70],['三振',70],['犠打',70],['犠飛',70],['打率',95]];
+ let x=64;cols.forEach(([lab,w])=>{cell(x,y,w,44,lab,true,'#18263a');x+=w});
+ stats.forEach((st,ri)=>{y+=44;x=64;const vals=[st.name,st.pa,st.ab,st.h,st.d2,st.d3,st.hr,st.rbi,st.bb,st.hbp,st.so,st.sh,st.sf,st.ab?(st.h/st.ab).toFixed(3).replace(/^0/,''):'.000'];cols.forEach(([_,w],i)=>{cell(x,y,w,44,vals[i],i===0||i===13, i===0?panel:(ri%2?panel:'#0a111b'));x+=w})});
  y+=60;
- // compact play-by-play in two columns
- ctx.fillStyle=text;ctx.font=`900 25px ${font}`;ctx.textAlign='left';ctx.fillText('PLAY-BY-PLAY',70,y);y+=34;
- const half=Math.ceil(events.length/2), colW=(W-170)/2;
- const drawEvents=(list,ox)=>{let yy=y;let last=null;list.forEach(e=>{if(e.inning!==last){ctx.fillStyle=accent;ctx.fillRect(ox,yy,colW,3);yy+=18;ctx.fillStyle=muted;ctx.font=`900 16px ${font}`;ctx.fillText(`${e.inning}回`,ox,yy);yy+=20;last=e.inning;}ctx.fillStyle=panel;ctx.fillRect(ox,yy,colW,58);ctx.fillStyle=line;ctx.strokeStyle=line;ctx.strokeRect(ox,yy,colW,58);ctx.fillStyle='#9fc3ff';ctx.font=`900 14px ${font}`;ctx.fillText(`${e.half}`,ox+16,yy+22);ctx.fillStyle=text;ctx.font=`700 16px ${font}`;let tx=`${e.text}`;if(tx.length>43)tx=tx.slice(0,42)+'…';ctx.fillText(tx,ox+52,yy+22);ctx.fillStyle=muted;ctx.font=`600 12px ${font}`;ctx.fillText(e.kind||'',ox+52,yy+43);yy+=68;});return yy;};
- const y1=drawEvents(events.slice(0,half),70), y2=drawEvents(events.slice(half),70+colW+30); y=Math.max(y1,y2)+35;
- ctx.fillStyle=muted;ctx.font=`600 15px ${font}`;ctx.fillText('野球メモ  •  観戦しながら、思い出を残そう。',70,H-28);
+ // 試合経過：回ごとにラインを入れ、左右に配置
+ ctx.fillStyle=text;ctx.font=`950 28px ${font}`;ctx.textAlign='left';ctx.fillText('試合経過',64,y);y+=38;
+ const groups=[];let last=null;events.forEach(e=>{const inn=Number(e.inning)||1;if(inn!==last){groups.push({inning:inn,items:[]});last=inn}groups.at(-1).items.push(e)});
+ const colsX=[64,W/2+12],colW=W/2-88; let col=0,yy=[y,y];
+ groups.forEach(gr=>{if(yy[col]+58>H-90){col++;if(col>1)col=1}let q=yy[col];ctx.fillStyle=accent;ctx.fillRect(colsX[col],q,colW,4);q+=22;ctx.fillStyle=accent2;ctx.font=`950 17px ${font}`;ctx.fillText(`${gr.inning}回`,colsX[col],q);q+=10;gr.items.forEach(e=>{q+=20;ctx.fillStyle=panel;ctx.fillRect(colsX[col],q,colW,52);ctx.strokeStyle=line;ctx.strokeRect(colsX[col],q,colW,52);ctx.fillStyle=text;ctx.font=`800 15px ${font}`;let tx=`${e.half}　${e.text}`;if(tx.length>58)tx=tx.slice(0,57)+'…';ctx.fillText(tx,colsX[col]+14,q+21);ctx.fillStyle=muted;ctx.font=`600 11px ${font}`;ctx.fillText(e.kind||'',colsX[col]+14,q+40);q+=8});yy[col]=q+18;col=col===0?1:0});
+ ctx.fillStyle=muted;ctx.font=`650 15px ${font}`;ctx.fillText('西春ノート  •  観戦しながら、思い出を残そう。',64,H-28);
  return c;
 }
-async function saveResultImage(id){const g=db.games.find(x=>x.id===id);if(!g)return;try{const c=resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(!blob)return toast('画像作成に失敗しました');const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`野球メモ_${g.date||'試合結果'}_${g.opponent||'相手'}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('試合結果画像を保存しました')}catch(e){toast('画像保存に失敗しました')}}
-async function shareGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return;const text=`${g.date||''} 野球メモ\n${db.team.name} ${g.scoreUs}-${g.scoreOpp} ${g.opponent||'相手校'}\n試合結果・打撃成績・試合経過を記録しました。`;try{const c=resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=blob?new File([blob],`野球メモ_${g.date||'試合結果'}.png`,{type:'image/png'}):null;if(navigator.share){if(file && (!navigator.canShare || navigator.canShare({files:[file]}))){await navigator.share({title:'野球メモ 試合結果',text,files:[file]})}else{await navigator.share({title:'野球メモ 試合結果',text})}toast('共有しました')}else{await navigator.clipboard?.writeText(text);toast('共有機能がないため、結果文をコピーしました')}}catch(e){if(e?.name!=='AbortError')toast('共有をキャンセルしました')}}
-function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="野球メモ_バックアップ.json";a.click();URL.revokeObjectURL(a.href)}
+async function saveResultImage(id){const g=db.games.find(x=>x.id===id);if(!g)return;try{const c=resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(!blob)return toast('画像作成に失敗しました');const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`西春ノート_${g.date||'試合結果'}_${g.opponent||'相手'}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('試合結果画像を保存しました')}catch(e){toast('画像保存に失敗しました')}}
+async function shareGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return;const text=`${g.date||''} 西春ノート\n${db.team.name} ${g.scoreUs}-${g.scoreOpp} ${g.opponent||'相手校'}\n試合結果・打撃成績・試合経過を記録しました。`;try{const c=resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=blob?new File([blob],`西春ノート_${g.date||'試合結果'}.png`,{type:'image/png'}):null;if(navigator.share){if(file && (!navigator.canShare || navigator.canShare({files:[file]}))){await navigator.share({title:'西春ノート 試合結果',text,files:[file]})}else{await navigator.share({title:'西春ノート 試合結果',text})}toast('共有しました')}else{await navigator.clipboard?.writeText(text);toast('共有機能がないため、結果文をコピーしました')}}catch(e){if(e?.name!=='AbortError')toast('共有をキャンセルしました')}}
+function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="西春ノート_バックアップ.json";a.click();URL.revokeObjectURL(a.href)}
 function deleteGame(id){
  const g=db.games.find(x=>x.id===id); if(!g)return;
  if(!confirm(`${g.date||''} ${g.opponent||'相手校'} の試合データを削除しますか？\nこの試合だけを削除し、チーム名簿や他の試合は残します。`))return;
