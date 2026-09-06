@@ -619,56 +619,63 @@ async function resultCanvas(g){
  const teamIcon=await loadImage('nishiharu-uniform.png');
  const W=1600, events=resultEvents(g), stats=battingStats(g), max=Math.max(1,g.innings?.length||0);
  const font='-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';
- const H=Math.min(2400,1040+Math.ceil(stats.length/10)*240+Math.ceil(events.length/12)*220);
+ const H=Math.max(1060,Math.min(1900,1080+Math.ceil(stats.length/8)*54+Math.ceil(events.length/10)*38));
  const c=document.createElement('canvas');c.width=W;c.height=H;const ctx=c.getContext('2d');
- const bg='#060a12',panel='#0d1420',panel2='#131e2d',line='#33465f',text='#f5f7fb',muted='#9aabc0',accent='#3b82f6',accent2='#79aefc';
- ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
- // 現代プロ野球の結果カードを意識した横長ヘッダー
+ const bg='#07101c',panel='#0b1830',panel2='#10233f',line='#2f5f93',text='#f7fbff',muted='#a9bdd5',accent='#1677ff',accent2='#57a8ff';
+ // SNS投稿用：西春高校の公式広報＋スポーツ速報サイトを意識した横長カード
+ const grad=ctx.createLinearGradient(0,0,W,H);grad.addColorStop(0,'#071b39');grad.addColorStop(.5,'#061020');grad.addColorStop(1,'#0b2032');ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+ // スタジアムの光を抽象表現
+ for(let i=0;i<10;i++){ctx.globalAlpha=.055;ctx.fillStyle='#7fc4ff';ctx.beginPath();ctx.arc(i*180+80,90,90,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
  ctx.fillStyle=accent;ctx.fillRect(0,0,W,12);
- ctx.fillStyle=text;ctx.textAlign='left';ctx.font=`950 42px ${font}`;ctx.fillText('西春野球ノート',64,76);
- ctx.fillStyle=muted;ctx.font=`700 18px ${font}`;ctx.fillText(`${g.date||''}  ${g.tournament||''}  ${g.stadium||''}`,64,108);
- ctx.textAlign='right';ctx.fillStyle=accent2;ctx.font=`900 18px ${font}`;ctx.fillText('試合結果',W-64,76);
- const heroY=140,heroH=245;
- ctx.fillStyle=panel;ctx.fillRect(55,heroY,W-110,heroH);ctx.strokeStyle=line;ctx.lineWidth=2;ctx.strokeRect(55,heroY,W-110,heroH);
- ctx.textAlign='center';ctx.fillStyle=muted;ctx.font=`850 17px ${font}`;ctx.fillText('FINAL',W/2,heroY+38);
- // チーム画像：ユーザー提供の西春ユニフォーム写真を使用。相手はホームベース。
- const iconSize=108;ctx.drawImage(teamIcon,W/2-445,heroY+50,iconSize,iconSize);
- const bx=W/2+337, by=heroY+61, bw=104, bh=92;
- ctx.save();ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+bw,by);ctx.lineTo(bx+bw,by+bh*0.62);ctx.lineTo(bx+bw/2,by+bh);ctx.lineTo(bx,by+bh*0.62);ctx.closePath();
- ctx.fillStyle='#eef2f7';ctx.fill();ctx.strokeStyle='#7b8798';ctx.lineWidth=3;ctx.stroke();ctx.beginPath();ctx.moveTo(bx+10,by+10);ctx.lineTo(bx+bw-10,by+10);ctx.lineTo(bx+bw-10,by+bh*0.58);ctx.lineTo(bx+bw/2,by+bh-10);ctx.lineTo(bx+10,by+bh*0.58);ctx.closePath();ctx.strokeStyle='#b7c0cc';ctx.lineWidth=2;ctx.stroke();ctx.restore();
- ctx.fillStyle=text;ctx.font=`950 30px ${font}`;ctx.fillText(db.team.name,W/2-270,heroY+92);ctx.fillText(g.opponent||'相手校',W/2+270,heroY+92);
- ctx.fillStyle=muted;ctx.font=`900 20px ${font}`;ctx.fillText('VS',W/2,heroY+92);
- ctx.fillStyle=text;ctx.font=`950 94px ${font}`;ctx.fillText(`${g.scoreUs}  -  ${g.scoreOpp}`,W/2,heroY+184);
- const result=g.scoreUs>g.scoreOpp?'勝利':g.scoreUs<g.scoreOpp?'敗戦':'引き分け';
- ctx.fillStyle=text;ctx.font=`950 18px ${font}`;ctx.fillText(result,W/2,heroY+222);
- let y=heroY+heroH+42;
+ // ヘッダー
+ ctx.textAlign='left';ctx.fillStyle=text;ctx.font=`950 54px ${font}`;ctx.fillText('西春野球ノート',54,70);
+ ctx.fillStyle=muted;ctx.font=`700 18px ${font}`;ctx.fillText('NISHIHARU BASEBALL NOTE',58,96);
+ ctx.textAlign='right';ctx.fillStyle=text;ctx.font=`800 21px ${font}`;ctx.fillText(`${g.date||''}${g.tournament?`　${g.tournament}`:''}`,W-54,57);
+ ctx.fillStyle=accent2;ctx.font=`900 19px ${font}`;ctx.fillText(g.stadium||'試合結果',W-54,88);
+ // 試合終了バッジ
+ ctx.fillStyle=accent;roundRect(ctx,W-190,112,136,42,20);ctx.fill();ctx.fillStyle=text;ctx.textAlign='center';ctx.font=`900 18px ${font}`;ctx.fillText('試合終了',W-122,140);
+ // メインスコア
+ const heroY=112,heroH=210;
+ ctx.fillStyle='rgba(7,18,35,.94)';roundRect(ctx,42,heroY,W-84,heroH,24);ctx.fill();ctx.strokeStyle='#1b78ff';ctx.lineWidth=3;ctx.stroke();
+ const result=g.scoreUs>g.scoreOpp?'西春高校が勝利':g.scoreUs<g.scoreOpp?'相手チームが勝利':'引き分け';
+ ctx.textAlign='center';ctx.fillStyle=muted;ctx.font=`900 17px ${font}`;ctx.fillText('FINAL',W/2,heroY+34);
+ ctx.fillStyle=text;ctx.font=`950 31px ${font}`;ctx.fillText(db.team.name,W/2-390,heroY+96);ctx.fillText(g.opponent||'相手チーム',W/2+390,heroY+96);
+ ctx.drawImage(teamIcon,W/2-470,heroY+48,92,120);
+ ctx.fillStyle=text;ctx.font=`950 92px ${font}`;ctx.fillText(`${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}`,W/2,heroY+145);
+ ctx.fillStyle=accent2;ctx.font=`900 19px ${font}`;ctx.fillText(result,W/2,heroY+183);
  // 得点板
- ctx.textAlign='left';ctx.fillStyle=text;ctx.font=`950 28px ${font}`;ctx.fillText('得点板',64,y);y+=22;
- const left=64,top=y,rowH=64,teamW=360,totalW=100,usable=W-left*2-teamW-totalW,cellW=Math.max(70,Math.min(105,usable/max));
- const cell=(x,yy,w,h,val,bold=false,fill=panel2)=>{ctx.fillStyle=fill;ctx.fillRect(x,yy,w,h);ctx.strokeStyle=line;ctx.lineWidth=1;ctx.strokeRect(x,yy,w,h);ctx.fillStyle=text;ctx.font=`${bold?'950':'800'} ${bold?22:21}px ${font}`;ctx.textAlign='center';ctx.fillText(String(val),x+w/2,yy+h/2+7)};
- cell(left,top,teamW,rowH,'チーム',true,'#18263a');
- for(let i=0;i<max;i++)cell(left+teamW+i*cellW,top,cellW,rowH,`${i+1}回`,true,'#18263a');
- cell(left+teamW+max*cellW,top,totalW,rowH,'R',true,'#203a60');
- [[db.team.name,'us',g.scoreUs],[g.opponent||'相手','opp',g.scoreOpp]].forEach((r,ri)=>{const yy=top+rowH*(ri+1);cell(left,yy,teamW,rowH,r[0],true,panel);for(let i=0;i<max;i++)cell(left+teamW+i*cellW,yy,cellW,rowH,Number(g.innings?.[i]?.[r[1]])||0,false,panel);cell(left+teamW+max*cellW,yy,totalW,rowH,r[2],true,'#203a60')});
- y=top+rowH*3+40;
+ let y=350;ctx.textAlign='left';ctx.fillStyle=text;ctx.font=`950 27px ${font}`;ctx.fillText('得点板',52,y);
+ const left=52,top=y+16,rowH=58,teamW=350,totalW=96,usable=W-left*2-teamW-totalW,cellW=Math.max(65,Math.min(104,usable/max));
+ function cell(x,yy,w,h,val,bold=false,fill=panel2,tc=text){ctx.fillStyle=fill;ctx.fillRect(x,yy,w,h);ctx.strokeStyle=line;ctx.lineWidth=1;ctx.strokeRect(x,yy,w,h);ctx.fillStyle=tc;ctx.font=`${bold?'950':'800'} ${bold?19:18}px ${font}`;ctx.textAlign='center';ctx.fillText(String(val),x+w/2,yy+h/2+6)}
+ cell(left,top,teamW,rowH,'チーム',true,'#16355c');
+ for(let i=0;i<max;i++)cell(left+teamW+i*cellW,top,cellW,rowH,`${i+1}`,true,'#16355c');
+ cell(left+teamW+max*cellW,top,totalW,rowH,'計',true,'#1a4d88');
+ [[db.team.name,'us',g.scoreUs],[g.opponent||'相手チーム','opp',g.scoreOpp]].forEach((r,ri)=>{const yy=top+rowH*(ri+1);cell(left,yy,teamW,rowH,r[0],true,panel);for(let i=0;i<max;i++){const n=Number(g.innings?.[i]?.[r[1]])||0;cell(left+teamW+i*cellW,yy,cellW,rowH,n,false,panel,n?text:muted)}cell(left+teamW+max*cellW,yy,totalW,rowH,r[2],true,'#1a4d88')});
+ y=top+rowH*3+38;
  // ハイライト
+ ctx.textAlign='left';ctx.fillStyle=text;ctx.font=`950 26px ${font}`;ctx.fillText('チームハイライト',52,y);y+=16;
  const totalAB=stats.reduce((a,s)=>a+s.ab,0),totalH=stats.reduce((a,s)=>a+s.h,0),totalRBI=stats.reduce((a,s)=>a+s.rbi,0);
- ctx.fillStyle=text;ctx.font=`950 28px ${font}`;ctx.textAlign='left';ctx.fillText('チームハイライト',64,y);y+=36;
- const kw=(W-128-40)/3,kh=90;[['安打',totalH],['打数',totalAB],['打点',totalRBI]].forEach((k,i)=>{const x=64+i*(kw+20);ctx.fillStyle=panel;ctx.fillRect(x,y,kw,kh);ctx.strokeStyle=line;ctx.strokeRect(x,y,kw,kh);ctx.fillStyle=muted;ctx.font=`800 15px ${font}`;ctx.fillText(k[0],x+20,y+29);ctx.fillStyle=text;ctx.font=`950 34px ${font}`;ctx.fillText(k[1],x+20,y+67)});y+=kh+42;
- // 打撃成績
- ctx.fillStyle=text;ctx.font=`950 28px ${font}`;ctx.fillText('打撃成績',64,y);y+=34;
- const cols=[['選手',300],['打席',70],['打数',70],['安打',70],['2B',70],['3B',70],['HR',70],['打点',80],['四球',70],['死球',70],['三振',70],['犠打',70],['犠飛',70],['打率',95]];
- let x=64;cols.forEach(([lab,w])=>{cell(x,y,w,44,lab,true,'#18263a');x+=w});
- stats.forEach((st,ri)=>{y+=44;x=64;const vals=[st.name,st.pa,st.ab,st.h,st.d2,st.d3,st.hr,st.rbi,st.bb,st.hbp,st.so,st.sh,st.sf,st.ab?(st.h/st.ab).toFixed(3).replace(/^0/,''):'.000'];cols.forEach(([_,w],i)=>{cell(x,y,w,44,vals[i],i===0||i===13, i===0?panel:(ri%2?panel:'#0a111b'));x+=w})});
- y+=60;
- // 試合経過：回ごとにラインを入れ、左右に配置
- ctx.fillStyle=text;ctx.font=`950 28px ${font}`;ctx.textAlign='left';ctx.fillText('試合経過',64,y);y+=38;
- const groups=[];let last=null;events.forEach(e=>{const inn=Number(e.inning)||1;if(inn!==last){groups.push({inning:inn,items:[]});last=inn}groups.at(-1).items.push(e)});
- const colsX=[64,W/2+12],colW=W/2-88; let col=0,yy=[y,y];
- groups.forEach(gr=>{if(yy[col]+58>H-90){col++;if(col>1)col=1}let q=yy[col];ctx.fillStyle=accent;ctx.fillRect(colsX[col],q,colW,4);q+=22;ctx.fillStyle=accent2;ctx.font=`950 17px ${font}`;ctx.fillText(`${gr.inning}回`,colsX[col],q);q+=10;gr.items.forEach(e=>{q+=20;ctx.fillStyle=panel;ctx.fillRect(colsX[col],q,colW,52);ctx.strokeStyle=line;ctx.strokeRect(colsX[col],q,colW,52);ctx.fillStyle=text;ctx.font=`800 15px ${font}`;let tx=`${e.half}　${e.text}`;if(tx.length>58)tx=tx.slice(0,57)+'…';ctx.fillText(tx,colsX[col]+14,q+21);ctx.fillStyle=muted;ctx.font=`600 11px ${font}`;ctx.fillText(e.kind||'',colsX[col]+14,q+40);q+=8});yy[col]=q+18;col=col===0?1:0});
- ctx.fillStyle=muted;ctx.font=`650 15px ${font}`;ctx.fillText('西春野球ノート  •  観戦しながら、思い出を残そう。',64,H-28);
+ const kw=(W-104-40)/3,kh=76;[['安打',totalH],['打数',totalAB],['打点',totalRBI]].forEach((k,i)=>{const x=52+i*(kw+20);ctx.fillStyle=panel;ctx.fillRect(x,y,kw,kh);ctx.strokeStyle=line;ctx.strokeRect(x,y,kw,kh);ctx.fillStyle=muted;ctx.font=`800 14px ${font}`;ctx.textAlign='left';ctx.fillText(k[0],x+18,y+25);ctx.fillStyle=text;ctx.font=`950 30px ${font}`;ctx.fillText(k[1],x+18,y+59)});y+=kh+32;
+ // 下段2カラム：打撃成績＋試合経過
+ const gap=22,leftX=52,colW=(W-104-gap)/2,rightX=leftX+colW+gap;
+ const titleY=y;ctx.fillStyle=text;ctx.font=`950 25px ${font}`;ctx.fillText('打撃成績',leftX,titleY);ctx.fillText('試合経過',rightX,titleY);
+ const tableY=titleY+18;
+ const cols=[['選手',190],['打席',55],['打数',55],['安打',55],['2B',50],['3B',50],['HR',50],['打点',58],['四球',55],['三振',55],['犠打',55],['犠飛',55],['打率',70]];
+ let x=leftX;cols.forEach(([lab,w])=>{cell(x,tableY,w,40,lab,true,'#16355c');x+=w});
+ let sy=tableY+40;stats.forEach((st,ri)=>{x=leftX;const vals=[st.name,st.pa,st.ab,st.h,st.d2,st.d3,st.hr,st.rbi,st.bb,st.so,st.sh,st.sf,st.ab?(st.h/st.ab).toFixed(3).replace(/^0/,''):'.000'];cols.forEach(([_,w],i)=>{cell(x,sy,w,38,vals[i],i===0||i===12,i===0?panel:(ri%2?panel:'#091522'));x+=w});sy+=38});
+ // 試合経過は右側にカード形式で表示、相手チームのアイコンは一切使用しない
+ let ey=tableY;const groups=[];let last=null;events.forEach(e=>{const inn=Number(e.inning)||1;if(inn!==last){groups.push({inning:inn,items:[]});last=inn;}groups[groups.length-1].items.push(e)});
+ groups.forEach(gr=>{ctx.fillStyle=accent;ctx.fillRect(rightX,ey,colW,4);ey+=18;ctx.fillStyle=accent2;ctx.font=`950 16px ${font}`;ctx.textAlign='left';ctx.fillText(`${gr.inning}回`,rightX+10,ey);ey+=7;gr.items.forEach(e=>{ey+=8;ctx.fillStyle=panel;roundRect(ctx,rightX,ey,colW,43,8);ctx.fill();ctx.strokeStyle=line;ctx.stroke();let tx=`${e.half}　${e.text}`;if(tx.length>42)tx=tx.slice(0,41)+'…';ctx.fillStyle=text;ctx.font=`800 13px ${font}`;ctx.fillText(tx,rightX+11,ey+18);ctx.fillStyle=muted;ctx.font=`600 10px ${font}`;ctx.fillText(e.kind||'',rightX+11,ey+34);ey+=43;});ey+=9;});
+ // フッター：公式感を出す
+ const fy=Math.max(sy,ey)+28;ctx.fillStyle='#0b2442';ctx.fillRect(0,fy,W,H-fy);
+ ctx.fillStyle=accent;ctx.fillRect(0,fy,W,5);
+ ctx.textAlign='left';ctx.fillStyle=text;ctx.font=`950 31px ${font}`;ctx.fillText('西春、つなぐ想い、勝利へ。',52,fy+48);
+ ctx.textAlign='center';ctx.font=`950 43px ${font}`;ctx.fillText('西春高校',W/2,fy+52);
+ ctx.textAlign='right';ctx.fillStyle=muted;ctx.font=`800 15px ${font}`;ctx.fillText('NISHIHARU HIGH SCHOOL',W-52,fy+48);
+ ctx.textAlign='left';ctx.fillStyle=muted;ctx.font=`650 13px ${font}`;ctx.fillText('西春野球ノート  •  観戦しながら、思い出を残そう。',52,H-18);
  return c;
 }
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
 async function saveResultImage(id){const g=db.games.find(x=>x.id===id);if(!g)return;try{const c=await resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(!blob)return toast('画像作成に失敗しました');const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`西春野球ノート_${g.date||'試合結果'}_${g.opponent||'相手'}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('試合結果画像を保存しました')}catch(e){toast('画像保存に失敗しました')}}
 async function shareGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return;const text=`${g.date||''} 西春野球ノート\n${db.team.name} ${g.scoreUs}-${g.scoreOpp} ${g.opponent||'相手校'}\n試合結果・打撃成績・試合経過を記録しました。`;try{const c=await resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=blob?new File([blob],`西春野球ノート_${g.date||'試合結果'}.png`,{type:'image/png'}):null;if(navigator.share){if(file && (!navigator.canShare || navigator.canShare({files:[file]}))){await navigator.share({title:'西春野球ノート 試合結果',text,files:[file]})}else{await navigator.share({title:'西春野球ノート 試合結果',text})}toast('共有しました')}else{await navigator.clipboard?.writeText(text);toast('共有機能がないため、結果文をコピーしました')}}catch(e){if(e?.name!=='AbortError')toast('共有をキャンセルしました')}}
 function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="西春野球ノート_バックアップ.json";a.click();URL.revokeObjectURL(a.href)}

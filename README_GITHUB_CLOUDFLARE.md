@@ -1,4 +1,4 @@
-# 野球メモ v1.4 — GitHub + Cloudflare Pages 本番公開
+# 西春野球ノート v2.21 — GitHub + Cloudflare Pages
 
 ## 1. GitHub
 1. GitHubで新規Repositoryを作成（例: `baseball-memo`）。
