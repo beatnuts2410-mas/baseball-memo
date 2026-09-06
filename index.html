@@ -70,9 +70,10 @@ button,input,select{font:inherit}button{border:0;color:inherit;cursor:pointer}.a
 </div>
 <script>
 const KEY="baseball_memo_v3";
-const sampleNames=["田中大輔","佐藤翔","山田蓮","鈴木健","高橋悠","伊藤駿","渡辺直","小林海","加藤翼","中村颯","吉田陸","山口航","松本樹","井上拓","木村優","林大地","清水蓮","森川亮"];
+const sampleNames=["糸谷　宗哲","鬼頭　悠叶","木本　憲伸","沓名　悠","櫻井　雄太","千田　隼平","玉井　凛太郎","福井　孝太","藤井　翼","藤田　虎汰朗","松岡　凌太","池戸　十磨","岡田　淳平","片桐　謙斗","小林　登和","近藤　千隼","志村　凌","杉村　和樹","中武　結仁","林　奏斗","松久　英慈","山田　悠太"];
+const sampleManagers=["土本　夏美","玉沢　愛菜","篠原　沙羽"];
 let db=JSON.parse(localStorage.getItem(KEY)||"null")||{
-team:{name:"青葉高校",players:sampleNames.map((name,i)=>({name,num:i+1}))},
+team:{name:"西春高校",players:[...sampleNames.map((name,i)=>({name,num:i+1,role:"player"})),...sampleManagers.map(name=>({name,num:"",role:"manager"}))]},
 games:[],
 current:null,
 lastLineup:[]
@@ -91,7 +92,7 @@ function newGame(order='先攻',opts={}){
  const half=opts.half || '表';
  const outs=Math.min(2,Math.max(0,Number(opts.outs)||0));
  const scoreUs=Math.max(0,Number(opts.scoreUs)||0), scoreOpp=Math.max(0,Number(opts.scoreOpp)||0);
- db.current={id:Date.now(),date:ds,tournament:'',stadium:'',opponent:opts.opponent||'桜ヶ丘高校',innings:opts.initialInnings||[],pa:[],lineup:[],batterIndex:Math.min(8,Math.max(0,Number(opts.batterIndex)||0)),scoreUs,scoreOpp,inning,half,order:o,outs,runners:[0,0,0],runnerNames:[null,null,null],finished:false,pitcher:null,dh:null,subs:[],startedLate:!!opts.startedLate,eventSeq:0};
+ db.current={id:Date.now(),date:ds,tournament:'',stadium:'',opponent:opts.opponent||'桜ヶ丘高校',innings:opts.initialInnings||[],pa:[],lineup:[],batterIndex:Math.min(8,Math.max(0,Number(opts.batterIndex)||0)),scoreUs,scoreOpp,inning,half,order:o,outs,runners:[0,0,0],runnerNames:[null,null,null],finished:false,pitcher:null,dh:null,subs:[],pitching:{current:null,history:[]},startedLate:!!opts.startedLate,eventSeq:0};
  gameHistory=[]; save(); render();
 }
 function startNewGame(order){newGame(order);toast(order==='先攻'?'先攻で試合を開始':'後攻で試合を開始')}
@@ -227,9 +228,27 @@ function applyDefensiveSub(){
  if(!before)return toast('交代対象を選択してください'); if(!replacement)return toast('交代選手を選択してください');
  if(before.name===replacement.name)return toast('同じ選手です');
  pushGameHistory();g.subs=g.subs||[];g.subs.push({time:new Date().toISOString(),type:'守備交代',slot:idx,position:before.pos||'',from:before,to:replacement,defenseOnly:true});
+ if(g.pitching?.current?.name===before.name){registerPitcher(g,replacement.name,'投手交代',before.name);}
  g.lineup[idx]=Object.assign({},replacement,{pos:before.pos||''});
  save();closeDefensiveSub();render();toast(`守備交代：${before.pos||'守備'} ${replacement.name}`);
 }
+function ensurePitching(g){
+ if(!g)return; g.pitching=g.pitching||{current:null,history:[]}; g.pitching.history=g.pitching.history||[];
+ if(g.pitcher?.name&&!g.pitching.current){const rec={name:g.pitcher.name,enteredInning:g.inning,enteredHalf:g.half,outs:0,started:true,changedAt:null};g.pitching.history.push(rec);g.pitching.current=rec;}
+}
+function registerPitcher(g,name,type='投手交代',fromName=''){
+ if(!g||!name)return false; ensurePitching(g); const cur=g.pitching.current; if(cur?.name===name)return false; if(cur)cur.changedAt=new Date().toISOString();
+ const seq=(Number(g.eventSeq)||0)+1;g.eventSeq=seq; const rec={name,enteredInning:g.inning,enteredHalf:g.half,outs:0,started:type==='先発',changedAt:null,seq}; g.pitching.history.push(rec);g.pitching.current=rec; g.pitcher=db.team.players.find(p=>p.name===name)||{name};
+ g.pitching.lastChange={seq,time:new Date().toISOString(),type,inning:g.inning,half:g.half,from:fromName||cur?.name||'',to:name}; return true;
+}
+function addPitcherOut(g){ensurePitching(g);if(g.pitching.current)g.pitching.current.outs=(Number(g.pitching.current.outs)||0)+1;}
+function pitcherInningsText(rec){const outs=Math.max(0,Number(rec?.outs)||0);const rem=outs%3;return `${Math.floor(outs/3)}回${rem?rem+'/3':''}`;}
+function changePitcher(){
+ const g=db.current;if(!g)return;ensurePitching(g);const current=g.pitching.current?.name||g.pitcher?.name||'';const roster=(db.team.players||[]).filter(p=>p.role!=='manager');
+ const html=`<div class="subPanel" id="pitcherQuickModal" style="display:flex" onclick="if(event.target===this)document.getElementById('pitcherQuickModal').remove()"><div class="subCard"><div class="title">投手交代</div><div class="muted">現在：${esc(current||'未登録')}</div><select id="pitcherQuickSelect" class="subSelect">${roster.map(p=>`<option value="${esc(p.name)}" ${p.name===current?'selected':''}>${esc(p.name)}${p.num?' #'+p.num:''}</option>`).join('')}</select><div class="subActions"><button class="btn" onclick="document.getElementById('pitcherQuickModal').remove()">キャンセル</button><button class="btn primary" onclick="applyPitcherChange()">投手交代</button></div></div></div>`;
+ document.body.insertAdjacentHTML('beforeend',html);
+}
+function applyPitcherChange(){const g=db.current,name=document.getElementById('pitcherQuickSelect')?.value;if(!g||!name)return;ensurePitching(g);const from=g.pitching.current?.name||g.pitcher?.name||'';if(from===name)return toast('同じ投手です');pushGameHistory();registerPitcher(g,name,'投手交代',from);save();document.getElementById('pitcherQuickModal')?.remove();render();toast(`投手交代：${from||'未登録'} → ${name}`);}
 function recordView(){
  if(!db.current)return setupView();
  let g=db.current;
@@ -249,7 +268,7 @@ function recordView(){
  <div class="card"><div class="row between"><div class="title" style="margin:0">今日の試合経過</div><button class="btn small" onclick="finishGame()">試合終了</button></div><div class="history">${g.pa.slice(-8).reverse().map((x,i)=>{const isLast=i===0;return `<div class="hist"><div class="row between"><div><b>${x.inning}回${x.half}</b>　${esc(x.batter)} <span class="muted">→</span> ${esc(x.result)}${x.runs?` <span class="badge">${x.runs}点</span>`:''}</div>${`<button class="editBtn" onclick="restartFromPA(${g.pa.length-1-i})">✎ この打席から修正</button>`}</div></div>`}).join('')||`<div class="empty">まだ記録がありません</div>`}</div></div>`;
 }
 function lateBatterView(g){
- const slot=g.batterIndex%9; const used=new Set((g.lineup||[]).map(p=>p?.name)); const opts=db.team.players.filter(p=>!used.has(p.name)).map(p=>`<option value="${esc(p.name)}">${esc(p.name)}${p.num?' #'+p.num:''}</option>`).join('');
+ const slot=g.batterIndex%9; const used=new Set((g.lineup||[]).map(p=>p?.name)); const opts=db.team.players.filter(p=>p.role!=='manager'&&!used.has(p.name)).map(p=>`<option value="${esc(p.name)}">${esc(p.name)}${p.num?' #'+p.num:''}</option>`).join('');
  return gameHeader()+`<div class="card current"><div class="title">途中開始：${slot+1}番打者を登録</div><p class="muted">試合途中で入った場合は、分かる打順から1人ずつ登録できます。打者一巡（9人）が揃ったら打順を確定できます。</p><select id="lateBatterSelect" class="select"><option value="">${slot+1}番の選手を選択</option>${opts}</select><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveLateBatter()">この打者を登録</button></div><div class="card"><div class="title">現在の打順</div>${Array.from({length:9},(_,i)=>`<div class="row between" style="padding:8px 0;border-bottom:1px solid #243248"><span>${i+1}番</span><b>${esc(g.lineup[i]?.name||'未登録')}</b></div>`).join('')}</div>`;
 }
 function saveLateBatter(){
@@ -258,12 +277,12 @@ function saveLateBatter(){
 function opponentView(){
  let g=db.current;
  let x=g.innings[g.inning-1]||{us:0,opp:0};
- return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">現在：${g.inning}回${g.half}・相手チーム攻撃</div><div style="font-size:26px;font-weight:900;margin:8px 0">相手は何点入りましたか？</div><div class="hint">得点を選ぶと、その回の相手攻撃を終了して自チームの攻撃へ切り替わります。</div><div class="grid2"><button class="btn" onclick="setOppRuns(-1)">−</button><div class="input" style="text-align:center;font-weight:900;font-size:24px">${x.opp||0} 点</div></div><div class="row" style="flex-wrap:wrap;margin-top:10px">${[0,1,2,3,4,5,6,7,8,9].map(n=>`<button class="btn ${x.opp===n?'primary':''}" onclick="setOppRuns(${n})">${n}</button>`).join('')}</div><div class="title" style="margin-top:16px">相手のアウト</div><div class="row"><button class="btn" onclick="oppOut()">アウト＋1</button><span class="badge">${g.outs} / 3</span><button class="btn small" onclick="adjustOuts()">✎ アウト修正</button></div><div class="hint" style="margin-top:8px">3アウトになると自動で次の攻撃へ切り替わります。</div><button class="btn" style="width:100%;margin-top:10px" onclick="openDefensiveSub()">🧤 自チームの守備交代</button></div>
+ return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">現在：${g.inning}回${g.half}・相手チーム攻撃</div><div style="font-size:26px;font-weight:900;margin:8px 0">相手は何点入りましたか？</div><div class="hint">得点を選ぶと、その回の相手攻撃を終了して自チームの攻撃へ切り替わります。</div><div class="grid2"><button class="btn" onclick="setOppRuns(-1)">−</button><div class="input" style="text-align:center;font-weight:900;font-size:24px">${x.opp||0} 点</div></div><div class="row" style="flex-wrap:wrap;margin-top:10px">${[0,1,2,3,4,5,6,7,8,9].map(n=>`<button class="btn ${x.opp===n?'primary':''}" onclick="setOppRuns(${n})">${n}</button>`).join('')}</div><div class="title" style="margin-top:16px">相手のアウト</div><div class="row"><button class="btn" onclick="oppOut()">アウト＋1</button><span class="badge">${g.outs} / 3</span><button class="btn small" onclick="adjustOuts()">✎ アウト修正</button></div><div class="hint" style="margin-top:8px">3アウトになると自動で次の攻撃へ切り替わります。</div><div class="card" style="margin-top:10px;margin-bottom:0;background:#0b1422"><div class="row between"><div><div class="title" style="margin:0">投手</div><div class="muted">${esc(g.pitching?.current?.name||g.pitcher?.name||'未登録')}　投球回 ${pitcherInningsText(g.pitching?.current||{})}</div></div><button class="btn small primary" onclick="changePitcher()">投手交代</button></div></div><button class="btn" style="width:100%;margin-top:10px" onclick="openDefensiveSub()">🧤 自チームの守備交代</button></div>
  <div class="card"><div class="title">イニングスコア</div>${scoreTable(g)}</div>`;
 }
 function setOppRuns(n){const g=db.current;if(!g)return;pushGameHistory();ensureInning(g,g.inning-1);const x=g.innings[g.inning-1];x.opp=Math.max(0,Number(n)||0);g.scoreOpp=g.innings.reduce((a,v)=>a+(Number(v.opp)||0),0);advanceHalf(g);save();render();toast(`${g.inning}回${g.half}へ`)}
 function oppOut(){
- const g=db.current;if(!g)return;pushGameHistory();g.outs=(Number(g.outs)||0)+1;
+ const g=db.current;if(!g)return;pushGameHistory();g.outs=(Number(g.outs)||0)+1;addPitcherOut(g);
  if(endHalfOnThreeOuts(g)){save();render();toast(`${g.inning}回${g.half}へ`);return;}
  save();render();
 }
@@ -464,30 +483,21 @@ function applyRunnerCorrection(){
 }
 function toggleRunner(i){ensureGame();pushGameHistory();const g=db.current;g.runners[i]=g.runners[i]?0:1;g.runnerNames[i]=g.runners[i]?(g.runnerNames[i]||'走者'):null;save();render()}
 function teamView(){
- const rosterText=db.team.players.map(p=>p.num?`${p.num} ${p.name}`:p.name).join("\n");
+ const rosterText='西春高校\n\n'+db.team.players.filter(p=>p.role!=='manager').map(p=>p.num?`${p.num} ${p.name}`:p.name).join('\n')+'\n\nマネージャー\n'+db.team.players.filter(p=>p.role==='manager').map(p=>p.name).join('\n');
  return `<div class="card"><div class="title">チーム登録</div><div class="grid2"><input id="teamName" class="input" value="${esc(db.team.name)}" placeholder="チーム名"><button class="btn primary" onclick="setTeam()">チーム名を保存</button></div></div>
  <div class="card"><div class="title">選手名簿をまとめて登録</div><div class="muted" style="margin-bottom:10px">1人ずつ入力する必要はありません。スマホのメモ・ノートから貼り付けるか、.txtファイルを読み込めます。</div>
  <div class="rosterImportGrid">
   <div class="rosterBox"><div class="rosterBoxTitle">✍️ 直接入力・貼り付け</div><textarea id="rosterBulkText" class="rosterTextarea" placeholder="例\n1 田中大輔\n2 佐藤翔\n3 山田蓮\n\n背番号なしなら\n田中大輔\n佐藤翔">${esc(rosterText)}</textarea><button class="btn primary" style="width:100%;margin-top:8px" onclick="importRosterText()">この内容で名簿を登録</button></div>
   <div class="rosterBox"><div class="rosterBoxTitle">📄 .txtから読み込む</div><label class="fileBtn" for="rosterTxtFile">📱 メモ・ノートのTXTを選択</label><input id="rosterTxtFile" class="fileInput" type="file" accept=".txt,text/plain" onchange="importRosterFile(this)"><div class="importHelp">1行に1選手。<br>「1 田中大輔」「#1 田中大輔」「田中大輔」のどれでもOKです。<br>読み込んだ内容は登録前に確認できます。</div><div id="rosterFilePreview" class="rosterPreview"></div></div>
  </div></div>
- <div class="card"><div class="row between"><div class="title">現在の選手名簿（${db.team.players.length}人）</div><button class="btn small" onclick="addPlayer()">＋ 1人追加</button></div>
- <div class="history">${db.team.players.map((p,i)=>`<div class="hist row between"><div><b>${p.num?`#${p.num} `:""}${esc(p.name)}</b></div><button class="btn small red" onclick="delPlayer(${i})">削除</button></div>`).join("")}</div></div>
+ <div class="card"><div class="row between"><div class="title">現在のチーム登録（${db.team.players.length}人）</div><button class="btn small" onclick="addPlayer()">＋ 1人追加</button></div><div class="muted" style="margin:4px 0 8px">選手 ${db.team.players.filter(p=>p.role!=="manager").length}人　／　マネージャー ${db.team.players.filter(p=>p.role==="manager").length}人</div><div class="history">${db.team.players.map((p,i)=>`<div class="hist row between"><div><b>${p.role==='manager'?'🧢 ':''}${p.num?`#${p.num} `:""}${esc(p.name)}</b><div class="muted">${p.role==='manager'?'マネージャー':'選手'}</div></div><button class="btn small red" onclick="delPlayer(${i})">削除</button></div>`).join("")}</div></div>
  <div class="card"><div class="title">登録ルール</div><p class="muted">チーム名は直接入力して保存。選手名はまとめて貼り付け・TXT読み込みができます。登録した名簿は試合ごとのオーダー選択にそのまま使えます。</p></div>`;
 }
 function setTeam(){db.team.name=document.getElementById("teamName").value.trim()||"自校";save();render();toast("チーム名を保存しました")}
 function parseRosterText(text){
  const lines=String(text||"").replace(/^\uFEFF/,"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
- const players=[]; const seen=new Set();
- for(const raw of lines){
-  let line=raw.replace(/^[-*・、]+\s*/,"").trim();
-  let num="",name=line;
-  let m=line.match(/^#?(\d{1,3})[\s,、:：\-]+(.+)$/);
-  if(m){num=m[1];name=m[2].trim()}
-  name=name.replace(/^#?\d{1,3}[\s]+/,"").trim();
-  if(!name||seen.has(name))continue;
-  seen.add(name); players.push({name,num});
- }
+ const players=[];const seen=new Set();let role='player';
+ for(const raw of lines){let line=raw.replace(/^[-*・、]+\s*/,"").trim();if(!line)continue;if(/^マネージャー$/.test(line)){role='manager';continue}if(/^選手$/.test(line)||/^西春高校$/.test(line)||/^チームメンバー$/.test(line))continue;let num="",name=line;const m=line.match(/^#?(\d{1,3})[\s,、:：\-]+(.+)$/);if(m){num=m[1];name=m[2].trim()}name=name.replace(/^#?\d{1,3}[\s]+/,"").trim();if(!name||seen.has(name))continue;seen.add(name);players.push({name,num,role});}
  return players;
 }
 function importRosterText(){
@@ -506,12 +516,12 @@ async function importRosterFile(input){
   db.team.players=players; db.lastLineup=[]; save(); render(); toast(`${players.length}人を登録しました`);
  }catch(e){toast("TXTファイルの読み込みに失敗しました")}
 }
-function addPlayer(){let name=prompt("選手名を入力");if(!name)return;let num=prompt("背番号（任意）")||"";db.team.players.push({name:name.trim(),num:num.trim()});save();render()}
+function addPlayer(){let name=prompt("名前を入力");if(!name)return;let role=confirm("マネージャーとして登録しますか？\nOK＝マネージャー / キャンセル＝選手")?"manager":"player";let num=role==="player"?(prompt("背番号（任意）")||""):"";db.team.players.push({name:name.trim(),num:num.trim(),role});save();render()}
 function delPlayer(i){if(!confirm("この選手を名簿から削除しますか？"))return;db.team.players.splice(i,1);save();render()}
 function lineupView(){
  ensureGame();let g=db.current;
- if(db.team.players.length<9)return `<div class="card"><div class="title">選手を9人以上登録してください</div><button class="btn" onclick="tab='team';render()">チーム登録へ</button></div>`;
- let opts=db.team.players.map(p=>`<option value="${esc(p.name)}">${esc(p.name)}</option>`).join('');
+ const activePlayers=db.team.players.filter(p=>p.role!=='manager'); if(activePlayers.length<9)return `<div class="card"><div class="title">選手を9人以上登録してください</div><button class="btn" onclick="tab='team';render()">チーム登録へ</button></div>`;
+ let opts=activePlayers.map(p=>`<option value="${esc(p.name)}">${esc(p.name)}</option>`).join('');
  let rows='';
  for(let i=0;i<9;i++){
    let v=g.lineup[i]?.name||db.lastLineup[i]?.name||db.team.players[i]?.name||'';
@@ -533,7 +543,7 @@ function saveLineup(){
  if(dh && arr.includes(dh)===false)return toast('DHは1〜9番の打順に入れてください');
  if(dh && pitcher===dh)return toast('DHと投手は別の選手にしてください');
  g.lineup=arr.map((n,i)=>Object.assign({},db.team.players.find(p=>p.name===n)||{name:n},{pos:poss[i]||''}));g.pitcher=pitcher?db.team.players.find(p=>p.name===pitcher):null;g.dh=dh?db.team.players.find(p=>p.name===dh):null;
- g.innings=g.innings||[];g.lastLineup=g.lineup;db.lastLineup=g.lineup;save();tab='record';render();toast('オーダーを確定しました')
+ g.innings=g.innings||[];g.lastLineup=g.lineup;db.lastLineup=g.lineup;g.pitching={current:null,history:[]};if(g.pitcher?.name)registerPitcher(g,g.pitcher.name,'先発');save();tab='record';render();toast('オーダーを確定しました')
 }
 function finishGame(){
  let g=db.current;if(!g)return;
@@ -577,7 +587,7 @@ function battingStats(g){
  return Object.values(stats);
 }
 function resultEvents(g){
- const events=[...(g.pa||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.batter} → ${x.result}${x.runs?`・${x.runs}点`:''}`,kind:'打席'})),...(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.type}${x.judgement?`・${x.judgement}`:''}：${x.name||'走者'}${x.dest===4?' → 本塁・得点':x.dest?` → ${x.dest}塁`:''}${x.runs?`・${x.runs}点`:''}`,kind:'走者'}))];
+ const events=[...(g.pa||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.batter} → ${x.result}${x.runs?`・${x.runs}点`:''}`,kind:'打席'})),...(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.type}${x.judgement?`・${x.judgement}`:''}：${x.name||'走者'}${x.dest===4?' → 本塁・得点':x.dest?` → ${x.dest}塁`:''}${x.runs?`・${x.runs}点`:''}`,kind:'走者'})),...((g.pitching?.history||[]).filter((x,i)=>i>0).map(x=>({seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`投手交代：${x.name}`,kind:'投手'})))];
  events.sort((a,b)=>a.seq-b.seq || a.inning-b.inning || (a.half==='表'?0:1)-(b.half==='表'?0:1));
  return events;
 }
@@ -589,7 +599,7 @@ function renderGameResult(g){
  const win=g.scoreUs>g.scoreOpp?'勝利':g.scoreUs<g.scoreOpp?'敗戦':'引き分け';
  const stats=battingStats(g),events=resultEvents(g);
  const batting=stats.length?`<div class="resultStatsWrap"><table class="resultStatsTable"><thead><tr><th>選手</th><th>打席</th><th>打数</th><th>安打</th><th>二塁打</th><th>三塁打</th><th>本塁打</th><th>打点</th><th>四球</th><th>死球</th><th>三振</th><th>犠打</th><th>犠飛</th><th>打率</th></tr></thead><tbody>${stats.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.pa}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.d2}</td><td>${s.d3}</td><td>${s.hr}</td><td>${s.rbi}</td><td>${s.bb}</td><td>${s.hbp}</td><td>${s.so}</td><td>${s.sh}</td><td>${s.sf}</td><td class="avg">${s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">打席記録はありません</div>`;
- const max=Math.max(1,g.innings?.length||0);
+ const pitchingHtml=(g.pitching?.history||[]).length?`<div class="resultStatsWrap"><table class="resultStatsTable"><thead><tr><th>投手</th><th>登板</th><th>投球回</th><th>登板開始</th></tr></thead><tbody>${(g.pitching.history||[]).map((p,i)=>`<tr><td>${esc(p.name)}</td><td>${i===0?'先発':'途中登板'}</td><td>${pitcherInningsText(p)}</td><td>${p.enteredInning}回${p.enteredHalf}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">投手記録はありません</div>`; const max=Math.max(1,g.innings?.length||0);
  const board=`<div class="stadiumBoard"><table><thead><tr><th>チーム</th>${Array.from({length:max},(_,i)=>`<th>${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody><tr><th>${esc(db.team.name)}</th>${Array.from({length:max},(_,i)=>{const n=Number(g.innings?.[i]?.us)||0;return `<td class="${n===0?'zero':''}">${n}</td>`}).join('')}<td class="total">${Number(g.scoreUs)||0}</td></tr><tr><th>${esc(g.opponent||'相手')}</th>${Array.from({length:max},(_,i)=>{const n=Number(g.innings?.[i]?.opp)||0;return `<td class="${n===0?'zero':''}">${n}</td>`}).join('')}<td class="total">${Number(g.scoreOpp)||0}</td></tr></tbody></table></div>`;
  let eventHtml='';
  if(events.length){
@@ -603,7 +613,7 @@ function renderGameResult(g){
  const sportsBoard=`<div class="sportsBoard"><table><thead><tr><th>チーム</th>${Array.from({length:maxInning},(_,i)=>`<th>${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody><tr><th>${esc(db.team.name)}</th>${Array.from({length:maxInning},(_,i)=>`<td>${Number(g.innings?.[i]?.us)||0}</td>`).join('')}<td class="total">${Number(g.scoreUs)||0}</td></tr><tr><th>${esc(g.opponent||'相手校')}</th>${Array.from({length:maxInning},(_,i)=>`<td>${Number(g.innings?.[i]?.opp)||0}</td>`).join('')}<td class="total">${Number(g.scoreOpp)||0}</td></tr></tbody></table></div>`;
  return `<div id="gameResultView"><div class="resultHero sportsResultHero"><div class="sportsHeroTop"><span>試合結果</span><span>${esc(g.date||'')}　${esc(g.tournament||'')}</span></div><div class="sportsMatch"><div class="sportsTeam"><img class="sportsTeamLogo nishiharuUniform" src="nishiharu-uniform.png" alt="西春高校ユニフォーム"><div class="sportsTeamName">${esc(db.team.name)}</div><div class="sportsTeamLabel">自チーム</div></div><div class="sportsCenter"><div class="sportsStatus">FINAL</div><div class="sportsMainScore">${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}</div><span class="sportsResultBadge ${resultClass}">${win}</span><div class="sportsMiniInfo"><span>${g.innings?.length||1}回制</span><span>得点 ${Number(g.scoreUs)||0}</span><span>打撃記録 ${stats.length}人</span></div></div><div class="sportsTeam"><div class="sportsHomePlate" aria-label="相手チーム ホームベース"></div><div class="sportsTeamName">${esc(g.opponent||'相手校')}</div><div class="sportsTeamLabel">相手</div></div></div>${sportsBoard}<div class="sportsFooter"><span>${esc(g.stadium||'')}</span><span>${g.finishedAt?new Date(g.finishedAt).toLocaleString('ja-JP'):''}</span></div></div>
  <div class="card"><div class="title">結果を保存・共有</div><div class="resultTools"><button class="resultTool primary" onclick="saveResultImage(${g.id})">📷 写真として保存</button><button class="resultTool" onclick="shareGameResult(${g.id})">📤 SNS・共有</button></div><p class="shareNote">保存する写真も、球場の得点板をイメージした見やすいレイアウトになります。</p><div class="shareVisual"><div class="shareStep"><span class="shareIcon">①📷</span><b>写真として保存</b><span>結果画像をスマホに保存</span></div><div class="shareStep"><span class="shareIcon">②📤</span><b>共有ボタン</b><span>「SNS・共有」をタップ</span></div><div class="shareStep"><span class="shareIcon">③📱</span><b>送信先を選択</b><span>LINE・SNSなど</span></div></div></div>
- <div class="card"><div class="title">打撃成績</div>${batting}</div>
+ <div class="card"><div class="title">投手記録・登板履歴</div>${pitchingHtml}</div><div class="card"><div class="title">打撃成績</div>${batting}</div>
  <div class="card"><div class="title">試合経過・全記録</div><div class="eventList">${eventHtml}</div></div>
  <button class="btn resultBack" onclick="resultGameId=null;render()">← 試合データへ戻る</button></div>`;
 }
@@ -619,7 +629,7 @@ async function resultCanvas(g){
  const teamIcon=await loadImage('nishiharu-uniform.png');
  const W=1600, events=resultEvents(g), stats=battingStats(g), max=Math.max(1,g.innings?.length||0);
  const font='-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';
- const H=Math.min(2400,1040+Math.ceil(stats.length/10)*240+Math.ceil(events.length/12)*220);
+ const H=Math.min(2400,1040+Math.ceil(stats.length/10)*240+Math.ceil(events.length/12)*220+(g.pitching?.history?.length?180+(g.pitching.history.length-1)*60:0));
  const c=document.createElement('canvas');c.width=W;c.height=H;const ctx=c.getContext('2d');
  const bg='#060a12',panel='#0d1420',panel2='#131e2d',line='#33465f',text='#f5f7fb',muted='#9aabc0',accent='#3b82f6',accent2='#79aefc';
  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
@@ -659,6 +669,14 @@ async function resultCanvas(g){
  const totalAB=stats.reduce((a,s)=>a+s.ab,0),totalH=stats.reduce((a,s)=>a+s.h,0),totalRBI=stats.reduce((a,s)=>a+s.rbi,0);
  ctx.fillStyle=text;ctx.font=`950 28px ${font}`;ctx.textAlign='left';ctx.fillText('チームハイライト',64,y);y+=36;
  const kw=(W-128-40)/3,kh=90;[['安打',totalH],['打数',totalAB],['打点',totalRBI]].forEach((k,i)=>{const x=64+i*(kw+20);ctx.fillStyle=panel;ctx.fillRect(x,y,kw,kh);ctx.strokeStyle=line;ctx.strokeRect(x,y,kw,kh);ctx.fillStyle=muted;ctx.font=`800 15px ${font}`;ctx.fillText(k[0],x+20,y+29);ctx.fillStyle=text;ctx.font=`950 34px ${font}`;ctx.fillText(k[1],x+20,y+67)});y+=kh+42;
+ // 投手記録
+ const pitchHist=g.pitching?.history||[];
+ if(pitchHist.length){
+   ctx.fillStyle=text;ctx.font=`950 28px ${font}`;ctx.fillText('投手記録',64,y);y+=34;
+   const pc=[['投手',360],['登板',110],['投球回',150],['登板開始',180]];let px=64;pc.forEach(([lab,w])=>{cell(px,y,w,44,lab,true,'#18263a');px+=w});
+   pitchHist.forEach((pp,ri)=>{y+=44;px=64;const vals=[pp.name,ri===0?'先発':'途中登板',pitcherInningsText(pp),`${pp.enteredInning}回${pp.enteredHalf}`];pc.forEach(([_,w],i)=>{cell(px,y,w,44,vals[i],i===0,panel);px+=w})});
+   y+=52;
+ }
  // 打撃成績
  ctx.fillStyle=text;ctx.font=`950 28px ${font}`;ctx.fillText('打撃成績',64,y);y+=34;
  const cols=[['選手',300],['打席',70],['打数',70],['安打',70],['2B',70],['3B',70],['HR',70],['打点',80],['四球',70],['死球',70],['三振',70],['犠打',70],['犠飛',70],['打率',95]];
@@ -710,7 +728,7 @@ function openInGameSub(){let g=db.current;if(!g||!g.lineup.length)return;inGameS
 function closeInGameSub(){document.getElementById('inGameSubModal').style.display='none';inGameSubSlot=null}
 function setSubType(t){inGameSubType=t;['PH','PR','DF'].forEach(x=>document.getElementById('subType'+x)?.classList.remove('active'));let id=t==='代打'?'PH':t==='代走'?'PR':'DF';document.getElementById('subType'+id)?.classList.add('active');refreshSubReplacement()}
 function refreshSubReplacement(){let sel=document.getElementById('subReplacement');if(!sel||!db.current)return;let active=new Set((db.current.lineup||[]).map(p=>p?.name));let roster=(db.team.players||[]).filter(p=>!active.has(p.name));sel.innerHTML=roster.map(p=>`<option value="${esc(p.name)}">${esc(p.name)}${p.num?' #'+p.num:''}</option>`).join('')}
-function applyInGameSub(){let g=db.current;if(!g||inGameSubSlot==null)return;let name=document.getElementById('subReplacement').value,replacement=db.team.players.find(p=>p.name===name);if(!replacement)return;let before=g.lineup[inGameSubSlot];g.subs=g.subs||[];g.subs.push({time:new Date().toISOString(),type:inGameSubType,slot:inGameSubSlot,from:before,to:replacement});g.lineup[inGameSubSlot]=Object.assign({},replacement,{pos:before?.pos||''});save();closeInGameSub();render();toast(`${inGameSubType}：${replacement.name}`)}
+function applyInGameSub(){let g=db.current;if(!g||inGameSubSlot==null)return;let name=document.getElementById('subReplacement').value,replacement=db.team.players.find(p=>p.name===name);if(!replacement)return;let before=g.lineup[inGameSubSlot];g.subs=g.subs||[];g.subs.push({time:new Date().toISOString(),type:inGameSubType,slot:inGameSubSlot,from:before,to:replacement});if(g.pitching?.current?.name===before?.name){registerPitcher(g,replacement.name,'投手交代',before.name);}g.lineup[inGameSubSlot]=Object.assign({},replacement,{pos:before?.pos||''});save();closeInGameSub();render();toast(`${inGameSubType}：${replacement.name}`)}
 
 let gameOrder = '先攻';
 
