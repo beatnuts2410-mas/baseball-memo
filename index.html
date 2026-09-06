@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="application-name" content="西春ノート">
+<meta name="application-name" content="西春野球ノート">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="西春ノート">
+<meta name="apple-mobile-web-app-title" content="西春野球ノート">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>西春ノート</title>
+<title>西春野球ノート</title>
 <style>
 :root{--bg:#080d16;--panel:#111a28;--panel2:#172234;--line:#26364d;--text:#f5f7fb;--muted:#9aa8bb;--blue:#3b82f6;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#07101c,#0b1220 45%,#07101a);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
@@ -55,7 +55,7 @@ button,input,select{font:inherit}button{border:0;color:inherit;cursor:pointer}.a
 </head>
 <body>
 <div class="app">
-<header class="top"><div class="brand">⚾ 西春ノート</div><div class="sub">高校野球の試合記録を、少ないタップで。</div></header>
+<header class="top"><div class="brand">⚾ 西春野球ノート</div><div class="sub">高校野球の試合記録を、少ないタップで。</div></header>
 <main class="content" id="app"></main>
 <nav class="tabs">
 <button class="tab active" data-tab="record"><span class="ico">📝</span>記録</button>
@@ -610,7 +610,7 @@ function resultCanvas(g){
  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
  // 現代プロ野球の結果カードを意識した横長ヘッダー
  ctx.fillStyle=accent;ctx.fillRect(0,0,W,12);
- ctx.fillStyle=text;ctx.textAlign='left';ctx.font=`950 42px ${font}`;ctx.fillText('西春ノート',64,76);
+ ctx.fillStyle=text;ctx.textAlign='left';ctx.font=`950 42px ${font}`;ctx.fillText('西春野球ノート',64,76);
  ctx.fillStyle=muted;ctx.font=`700 18px ${font}`;ctx.fillText(`${g.date||''}  ${g.tournament||''}  ${g.stadium||''}`,64,108);
  ctx.textAlign='right';ctx.fillStyle=accent2;ctx.font=`900 18px ${font}`;ctx.fillText('試合結果',W-64,76);
  const heroY=140,heroH=245;
@@ -646,12 +646,12 @@ function resultCanvas(g){
  const groups=[];let last=null;events.forEach(e=>{const inn=Number(e.inning)||1;if(inn!==last){groups.push({inning:inn,items:[]});last=inn}groups.at(-1).items.push(e)});
  const colsX=[64,W/2+12],colW=W/2-88; let col=0,yy=[y,y];
  groups.forEach(gr=>{if(yy[col]+58>H-90){col++;if(col>1)col=1}let q=yy[col];ctx.fillStyle=accent;ctx.fillRect(colsX[col],q,colW,4);q+=22;ctx.fillStyle=accent2;ctx.font=`950 17px ${font}`;ctx.fillText(`${gr.inning}回`,colsX[col],q);q+=10;gr.items.forEach(e=>{q+=20;ctx.fillStyle=panel;ctx.fillRect(colsX[col],q,colW,52);ctx.strokeStyle=line;ctx.strokeRect(colsX[col],q,colW,52);ctx.fillStyle=text;ctx.font=`800 15px ${font}`;let tx=`${e.half}　${e.text}`;if(tx.length>58)tx=tx.slice(0,57)+'…';ctx.fillText(tx,colsX[col]+14,q+21);ctx.fillStyle=muted;ctx.font=`600 11px ${font}`;ctx.fillText(e.kind||'',colsX[col]+14,q+40);q+=8});yy[col]=q+18;col=col===0?1:0});
- ctx.fillStyle=muted;ctx.font=`650 15px ${font}`;ctx.fillText('西春ノート  •  観戦しながら、思い出を残そう。',64,H-28);
+ ctx.fillStyle=muted;ctx.font=`650 15px ${font}`;ctx.fillText('西春野球ノート  •  観戦しながら、思い出を残そう。',64,H-28);
  return c;
 }
-async function saveResultImage(id){const g=db.games.find(x=>x.id===id);if(!g)return;try{const c=resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(!blob)return toast('画像作成に失敗しました');const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`西春ノート_${g.date||'試合結果'}_${g.opponent||'相手'}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('試合結果画像を保存しました')}catch(e){toast('画像保存に失敗しました')}}
-async function shareGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return;const text=`${g.date||''} 西春ノート\n${db.team.name} ${g.scoreUs}-${g.scoreOpp} ${g.opponent||'相手校'}\n試合結果・打撃成績・試合経過を記録しました。`;try{const c=resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=blob?new File([blob],`西春ノート_${g.date||'試合結果'}.png`,{type:'image/png'}):null;if(navigator.share){if(file && (!navigator.canShare || navigator.canShare({files:[file]}))){await navigator.share({title:'西春ノート 試合結果',text,files:[file]})}else{await navigator.share({title:'西春ノート 試合結果',text})}toast('共有しました')}else{await navigator.clipboard?.writeText(text);toast('共有機能がないため、結果文をコピーしました')}}catch(e){if(e?.name!=='AbortError')toast('共有をキャンセルしました')}}
-function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="西春ノート_バックアップ.json";a.click();URL.revokeObjectURL(a.href)}
+async function saveResultImage(id){const g=db.games.find(x=>x.id===id);if(!g)return;try{const c=resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(!blob)return toast('画像作成に失敗しました');const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`西春野球ノート_${g.date||'試合結果'}_${g.opponent||'相手'}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('試合結果画像を保存しました')}catch(e){toast('画像保存に失敗しました')}}
+async function shareGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return;const text=`${g.date||''} 西春野球ノート\n${db.team.name} ${g.scoreUs}-${g.scoreOpp} ${g.opponent||'相手校'}\n試合結果・打撃成績・試合経過を記録しました。`;try{const c=resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=blob?new File([blob],`西春野球ノート_${g.date||'試合結果'}.png`,{type:'image/png'}):null;if(navigator.share){if(file && (!navigator.canShare || navigator.canShare({files:[file]}))){await navigator.share({title:'西春野球ノート 試合結果',text,files:[file]})}else{await navigator.share({title:'西春野球ノート 試合結果',text})}toast('共有しました')}else{await navigator.clipboard?.writeText(text);toast('共有機能がないため、結果文をコピーしました')}}catch(e){if(e?.name!=='AbortError')toast('共有をキャンセルしました')}}
+function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="西春野球ノート_バックアップ.json";a.click();URL.revokeObjectURL(a.href)}
 function deleteGame(id){
  const g=db.games.find(x=>x.id===id); if(!g)return;
  if(!confirm(`${g.date||''} ${g.opponent||'相手校'} の試合データを削除しますか？\nこの試合だけを削除し、チーム名簿や他の試合は残します。`))return;
