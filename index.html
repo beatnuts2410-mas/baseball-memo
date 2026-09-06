@@ -95,31 +95,39 @@ function setupView(){
  return `<div class="card"><div class="title">新しい試合</div><p class="muted">試合開始前でも、途中からでも記録できます。</p>
  <div class="setupLabel">自チームの攻撃順</div><div class="seg"><button id="setupFirst" class="active" onclick="setSetupHalf('先攻')">先攻</button><button id="setupSecond" onclick="setSetupHalf('後攻')">後攻</button></div>
  <div class="setupLabel">開始方法</div><div class="seg"><button id="setupNormal" class="active" onclick="setSetupMode('normal')">最初から</button><button id="setupLate" onclick="setSetupMode('late')">途中から</button></div>
- <div class="setupGrid"><div><div class="setupLabel">相手チーム</div><input id="setupOpponent" class="input" value="桜ヶ丘高校"></div><div><div class="setupLabel">開始イニング</div><input id="setupInning" class="input" type="number" min="1" value="1"></div></div>
+ <div class="setupGrid"><div><div class="setupLabel">相手チーム</div><input id="setupOpponent" class="input" value="桜ヶ丘高校"></div><div><div class="setupLabel">開始イニング</div><input id="setupInning" class="input" type="number" min="1" value="1" onchange="refreshLateSetup()"></div></div>
  <div class="setupLabel">開始する攻撃</div><div class="seg"><button id="setupTop" class="active" onclick="setSetupAttack('表')">表</button><button id="setupBottom" onclick="setSetupAttack('裏')">裏</button></div>
- <div id="lateFields" class="hidden"><div class="setupLabel">途中開始時の状況</div><div class="setupLabel">1回の得点</div><div class="quickScore"><input id="setupFirstTop" class="input" type="number" min="0" value="0" placeholder="1回表（相手）"><input id="setupFirstBottom" class="input" type="number" min="0" value="0" placeholder="1回裏（自チーム）"></div><div class="setupLabel">現在のアウト</div><div id="setupOutsSeg" class="seg"><button class="active" onclick="setSetupOuts(0)">0</button><button onclick="setSetupOuts(1)">1</button><button onclick="setSetupOuts(2)">2</button></div><div class="setupLabel">現在の打順</div><div id="setupBatterSeg" class="seg" style="display:grid;grid-template-columns:repeat(3,1fr)">${Array.from({length:9},(_,i)=>`<button class="${i===0?'active':''}" onclick="setSetupBatter(${i})">${i+1}番</button>`).join('')}</div></div>
+ <div id="lateFields" class="hidden"><div class="setupLabel">途中開始時の状況</div><div class="setupLabel" id="lateScoreTitle">これまでの得点</div><div id="lateScoreFields" class="quickScore"></div><div class="hint" style="margin-top:8px">開始イニングより前の各回の得点を入力してください。</div><div class="setupLabel">現在のアウト</div><div id="setupOutsSeg" class="seg"><button class="active" onclick="setSetupOuts(0)">0</button><button onclick="setSetupOuts(1)">1</button><button onclick="setSetupOuts(2)">2</button></div><div class="setupLabel">現在の打順</div><div id="setupBatterSeg" class="seg" style="display:grid;grid-template-columns:repeat(3,1fr)">${Array.from({length:9},(_,i)=>`<button class="${i===0?'active':''}" onclick="setSetupBatter(${i})">${i+1}番</button>`).join('')}</div></div>
  <button class="btn primary" style="width:100%;margin-top:14px" onclick="createConfiguredGame()">この条件で試合を開始</button></div>`;
 }
 let setupState={order:'先攻',mode:'normal',attack:'表',outs:0,batterIndex:0};
 function setSetupHalf(v){setupState.order=v;document.getElementById('setupFirst')?.classList.toggle('active',v==='先攻');document.getElementById('setupSecond')?.classList.toggle('active',v==='後攻');if(setupState.mode==='normal')setSetupAttack(v==='先攻'?'表':'裏')}
-function setSetupMode(v){setupState.mode=v;document.getElementById('setupNormal')?.classList.toggle('active',v==='normal');document.getElementById('setupLate')?.classList.toggle('active',v==='late');document.getElementById('lateFields')?.classList.toggle('hidden',v!=='late')}
+function setSetupMode(v){setupState.mode=v;document.getElementById('setupNormal')?.classList.toggle('active',v==='normal');document.getElementById('setupLate')?.classList.toggle('active',v==='late');document.getElementById('lateFields')?.classList.toggle('hidden',v!=='late');refreshLateSetup()}
+function refreshLateSetup(){
+ const n=Math.max(1,Number(document.getElementById('setupInning')?.value)||1),box=document.getElementById('lateScoreFields'),title=document.getElementById('lateScoreTitle');
+ if(title)title.textContent=n>1?`${n}回から途中開始：${n-1}回終了時の得点`:'途中開始時の得点';
+ if(!box)return;if(setupState.mode!=='late'||n<=1){box.innerHTML='';return;}
+ box.innerHTML=Array.from({length:n-1},(_,i)=>`<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px"><label class="inputLabel">${i+1}回表（相手）<input id="setupTop${i+1}" class="input" type="number" min="0" value="0"></label><label class="inputLabel">${i+1}回裏（自チーム）<input id="setupBottom${i+1}" class="input" type="number" min="0" value="0"></label></div>`).join('');
+}
+
 function setSetupAttack(v){setupState.attack=v;document.getElementById('setupTop')?.classList.toggle('active',v==='表');document.getElementById('setupBottom')?.classList.toggle('active',v==='裏')}
 function setSetupOuts(v){setupState.outs=v;document.querySelectorAll('#setupOutsSeg button').forEach(b=>b.classList.toggle('active',Number(b.textContent)===v))}
 function setSetupBatter(v){setupState.batterIndex=v;document.querySelectorAll('#setupBatterSeg button').forEach((b,i)=>b.classList.toggle('active',i===v))}
 function createConfiguredGame(){
- const late=setupState.mode==='late'; const inning=Math.max(1,Number(document.getElementById('setupInning')?.value)||1);
- let half=late?setupState.attack:(setupState.order==='先攻'?'表':'裏');
- const firstTop=late?Math.max(0,Number(document.getElementById('setupFirstTop')?.value)||0):0;
- const firstBottom=late?Math.max(0,Number(document.getElementById('setupFirstBottom')?.value)||0):0;
- const scoreUs=setupState.order==='先攻'?firstTop:firstBottom;
- const scoreOpp=setupState.order==='先攻'?firstBottom:firstTop;
- const firstInning=late?{us:scoreUs,opp:scoreOpp}:{us:0,opp:0};
- let opts={opponent:document.getElementById('setupOpponent')?.value||'相手校',inning,half,outs:late?setupState.outs:0,scoreUs,scoreOpp,batterIndex:late?setupState.batterIndex:0,startedLate:late,initialInnings:late?[firstInning]:[]};
- newGame(setupState.order,opts); toast(late?'途中から記録を開始':'試合を開始');
+ const late=setupState.mode==='late',inning=Math.max(1,Number(document.getElementById('setupInning')?.value)||1),half=late?setupState.attack:(setupState.order==='先攻'?'表':'裏');
+ let innings=[],scoreUs=0,scoreOpp=0;
+ if(late&&inning>1){for(let i=1;i<inning;i++){const top=Math.max(0,Number(document.getElementById(`setupTop${i}`)?.value)||0),bottom=Math.max(0,Number(document.getElementById(`setupBottom${i}`)?.value)||0),us=setupState.order==='先攻'?top:bottom,opp=setupState.order==='先攻'?bottom:top;innings.push({us,opp});scoreUs+=us;scoreOpp+=opp;}}
+ newGame(setupState.order,{opponent:document.getElementById('setupOpponent')?.value||'相手校',inning,half,outs:late?setupState.outs:0,scoreUs,scoreOpp,batterIndex:late?setupState.batterIndex:0,startedLate:late,initialInnings:innings});toast(late?`${inning}回${half}から記録を開始`:'試合を開始');
 }
+
 function gameHeader(){
  let g=db.current;if(!g)return `<div class="card"><div class="title">試合を始める</div><p class="muted">先攻・後攻を選んでから試合を開始します。</p><div class="orderGrid"><button class="orderBtn active" onclick="startNewGame('先攻')">先攻</button><button class="orderBtn" onclick="startNewGame('後攻')">後攻</button></div><p class="hint">先攻なら1回表から、後攻なら相手の1回表を経て自チームの1回裏から記録します。</p></div>`;
- return `<div class="card"><div class="score"><div><div class="team">${esc(db.team.name)}</div></div><div><div class="bigscore">${g.scoreUs} - ${g.scoreOpp}</div><span class="badge">${g.inning}回${g.half}</span></div><div><div class="team">${esc(g.opponent||"相手校")}</div></div></div></div>`;
+ return `<div class="card"><div class="score"><div><div class="team">${esc(db.team.name)}</div></div><div><div class="bigscore">${g.scoreUs} - ${g.scoreOpp}</div><span class="badge">${g.inning}回${g.half}</span>${g.startedLate?`<div class="hint" style="margin-top:5px">途中開始・開始時スコア ${g.scoreUs} - ${g.scoreOpp}</div>`:""}</div><div><div class="team">${esc(g.opponent||"相手校")}</div></div></div></div>`;
+}
+function advanceHalf(g){
+ const was=g.half;
+ if(was===opponentHalf(g))g.half=ownHalf(g);else{g.half=opponentHalf(g);if(g.half===ownHalf(g))g.inning++;}
+ g.outs=0;g.runners=[0,0,0];
 }
 function scoreTable(g){
  let max=Math.max(9,g.innings.length||0), cols="";
@@ -154,11 +162,17 @@ function saveLateBatter(){
 function opponentView(){
  let g=db.current;
  let x=g.innings[g.inning-1]||{us:0,opp:0};
- return gameHeader()+`<div class="card current"><div class="muted">${g.inning}回${g.half}・相手チーム攻撃</div><div style="font-size:26px;font-weight:900;margin:8px 0">相手は何点入りましたか？</div><div class="grid2"><button class="btn" onclick="setOppRuns(-1)">−</button><div class="input" style="text-align:center;font-weight:900;font-size:24px">${x.opp||0} 点</div></div><div class="row" style="flex-wrap:wrap;margin-top:10px">${[0,1,2,3,4,5,6,7,8,9].map(n=>`<button class="btn ${x.opp===n?'primary':''}" onclick="setOppRuns(${n})">${n}</button>`).join('')}</div><button class="btn primary" style="width:100%;margin-top:14px" onclick="finishHalf()">3アウト・${g.inning}回${g.half}終了 → 次の攻撃</button></div>
+ return gameHeader()+`<div class="card current"><div class="muted">現在：${g.inning}回${g.half}・相手チーム攻撃</div><div style="font-size:26px;font-weight:900;margin:8px 0">相手は何点入りましたか？</div><div class="grid2"><button class="btn" onclick="setOppRuns(-1)">−</button><div class="input" style="text-align:center;font-weight:900;font-size:24px">${x.opp||0} 点</div></div><div class="row" style="flex-wrap:wrap;margin-top:10px">${[0,1,2,3,4,5,6,7,8,9].map(n=>`<button class="btn ${x.opp===n?'primary':''}" onclick="setOppRuns(${n})">${n}</button>`).join('')}</div><div class="title" style="margin-top:16px">相手のアウト</div><div class="row"><button class="btn" onclick="oppOut()">アウト＋1</button><span class="badge">${g.outs} / 3</span></div><div class="hint" style="margin-top:8px">3アウトになると自動で次の攻撃へ切り替わります。</div></div>
  <div class="card"><div class="title">イニングスコア</div>${scoreTable(g)}</div>`;
 }
 function setOppRuns(n){pushGameHistory();let g=db.current;let x=g.innings[g.inning-1]||{us:0,opp:0};x.opp=Math.max(0,n);g.innings[g.inning-1]=x;g.scoreOpp=g.innings.reduce((a,v)=>a+(Number(v.opp)||0),0);save();render()}
-function finishHalf(){pushGameHistory();let g=db.current;let x=g.innings[g.inning-1]||{us:0,opp:0};x.us=Number(x.us)||0;g.innings[g.inning-1]=x;let was=g.half;if(was===opponentHalf(g)){g.half=ownHalf(g);}else{g.half=opponentHalf(g);if(g.half===ownHalf(g))g.inning++;}g.outs=0;g.runners=[0,0,0];save();render();toast(was==='表'?'1回表を確定':'イニングを確定')}
+function oppOut(){
+ const g=db.current;if(!g)return;pushGameHistory();g.outs=Math.min(3,(Number(g.outs)||0)+1);
+ if(g.outs>=3){advanceHalf(g);save();render();toast(`${g.inning}回${g.half}へ`);return;}
+ save();render();
+}
+function finishHalf(){pushGameHistory();const g=db.current;if(!g)return;const x=g.innings[g.inning-1]||{us:0,opp:0};x.us=Number(x.us)||0;x.opp=Number(x.opp)||0;g.innings[g.inning-1]=x;advanceHalf(g);save();render();toast(`${g.inning}回${g.half}へ`)}
+
 function cloneRunners(r){return [Number(r?.[0])||0,Number(r?.[1])||0,Number(r?.[2])||0]}
 function advanceRunners(g,result){
   let before=cloneRunners(g.runners), after=[0,0,0], scored=0, rbi=0;
@@ -198,7 +212,7 @@ function pa(result){
   updateInningScore(g);
   g.batterIndex++;
   const summary=mv.scored?` ${mv.scored}点`:(mv.detail?` ${mv.detail}`:'');
-  if(g.outs>=3){g.outs=0;g.runners=[0,0,0];g.half=opponentHalf(g);if(g.half===ownHalf(g))g.inning++;}
+  if(g.outs>=3){advanceHalf(g);}
   save();render();toast(`${b.name}：${result}${summary}`);
 }
 let stealFromBase=null;
@@ -212,7 +226,7 @@ function applySteal(ok){
  pushGameHistory(); const from=stealFromBase; const before=cloneRunners(g.runners);
  g.runners[from]=0; let scored=0; if(ok){ if(from===2){scored=1;g.scoreUs=(Number(g.scoreUs)||0)+1}else g.runners[from+1]=1; } else {g.outs=Math.min(3,g.outs+1)}
  g.steals=g.steals||[];g.steals.push({inning:g.inning,half:g.half,from,success:ok,beforeRunners:before,afterRunners:cloneRunners(g.runners),beforeOuts:g.outs-(ok?0:1),beforeScoreUs:Number(g.scoreUs)-(ok&&from===2?1:0)});
- updateInningScore(g); if(g.outs>=3){g.outs=0;g.runners=[0,0,0];g.half=opponentHalf(g);if(g.half===ownHalf(g))g.inning++;}
+ updateInningScore(g); if(g.outs>=3){advanceHalf(g);}
  save();closeSteal();render();toast(ok?'盗塁成功':'盗塁失敗・アウト');
 }
 function restartFromPA(index){
@@ -256,7 +270,7 @@ function applyPACorrection(){
  if(p.beforeScoreUsSnapshot==null) p.beforeScoreUsSnapshot=Number(g.scoreUs)-mv.scored;
  updateInningScore(g);
  g.batterIndex=p.beforeBatterIndex+1;
- if(g.outs>=3){g.outs=0;g.runners=[0,0,0];g.half=opponentHalf(g);if(g.half===ownHalf(g))g.inning++;}
+ if(g.outs>=3){advanceHalf(g);}
  save();closePACorrection();render();toast(`${p.batter}：${result} に修正しました`);
 }
 function openRunnerCorrection(){
