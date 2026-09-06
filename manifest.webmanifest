@@ -1,27 +1,16 @@
 {
   "name": "野球メモ",
   "short_name": "野球メモ",
-  "description": "観戦しながら、少ないタップで自チームの野球を記録するメモアプリ。",
-  "lang": "ja",
-  "dir": "ltr",
+  "description": "観戦しながら、自チームの攻撃と思い出を簡単に記録する野球メモ",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#080d16",
   "theme_color": "#0b1220",
+  "lang": "ja",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    {"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
   ]
 }
