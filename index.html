@@ -133,7 +133,15 @@ function gameHeader(){
  let g=db.current;if(!g)return `<div class="card"><div class="title">試合を始める</div><p class="muted">先攻・後攻を選んでから試合を開始します。</p><div class="orderGrid"><button class="orderBtn active" onclick="startNewGame('先攻')">先攻</button><button class="orderBtn" onclick="startNewGame('後攻')">後攻</button></div><p class="hint">先攻なら1回表から、後攻なら相手の1回表を経て自チームの1回裏から記録します。</p></div>`;
  const max=Math.max(9,g.innings?.length||0);
  const own=ownHalf(g), opp=opponentHalf(g);
- const boardRows=`<tr><th>${esc(db.team.name)}</th>${Array.from({length:max},(_,i)=>{const n=Number(g.innings?.[i]?.us)||0;return `<td class="${i===g.inning-1?'activeInning ':''}${n===0?'zero':''}">${n}</td>`}).join('')}<td class="total">${Number(g.scoreUs)||0}</td></tr><tr><th>${esc(g.opponent||'相手校')}</th>${Array.from({length:max},(_,i)=>{const n=Number(g.innings?.[i]?.opp)||0;return `<td class="${i===g.inning-1?'activeInning ':''}${n===0?'zero':''}">${n}</td>`}).join('')}<td class="total">${Number(g.scoreOpp)||0}</td></tr>`;
+ const firstIsOwn=g.order!=='後攻';
+ const firstName=firstIsOwn?db.team.name:(g.opponent||'相手校');
+ const secondName=firstIsOwn?(g.opponent||'相手校'):db.team.name;
+ const firstScoreKey=firstIsOwn?'us':'opp';
+ const secondScoreKey=firstIsOwn?'opp':'us';
+ const firstTotal=firstIsOwn?g.scoreUs:g.scoreOpp;
+ const secondTotal=firstIsOwn?g.scoreOpp:g.scoreUs;
+ const boardRow=(name,key,total)=>`<tr><th>${esc(name)}</th>${Array.from({length:max},(_,i)=>{const n=Number(g.innings?.[i]?.[key])||0;return `<td class="${i===g.inning-1?'activeInning ':''}${n===0?'zero':''}">${n}</td>`}).join('')}<td class="total">${Number(total)||0}</td></tr>`;
+ const boardRows=boardRow(firstName,firstScoreKey,firstTotal)+boardRow(secondName,secondScoreKey,secondTotal);
  const result=g.scoreUs>g.scoreOpp?'リード':g.scoreUs<g.scoreOpp?'ビハインド':'同点';
  const runnerCount=(g.runners||[]).filter(Boolean).length;
  const attack=own===g.half?'自チーム攻撃':'相手攻撃';
@@ -190,8 +198,10 @@ function endHalfOnThreeOuts(g){
 
 function scoreTable(g){
  let max=Math.max(9,g.innings.length||0), cols="";
- for(let i=1;i<=max;i++){let x=g.innings[i-1]||{us:"",opp:""};cols+=`<tr><td>${i}</td><td>${x.us??""}</td><td>${x.opp??""}</td></tr>`}
- return `<div class="scoretable"><table><thead><tr><th>回</th><th>${esc(db.team.name)}</th><th>${esc(g.opponent||"相手")}</th></tr></thead><tbody>${cols}</tbody></table></div>`;
+ const firstName=g.order==='後攻'?(g.opponent||"相手"):db.team.name;
+ const secondName=g.order==='後攻'?db.team.name:(g.opponent||"相手");
+ for(let i=1;i<=max;i++){let x=g.innings[i-1]||{us:"",opp:""}; const first=g.order==='後攻'?x.opp:x.us; const second=g.order==='後攻'?x.us:x.opp; cols+=`<tr><td>${i}</td><td>${first??""}</td><td>${second??""}</td></tr>`}
+ return `<div class="scoretable"><table><thead><tr><th>回</th><th>${esc(firstName)}</th><th>${esc(secondName)}</th></tr></thead><tbody>${cols}</tbody></table></div>`;
 }
 function ruleEndAlert(g){
  if(!g||g.finished)return '';
@@ -622,7 +632,11 @@ function renderGameResult(g){
  const stats=battingStats(g),events=resultEvents(g);
  const batting=stats.length?`<div class="resultStatsWrap"><table class="resultStatsTable"><thead><tr><th>選手</th><th>打席</th><th>打数</th><th>安打</th><th>二塁打</th><th>三塁打</th><th>本塁打</th><th>打点</th><th>四球</th><th>死球</th><th>三振</th><th>犠打</th><th>犠飛</th><th>打率</th></tr></thead><tbody>${stats.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.pa}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.d2}</td><td>${s.d3}</td><td>${s.hr}</td><td>${s.rbi}</td><td>${s.bb}</td><td>${s.hbp}</td><td>${s.so}</td><td>${s.sh}</td><td>${s.sf}</td><td class="avg">${s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">打席記録はありません</div>`;
  const pitchingHtml=(g.pitching?.history||[]).length?`<div class="resultStatsWrap"><table class="resultStatsTable"><thead><tr><th>投手</th><th>登板</th><th>投球回</th><th>登板開始</th></tr></thead><tbody>${(g.pitching.history||[]).map((p,i)=>`<tr><td>${esc(p.name)}</td><td>${i===0?'先発':'途中登板'}</td><td>${pitcherInningsText(p)}</td><td>${p.enteredInning}回${p.enteredHalf}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">投手記録はありません</div>`; const max=Math.max(1,g.innings?.length||0);
- const board=`<div class="stadiumBoard"><table><thead><tr><th>チーム</th>${Array.from({length:max},(_,i)=>`<th>${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody><tr><th>${esc(db.team.name)}</th>${Array.from({length:max},(_,i)=>{const n=Number(g.innings?.[i]?.us)||0;return `<td class="${n===0?'zero':''}">${n}</td>`}).join('')}<td class="total">${Number(g.scoreUs)||0}</td></tr><tr><th>${esc(g.opponent||'相手')}</th>${Array.from({length:max},(_,i)=>{const n=Number(g.innings?.[i]?.opp)||0;return `<td class="${n===0?'zero':''}">${n}</td>`}).join('')}<td class="total">${Number(g.scoreOpp)||0}</td></tr></tbody></table></div>`;
+ const firstIsOwn=g.order!=='後攻';
+ const firstName=firstIsOwn?db.team.name:(g.opponent||'相手');
+ const secondName=firstIsOwn?(g.opponent||'相手'):db.team.name;
+ const resultRow=(name,key,total)=>`<tr><th>${esc(name)}</th>${Array.from({length:max},(_,i)=>{const n=Number(g.innings?.[i]?.[key])||0;return `<td class="${n===0?'zero':''}">${n}</td>`}).join('')}<td class="total">${Number(total)||0}</td></tr>`;
+ const board=`<div class="stadiumBoard"><table><thead><tr><th>チーム</th>${Array.from({length:max},(_,i)=>`<th>${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody>${resultRow(firstName,firstIsOwn?'us':'opp',firstIsOwn?g.scoreUs:g.scoreOpp)}${resultRow(secondName,firstIsOwn?'opp':'us',firstIsOwn?g.scoreOpp:g.scoreUs)}</tbody></table></div>`;
  let eventHtml='';
  if(events.length){
    let lastInning=null;
@@ -632,7 +646,8 @@ function renderGameResult(g){
  }else eventHtml='<div class="empty">記録がありません</div>';
  const maxInning=Math.max(9,g.innings?.length||0);
  const resultClass=win==='勝利'?'':win==='敗戦'?'loss':'tie';
- const sportsBoard=`<div class="sportsBoard"><table><thead><tr><th>チーム</th>${Array.from({length:maxInning},(_,i)=>`<th>${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody><tr><th>${esc(db.team.name)}</th>${Array.from({length:maxInning},(_,i)=>`<td>${Number(g.innings?.[i]?.us)||0}</td>`).join('')}<td class="total">${Number(g.scoreUs)||0}</td></tr><tr><th>${esc(g.opponent||'相手校')}</th>${Array.from({length:maxInning},(_,i)=>`<td>${Number(g.innings?.[i]?.opp)||0}</td>`).join('')}<td class="total">${Number(g.scoreOpp)||0}</td></tr></tbody></table></div>`;
+ const sportsRow=(name,key,total)=>`<tr><th>${esc(name)}</th>${Array.from({length:maxInning},(_,i)=>`<td>${Number(g.innings?.[i]?.[key])||0}</td>`).join('')}<td class="total">${Number(total)||0}</td></tr>`;
+ const sportsBoard=`<div class="sportsBoard"><table><thead><tr><th>チーム</th>${Array.from({length:maxInning},(_,i)=>`<th>${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody>${sportsRow(firstName,firstIsOwn?'us':'opp',firstIsOwn?g.scoreUs:g.scoreOpp)}${sportsRow(secondName,firstIsOwn?'opp':'us',firstIsOwn?g.scoreOpp:g.scoreUs)}</tbody></table></div>`;
  return `<div id="gameResultView"><div class="resultHero sportsResultHero"><div class="sportsHeroTop"><span>試合結果</span><span>${esc(g.date||'')}　${esc(g.tournament||'')}</span></div><div class="sportsMatch"><div class="sportsTeam"><img class="sportsTeamLogo nishiharuUniform" src="nishiharu-uniform.png" alt="西春高校ユニフォーム"><div class="sportsTeamName">${esc(db.team.name)}</div><div class="sportsTeamLabel">自チーム</div></div><div class="sportsCenter"><div class="sportsStatus">FINAL</div><div class="sportsMainScore">${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}</div><span class="sportsResultBadge ${resultClass}">${win}</span><div class="sportsMiniInfo"><span>${g.innings?.length||1}回制</span><span>得点 ${Number(g.scoreUs)||0}</span><span>打撃記録 ${stats.length}人</span></div></div><div class="sportsTeam"><div class="sportsHomePlate" aria-label="相手チーム ホームベース"></div><div class="sportsTeamName">${esc(g.opponent||'相手校')}</div><div class="sportsTeamLabel">相手</div></div></div>${sportsBoard}<div class="sportsFooter"><span>${esc(g.stadium||'')}</span><span>${g.finishedAt?new Date(g.finishedAt).toLocaleString('ja-JP'):''}</span></div></div>
  <div class="card"><div class="title">結果を保存・共有</div><div class="resultTools"><button class="resultTool primary" onclick="saveResultImage(${g.id})">📷 写真として保存</button><button class="resultTool" onclick="shareGameResult(${g.id})">📤 SNS・共有</button></div><p class="shareNote">保存する写真も、球場の得点板をイメージした見やすいレイアウトになります。</p><div class="shareVisual"><div class="shareStep"><span class="shareIcon">①📷</span><b>写真として保存</b><span>結果画像をスマホに保存</span></div><div class="shareStep"><span class="shareIcon">②📤</span><b>共有ボタン</b><span>「SNS・共有」をタップ</span></div><div class="shareStep"><span class="shareIcon">③📱</span><b>送信先を選択</b><span>LINE・SNSなど</span></div></div></div>
  <div class="card"><div class="title">投手記録・登板履歴</div>${pitchingHtml}</div><div class="card"><div class="title">打撃成績</div>${batting}</div>
