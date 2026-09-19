@@ -452,23 +452,13 @@ function pa(result){
   g.batterIndex++;
   if(g.startedLate && g.batterIndex<9) g.lateSetupStep=g.batterIndex;
   const summary=mv.scored?` ${mv.scored}点`:(mv.detail?` ${mv.detail}`:'');
-  // 3アウトになった時点で攻守交代。途中開始の打順確認中でも同じルールを適用する。
-  const threeOuts = g.outs>=3;
+  if(!g.startedLate || g.lineup.length>=9){ if(endHalfOnThreeOuts(g)){} }
   if(g.startedLate && g.batterIndex>=9){
     g.startedLate=false;
     g.lateSetupStep=null;
     g.batterIndex=0;
-  }
-  if(threeOuts){ endHalfOnThreeOuts(g); }
-  if(!g.startedLate && g.batterIndex===0 && g.lineup.length>=9 && threeOuts){
-    save();render();toast('3アウト：攻守交代。相手チームの攻撃です');
+    save();render();toast('1〜9番の打順確認が完了しました。通常の記録画面に切り替えます');
     return;
-  }
-  if(!g.startedLate && g.batterIndex===0 && g.lateSetupStep===null && g.pa.length && g.lineup.length>=9 && !threeOuts && summary){
-    // 通常記録では打順をそのまま継続。
-  }
-  if(g.lateSetupStep===null && g.batterIndex===0 && g.pa.length && !threeOuts && summary && g.startedLate===false){
-    // no-op: preserve normal batter progression
   }
   save();render();toast(`${b.name}：${result}${summary}`);
 }
