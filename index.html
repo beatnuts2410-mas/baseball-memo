@@ -123,7 +123,10 @@ function setSetupAttack(v){setupState.attack=v;document.getElementById('setupTop
 function setSetupOuts(v){setupState.outs=v;document.querySelectorAll('#setupOutsSeg button').forEach(b=>b.classList.toggle('active',Number(b.textContent)===v))}
 function setSetupBatter(v){setupState.batterIndex=v;document.querySelectorAll('#setupBatterSeg button').forEach((b,i)=>b.classList.toggle('active',i===v))}
 function createConfiguredGame(){
- const late=setupState.mode==='late',inning=Math.max(1,Number(document.getElementById('setupInning')?.value)||1),half=late?setupState.attack:'表';
+ const late=setupState.mode==='late',inning=Math.max(1,Number(document.getElementById('setupInning')?.value)||1);
+ // 途中開始も通常開始と同じ攻守順にする。自チームが後攻で「裏から開始」を選んだ場合は、
+ // まず同じ回の相手（表）の得点確認→その後に自チーム（裏）へ進む。
+ const half=late && setupState.order==='後攻' && setupState.attack==='裏' ? '表' : (late?setupState.attack:'表');
  let innings=[],scoreUs=0,scoreOpp=0;
  if(late&&inning>1){for(let i=1;i<inning;i++){const top=Math.max(0,Number(document.getElementById(`setupTop${i}`)?.value)||0),bottom=Math.max(0,Number(document.getElementById(`setupBottom${i}`)?.value)||0),us=setupState.order==='先攻'?top:bottom,opp=setupState.order==='先攻'?bottom:top;innings.push({us,opp});scoreUs+=us;scoreOpp+=opp;}}
  newGame(setupState.order,{opponent:document.getElementById('setupOpponent')?.value||'相手校',inning,half,outs:late?setupState.outs:0,scoreUs,scoreOpp,batterIndex:0,startedLate:late,initialInnings:innings});toast(late?`${inning}回${half}から記録を開始`:'試合を開始');
@@ -275,6 +278,9 @@ function applyPitcherChange(){const g=db.current,name=document.getElementById('p
 function recordView(){
  if(!db.current)return setupView();
  let g=db.current;
+ // 途中開始でも、相手攻撃中は必ず先に相手得点を確認する。
+ // これにより「相手表→自チーム裏」の試合進行を通常開始と同じ順序にする。
+ if(g.startedLate && g.half!==ownHalf(g)) return opponentView();
  if(g.startedLate && g.lineup.length<9){
    const slot=Math.min(8,Number(g.batterIndex)||0);
    if(!g.lineup?.[slot]?.name)return lateBatterView(g);
@@ -325,10 +331,20 @@ function latePA(result){
 function opponentView(){
  let g=db.current;
  let x=g.innings[g.inning-1]||{us:0,opp:0};
- return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">現在：${g.inning}回${g.half}・相手チーム攻撃</div><div style="font-size:26px;font-weight:900;margin:8px 0">相手は何点入りましたか？</div><div class="hint">得点を選ぶと、その回の相手攻撃を終了して自チームの攻撃へ切り替わります。</div><div class="grid2"><button class="btn" onclick="setOppRuns(-1)">−</button><div class="input" style="text-align:center;font-weight:900;font-size:24px">${x.opp||0} 点</div></div><div class="row" style="flex-wrap:wrap;margin-top:10px">${[0,1,2,3,4,5,6,7,8,9].map(n=>`<button class="btn ${x.opp===n?'primary':''}" onclick="setOppRuns(${n})">${n}</button>`).join('')}</div><div class="title" style="margin-top:16px">相手のアウト</div><div class="row"><button class="btn" onclick="oppOut()">アウト＋1</button><span class="badge">${g.outs} / 3</span><button class="btn small" onclick="adjustOuts()">✎ アウト修正</button></div><div class="hint" style="margin-top:8px">3アウトになると自動で次の攻撃へ切り替わります。</div><div class="card" style="margin-top:10px;margin-bottom:0;background:#0b1422"><div class="row between"><div><div class="title" style="margin:0">投手</div><div class="muted">${esc(g.pitching?.current?.name||g.pitcher?.name||'未登録')}　投球回 ${pitcherInningsText(g.pitching?.current||{})}</div></div><button class="btn small primary" onclick="changePitcher()">投手交代</button></div></div><button class="btn" style="width:100%;margin-top:10px" onclick="openDefensiveSub()">🧤 自チームの守備交代</button></div>
+ return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">現在：${g.inning}回${g.half}・相手チーム攻撃</div><div style="font-size:26px;font-weight:900;margin:8px 0">相手は何点入りましたか？</div><div class="hint">得点を選ぶと、その回の相手攻撃を終了して自チームの攻撃へ切り替わります。${g.startedLate?'途中開始では、このあと前の打席でアウトになった次の打者から確認します。':''}</div><div class="grid2"><button class="btn" onclick="setOppRuns(-1)">−</button><div class="input" style="text-align:center;font-weight:900;font-size:24px">${x.opp||0} 点</div></div><div class="row" style="flex-wrap:wrap;margin-top:10px">${[0,1,2,3,4,5,6,7,8,9].map(n=>`<button class="btn ${x.opp===n?'primary':''}" onclick="setOppRuns(${n})">${n}</button>`).join('')}</div><div class="title" style="margin-top:16px">相手のアウト</div><div class="row"><button class="btn" onclick="oppOut()">アウト＋1</button><span class="badge">${g.outs} / 3</span><button class="btn small" onclick="adjustOuts()">✎ アウト修正</button></div><div class="hint" style="margin-top:8px">3アウトになると自動で次の攻撃へ切り替わります。</div><div class="card" style="margin-top:10px;margin-bottom:0;background:#0b1422"><div class="row between"><div><div class="title" style="margin:0">投手</div><div class="muted">${esc(g.pitching?.current?.name||g.pitcher?.name||'未登録')}　投球回 ${pitcherInningsText(g.pitching?.current||{})}</div></div><button class="btn small primary" onclick="changePitcher()">投手交代</button></div></div><button class="btn" style="width:100%;margin-top:10px" onclick="openDefensiveSub()">🧤 自チームの守備交代</button></div>
  <div class="card"><div class="title">イニングスコア</div>${scoreTable(g)}</div>`;
 }
-function setOppRuns(n){const g=db.current;if(!g)return; if(g.half!==opponentHalf(g)){return toast('現在は相手チームの攻撃ではありません');} pushGameHistory();ensureInning(g,g.inning-1);const x=g.innings[g.inning-1];x.opp=Math.max(0,Number(n)||0);g.scoreOpp=g.innings.reduce((a,v)=>a+(Number(v.opp)||0),0);g.outs=0;g.runners=[0,0,0];g.runnerNames=[null,null,null];advanceHalf(g);save();render();toast(`${g.inning}回${g.half}・自チーム攻撃へ`)}
+function setOppRuns(n){
+ const g=db.current;if(!g)return;
+ if(g.half!==opponentHalf(g)){return toast('現在は相手チームの攻撃ではありません');}
+ pushGameHistory();ensureInning(g,g.inning-1);
+ const x=g.innings[g.inning-1];x.opp=Math.max(0,Number(n)||0);
+ g.scoreOpp=g.innings.reduce((a,v)=>a+(Number(v.opp)||0),0);
+ g.outs=0;g.runners=[0,0,0];g.runnerNames=[null,null,null];
+ advanceHalf(g);
+ save();render();
+ toast(g.startedLate?`${g.inning}回${g.half}・次の打者確認へ`:`${g.inning}回${g.half}・自チーム攻撃へ`);
+}
 function oppOut(){
  const g=db.current;if(!g)return;pushGameHistory();g.outs=(Number(g.outs)||0)+1;addPitcherOut(g);
  if(endHalfOnThreeOuts(g)){save();render();toast(`${g.inning}回${g.half}へ`);return;}
