@@ -105,7 +105,7 @@ function setupView(){
  <div class="setupLabel">自チームの攻撃順</div><div class="seg"><button id="setupFirst" class="active" onclick="setSetupHalf('先攻')">先攻</button><button id="setupSecond" onclick="setSetupHalf('後攻')">後攻</button></div>
  <div class="setupLabel">開始方法</div><div class="seg"><button id="setupNormal" class="active" onclick="setSetupMode('normal')">最初から</button><button id="setupLate" onclick="setSetupMode('late')">途中から</button></div>
  <div class="setupGrid"><div><div class="setupLabel">相手チーム</div><input id="setupOpponent" class="input" value="桜ヶ丘高校"></div><div><div class="setupLabel">開始イニング</div><input id="setupInning" class="input" type="number" min="1" value="1" onchange="refreshLateSetup()"></div></div>
- <div class="setupLabel">開始する攻撃</div><div class="seg"><button id="setupTop" class="active" onclick="setSetupAttack('表')">表</button><button id="setupBottom" onclick="setSetupAttack('裏')">裏</button></div>
+ <div class="setupLabel">開始する攻撃（途中からの場合のみ）</div><div class="seg"><button id="setupTop" class="active" onclick="setSetupAttack('表')">表</button><button id="setupBottom" onclick="setSetupAttack('裏')">裏</button></div>
  <div id="lateFields" class="hidden"><div class="setupLabel">途中開始時の状況</div><div class="setupLabel" id="lateScoreTitle">これまでの得点</div><div id="lateScoreFields" class="quickScore"></div><div class="hint" style="margin-top:8px">開始イニングより前の各回の得点を入力してください。</div><div class="setupLabel">現在のアウト</div><div id="setupOutsSeg" class="seg"><button class="active" onclick="setSetupOuts(0)">0</button><button onclick="setSetupOuts(1)">1</button><button onclick="setSetupOuts(2)">2</button></div><div class="setupLabel">現在の打順</div><div id="setupBatterSeg" class="seg" style="display:grid;grid-template-columns:repeat(3,1fr)">${Array.from({length:9},(_,i)=>`<button class="${i===0?'active':''}" onclick="setSetupBatter(${i})">${i+1}番</button>`).join('')}</div></div>
  <button class="btn primary" style="width:100%;margin-top:14px" onclick="createConfiguredGame()">この条件で試合を開始</button></div>`;
 }
@@ -123,14 +123,14 @@ function setSetupAttack(v){setupState.attack=v;document.getElementById('setupTop
 function setSetupOuts(v){setupState.outs=v;document.querySelectorAll('#setupOutsSeg button').forEach(b=>b.classList.toggle('active',Number(b.textContent)===v))}
 function setSetupBatter(v){setupState.batterIndex=v;document.querySelectorAll('#setupBatterSeg button').forEach((b,i)=>b.classList.toggle('active',i===v))}
 function createConfiguredGame(){
- const late=setupState.mode==='late',inning=Math.max(1,Number(document.getElementById('setupInning')?.value)||1),half=late?setupState.attack:(setupState.order==='先攻'?'表':'裏');
+ const late=setupState.mode==='late',inning=Math.max(1,Number(document.getElementById('setupInning')?.value)||1),half=late?setupState.attack:'表';
  let innings=[],scoreUs=0,scoreOpp=0;
  if(late&&inning>1){for(let i=1;i<inning;i++){const top=Math.max(0,Number(document.getElementById(`setupTop${i}`)?.value)||0),bottom=Math.max(0,Number(document.getElementById(`setupBottom${i}`)?.value)||0),us=setupState.order==='先攻'?top:bottom,opp=setupState.order==='先攻'?bottom:top;innings.push({us,opp});scoreUs+=us;scoreOpp+=opp;}}
  newGame(setupState.order,{opponent:document.getElementById('setupOpponent')?.value||'相手校',inning,half,outs:late?setupState.outs:0,scoreUs,scoreOpp,batterIndex:late?setupState.batterIndex:0,startedLate:late,initialInnings:innings});toast(late?`${inning}回${half}から記録を開始`:'試合を開始');
 }
 
 function gameHeader(){
- let g=db.current;if(!g)return `<div class="card"><div class="title">試合を始める</div><p class="muted">先攻・後攻を選んでから試合を開始します。</p><div class="orderGrid"><button class="orderBtn active" onclick="startNewGame('先攻')">先攻</button><button class="orderBtn" onclick="startNewGame('後攻')">後攻</button></div><p class="hint">先攻なら1回表から、後攻なら相手の1回表を経て自チームの1回裏から記録します。</p></div>`;
+ let g=db.current;if(!g)return `<div class="card"><div class="title">試合を始める</div><p class="muted">先攻・後攻を選んでから試合を開始します。</p><div class="orderGrid"><button class="orderBtn active" onclick="startNewGame('先攻')">先攻</button><button class="orderBtn" onclick="startNewGame('後攻')">後攻</button></div><p class="hint">先攻なら1回表から、後攻なら相手チームの1回表（得点入力）→自チームの1回裏から記録します。</p></div>`;
  const max=Math.max(9,g.innings?.length||0);
  const own=ownHalf(g), opp=opponentHalf(g);
  const firstIsOwn=g.order!=='後攻';
