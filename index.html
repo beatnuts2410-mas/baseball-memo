@@ -92,7 +92,7 @@ function newGame(order='先攻',opts={}){
  const half=opts.half || '表';
  const outs=Math.min(2,Math.max(0,Number(opts.outs)||0));
  const scoreUs=Math.max(0,Number(opts.scoreUs)||0), scoreOpp=Math.max(0,Number(opts.scoreOpp)||0);
- db.current={id:Date.now(),date:ds,tournament:'',stadium:'',opponent:opts.opponent||'桜ヶ丘高校',innings:opts.initialInnings||[],pa:[],lineup:[],batterIndex:Math.min(8,Math.max(0,Number(opts.batterIndex)||0)),scoreUs,scoreOpp,inning,half,order:o,outs,runners:[0,0,0],runnerNames:[null,null,null],finished:false,pitcher:null,dh:null,subs:[],pitching:{current:null,history:[]},startedLate:!!opts.startedLate,eventSeq:0};
+ db.current={id:Date.now(),date:ds,tournament:'',stadium:'',opponent:opts.opponent||'桜ヶ丘高校',innings:opts.initialInnings||[],pa:[],lineup:[],batterIndex:Math.min(8,Math.max(0,Number(opts.batterIndex)||0)),scoreUs,scoreOpp,inning,half,order:o,outs,runners:[0,0,0],runnerNames:[null,null,null],finished:false,pitcher:null,dh:null,subs:[],pitching:{current:null,history:[]},startedLate:!!opts.startedLate,lateSetupStep:opts.startedLate?0:null,eventSeq:0};
  gameHistory=[]; save(); render();
 }
 function startNewGame(order){newGame(order);toast(order==='先攻'?'先攻で試合を開始':'後攻で試合を開始')}
@@ -297,7 +297,7 @@ function recordView(){
  <div class="card"><div class="row between"><div class="title" style="margin:0">今日の試合経過</div><button class="btn small" onclick="finishGame()">試合終了</button></div><div class="history">${g.pa.slice(-8).reverse().map((x,i)=>{const isLast=i===0;return `<div class="hist"><div class="row between"><div><b>${x.inning}回${x.half}</b>　${esc(x.batter)} <span class="muted">→</span> ${esc(x.result)}${x.runs?` <span class="badge">${x.runs}点</span>`:''}</div>${`<button class="editBtn" onclick="restartFromPA(${g.pa.length-1-i})">✎ この打席から修正</button>`}</div></div>`}).join('')||`<div class="empty">まだ記録がありません</div>`}</div></div>`;
 }
 function lateBatterView(g){
- const slot=Math.min(8,Number(g.batterIndex)||0);
+ const slot=Math.min(8,Number(g.lateSetupStep ?? g.batterIndex)||0);
  const selected=g.lineup?.[slot]?.name||'';
  const used=new Set((g.lineup||[]).filter(Boolean).map(p=>p?.name));
  const opts=db.team.players.filter(p=>p.role!=='manager'&&(!used.has(p.name)||p.name===selected)).map(p=>`<option value="${esc(p.name)}" ${p.name===selected?'selected':''}>${esc(p.name)}${p.num?' #'+p.num:''}</option>`).join('');
@@ -308,14 +308,15 @@ function lateBatterView(g){
 function saveLateBatter(){
  const g=db.current; if(!g)return;
  const name=document.getElementById('lateBatterSelect')?.value; if(!name)return toast('選手を選択してください');
- const slot=Math.min(8,Number(g.batterIndex)||0);
+ const slot=Math.min(8,Number(g.lateSetupStep ?? g.batterIndex)||0);
  const used=(g.lineup||[]).some((p,i)=>i!==slot&&p?.name===name); if(used)return toast('同じ選手は登録できません');
  pushGameHistory(); const pl=db.team.players.find(p=>p.name===name); g.lineup[slot]=Object.assign({},pl,{pos:''});
+ g.lateSetupStep=slot;
  save(); render(); toast(`${slot+1}番 ${name} を確定しました。打席結果を選択してください`);
 }
 function latePA(result){
  const g=db.current; if(!g)return;
- const slot=Math.min(8,Number(g.batterIndex)||0), b=g.lineup?.[slot];
+ const slot=Math.min(8,Number(g.lateSetupStep ?? g.batterIndex)||0), b=g.lineup?.[slot];
  if(!b)return toast(`${slot+1}番打者を先に選択してください`);
  pa(result);
 }
@@ -449,10 +450,12 @@ function pa(result){
   g.eventSeq=(Number(g.eventSeq)||0)+1; g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:b.name,result,rbi:mv.rbi,runs:mv.scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(g.runners),afterRunnerNames:cloneRunnerNames(g.runnerNames),outsAfter:g.outs,beforeScoreUs:Number(g.scoreUs)-mv.scored,beforeScoreUsSnapshot:Number(g.scoreUs)-mv.scored,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:g.outs-out,beforeBatterIndex:g.batterIndex});
   updateInningScore(g);
   g.batterIndex++;
+  if(g.startedLate && g.batterIndex<9) g.lateSetupStep=g.batterIndex;
   const summary=mv.scored?` ${mv.scored}点`:(mv.detail?` ${mv.detail}`:'');
   if(!g.startedLate || g.lineup.length>=9){ if(endHalfOnThreeOuts(g)){} }
   if(g.startedLate && g.batterIndex>=9){
     g.startedLate=false;
+    g.lateSetupStep=null;
     g.batterIndex=0;
     save();render();toast('1〜9番の打順確認が完了しました。通常の記録画面に切り替えます');
     return;
