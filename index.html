@@ -152,15 +152,28 @@ function advanceHalf(g){
  const inning=Math.max(1,Number(g.inning)||1);
  const own=ownHalf(g), opp=opponentHalf(g);
  ensureInning(g,inning-1);
- // 必ず「現在の回の自チーム攻撃→同じ回の相手攻撃→次の回の自チーム攻撃」
- // の順で進める。3アウト時はこの関数だけがイニング/表裏を変更する。
- if(g.half===own){
-   g.inning=inning;
-   g.half=opp;
+ // 攻撃順は「先攻＝表→裏→次の表…」「後攻＝表→裏→次の表…」。
+ // 自チームが後攻の場合、1回表（相手）を記録したら必ず1回裏へ進む。
+ if(g.half===opp){
+   // 相手攻撃終了 → 自チーム攻撃。後攻なら同じ回、先攻なら次の回。
+   if(own==='裏'){
+     g.inning=inning;
+     g.half=own;
+   }else{
+     g.inning=inning+1;
+     g.half=own;
+     ensureInning(g,g.inning-1);
+   }
  }else{
-   g.inning=inning+1;
-   g.half=own;
-   ensureInning(g,g.inning-1);
+   // 自チーム攻撃終了 → 相手攻撃。先攻なら同じ回、後攻なら次の回。
+   if(own==='表'){
+     g.inning=inning;
+     g.half=opp;
+   }else{
+     g.inning=inning+1;
+     g.half=opp;
+     ensureInning(g,g.inning-1);
+   }
  }
  g.outs=0;
  g.runners=[0,0,0];
@@ -258,7 +271,7 @@ function recordView(){
  }
  if(g.half!==ownHalf(g)) return opponentView();
  let b=g.lineup[g.batterIndex%9]||{name:"打者"};
- let labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['四球','walk'],['死球','walk'],['三振','out'],['犠打','good'],['犠飛','good'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out'],['その他','']];
+ let labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['四球','walk'],['死球','walk'],['三振','out'],['犠打','good'],['犠飛','good'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out'],['相手エラー','good'],['その他','']];
  return gameHeader()+ruleEndAlert(g)+`<div class="card"><div class="title">スコア</div>${scoreTable(g)}<button class="btn small" style="margin-top:8px" onclick="undoGame()">↩ 直前の操作を戻す</button></div>
  <div class="card current"><div class="muted">${g.inning}回${g.half}・自チーム攻撃</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${(g.batterIndex%9)+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b><button class="btn small" style="margin-top:6px" onclick="adjustOuts()">✎ アウト修正</button></div></div></div>
  <div class="card"><div class="title">打席結果を選択</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="pa('${t}')">${t}</button>`).join('')}</div></div>
@@ -307,6 +320,15 @@ function advanceRunners(g,result,batterName){
   }
   if(result==='犠飛'){if(before[2])score(1);keep(0,0);keep(1,1);syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:scored?'犠飛で三塁走者生還':''};}
   if(result==='犠打'){if(before[2])score(1);else if(before[1])keep(1,2);keep(0,1);syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:'犠打で走者を進塁'};}
+  if(result==='相手エラー'){
+    // 相手の守備エラー：打者は1塁へ進み、既存走者は1つずつ進塁。3塁走者は生還。
+    if(before[2])score(1,false);
+    if(before[1]){after[2]=1;afterNames[2]=names[1]||'走者';}
+    if(before[0]){after[1]=1;afterNames[1]=names[0]||'走者';}
+    after[0]=1;afterNames[0]=batterName;
+    syncRunnerNames(g,afterNames);
+    return {runners:after,names:afterNames,scored,rbi:0,detail:scored?`相手エラーで${scored}点・走者進塁`:'相手エラーで走者進塁'};
+  }
   if(result==='グランドルール'){syncRunnerNames(g,names);return {runners:before,names:names,scored:0,rbi:0,detail:'グランドルールで打者アウト'};}
   after=before;afterNames=names;syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored:0,rbi:0,detail:''};
 }
@@ -405,7 +427,7 @@ function restartFromPA(index){
 この打席以降の記録をいったん削除して、そこから再入力します。`))return;
  pushGameHistory(); g.scoreUs=Number(p.beforeScoreUsSnapshot ?? p.beforeScoreUs ?? 0);g.inning=p.beforeInning;g.half=p.beforeHalf;g.outs=p.beforeOuts;g.runners=cloneRunners(p.beforeRunners);g.runnerNames=cloneRunnerNames(p.beforeRunnerNames);g.batterIndex=p.beforeBatterIndex;g.pa=g.pa.slice(0,index);g.steals=(g.steals||[]).filter(x=>x.inning<p.inning || (x.inning===p.inning && x.half!==p.half));g.runnerMoves=(g.runnerMoves||[]).filter(x=>x.inning<p.inning || (x.inning===p.inning && x.half!==p.half));updateInningScore(g);save();render();toast('この打席から再入力できます');
 }
-const PA_RESULTS=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['四球','walk'],['死球','walk'],['三振','out'],['犠打','good'],['犠飛','good'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out'],['その他','']];
+const PA_RESULTS=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['四球','walk'],['死球','walk'],['三振','out'],['犠打','good'],['犠飛','good'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out'],['相手エラー','good'],['その他','']];
 function openPACorrection(){
  ensureGame(); const g=db.current;
  if(!g||!g.pa.length)return toast('まず打席を1つ記録してください');
