@@ -879,8 +879,12 @@ async function resultCanvas(g){
  const teamIcon=await loadImage('nishiharu-uniform.png');
  const W=1800, events=resultEvents(g), stats=battingStats(g), max=Math.max(9,g.innings?.length||0);
  const font='-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';
- const H=Math.min(2400,1040+Math.ceil(stats.length/10)*240+Math.ceil(events.length/12)*220+(g.pitching?.history?.length?180+(g.pitching.history.length-1)*60:0));
- const SCALE=5; const c=document.createElement('canvas');c.width=W*SCALE;c.height=H*SCALE;const ctx=c.getContext('2d');ctx.scale(SCALE,SCALE);
+ const maxInning=Math.max(9,g.innings?.length||0,events.reduce((m,e)=>Math.max(m,Number(e.inning)||1),0));
+ const inningGroups=Array.from({length:maxInning},(_,i)=>({inning:i+1,items:events.filter(e=>(Number(e.inning)||1)===i+1)}));
+ const eventLines=inningGroups.reduce((n,gp)=>n+Math.max(1,gp.items.length),0);
+ const eventSectionH=90+inningGroups.reduce((sum,gr)=>sum+112+Math.max(1,gr.items.length)*68+22,0);
+ const H=1700+Math.ceil(stats.length/9)*250+(g.pitching?.history?.length?180+(g.pitching.history.length-1)*60:0)+eventSectionH+120;
+ const SCALE=10; const c=document.createElement('canvas');c.width=W*SCALE;c.height=H*SCALE;const ctx=c.getContext('2d');ctx.scale(SCALE,SCALE);
  const bg='#060a12',panel='#0d1420',panel2='#131e2d',line='#33465f',text='#f5f7fb',muted='#9aabc0',accent='#3b82f6',accent2='#79aefc';
  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
  // ひとつ前の「見やすい」レイアウトをベースに、公式広報＋スポーツ速報の見た目へ。
@@ -937,15 +941,41 @@ async function resultCanvas(g){
  const cols=[['選手',300],['打席',70],['打数',70],['安打',70],['2B',70],['3B',70],['HR',70],['打点',80],['四球',70],['死球',70],['三振',70],['バント',70],['犠飛',70],['打率',95]];
  let x=64;cols.forEach(([lab,w])=>{cell(x,y,w,44,lab,true,'#18263a');x+=w});
  stats.forEach((st,ri)=>{y+=44;x=64;const vals=[st.name,st.pa,st.ab,st.h,st.d2,st.d3,st.hr,st.rbi,st.bb,st.hbp,st.so,st.sh,st.sf,st.ab?(st.h/st.ab).toFixed(3).replace(/^0/,''):'.000'];cols.forEach(([_,w],i)=>{cell(x,y,w,44,vals[i],i===0||i===13, i===0?panel:(ri%2?panel:'#0a111b'));x+=w})});
- y+=60;
- // 試合経過：回ごとにラインを入れ、左右に配置
- ctx.fillStyle=text;ctx.font=`950 28px ${font}`;ctx.textAlign='left';ctx.fillText('試合経過',64,y);y+=38;
- const groups=[];let last=null;events.forEach(e=>{const inn=Number(e.inning)||1;if(inn!==last){groups.push({inning:inn,items:[]});last=inn}groups.at(-1).items.push(e)});
- const colsX=[64,W/2+12],colW=W/2-88; let col=0,yy=[y,y];
- groups.forEach(gr=>{if(yy[col]+58>H-90){col++;if(col>1)col=1}let q=yy[col];ctx.fillStyle=accent;ctx.fillRect(colsX[col],q,colW,4);q+=22;ctx.fillStyle=accent2;ctx.font=`950 17px ${font}`;ctx.fillText(`${gr.inning}回`,colsX[col],q);q+=10;gr.items.forEach(e=>{q+=20;ctx.fillStyle=panel;ctx.fillRect(colsX[col],q,colW,52);ctx.strokeStyle=line;ctx.strokeRect(colsX[col],q,colW,52);ctx.fillStyle=text;ctx.font=`800 15px ${font}`;let tx=`${e.half}　${e.text}`;if(tx.length>58)tx=tx.slice(0,57)+'…';ctx.fillText(tx,colsX[col]+14,q+21);ctx.fillStyle=muted;ctx.font=`600 11px ${font}`;ctx.fillText(e.kind||'',colsX[col]+14,q+40);q+=8});yy[col]=q+18;col=col===0?1:0});
- ctx.fillStyle=muted;ctx.font=`650 15px ${font}`;ctx.textAlign='left';ctx.fillText('西春野球ノート  •  観戦しながら、思い出を残そう。',64,H-28);
+ y+=110;
+ // 試合経過・全記録：試合結果・成績と明確に分離し、1回→9回を縦に大きく表示
+ ctx.fillStyle=accent;ctx.fillRect(54,y-28,W-108,4);
+ y+=26;
+ ctx.fillStyle=text;ctx.font=`950 38px ${font}`;ctx.textAlign='left';ctx.fillText('試合経過・全記録',64,y);y+=58;
+ ctx.fillStyle=muted;ctx.font=`700 17px ${font}`;ctx.fillText('1回から順に、次のイニングを下へ追って確認できます。',64,y);y+=30;
+ inningGroups.forEach((gr,idx)=>{
+   const x=54, w=W-108;
+   const scoreUs=Number(g.innings?.[gr.inning-1]?.us)||0, scoreOpp=Number(g.innings?.[gr.inning-1]?.opp)||0;
+   const blockH=128+Math.max(1,gr.items.length)*82;
+   ctx.fillStyle=panel;ctx.fillRect(x,y,w,blockH);ctx.strokeStyle=line;ctx.lineWidth=2;ctx.strokeRect(x,y,w,blockH);
+   ctx.fillStyle=accent;ctx.fillRect(x,y,10,blockH);
+   ctx.fillStyle=accent2;ctx.font=`950 30px ${font}`;ctx.textAlign='left';ctx.fillText(`${gr.inning}回`,x+30,y+46);
+   ctx.fillStyle=muted;ctx.font=`800 17px ${font}`;ctx.fillText(`自チーム ${scoreUs}点　／　相手 ${scoreOpp}点`,x+170,y+44);
+   ctx.fillStyle=text;ctx.font=`900 18px ${font}`;ctx.fillText(`${gr.items.length}件の記録`,x+w-210,y+44);
+   let ey=y+82;
+   if(!gr.items.length){
+     ctx.fillStyle=muted;ctx.font=`700 18px ${font}`;ctx.fillText('記録なし',x+30,ey+25);
+   }else{
+     gr.items.forEach((e,ei)=>{
+       if(ei%2===0){ctx.fillStyle=panel2;ctx.fillRect(x+24,ey-25,w-48,56)}
+       ctx.fillStyle=accent2;ctx.font=`900 19px ${font}`;ctx.fillText(`${e.half}`,x+38,ey+8);
+       ctx.fillStyle=text;ctx.font=`850 22px ${font}`;
+       let tx=`${e.text}`; if(tx.length>78)tx=tx.slice(0,77)+'…';
+       ctx.fillText(tx,x+92,ey+8);
+       ctx.fillStyle=muted;ctx.font=`700 14px ${font}`;ctx.textAlign='right';ctx.fillText(e.kind||'',x+w-38,ey+8);ctx.textAlign='left';
+       ey+=82;
+     });
+   }
+   y+=blockH+22;
+ });
+ ctx.fillStyle=muted;ctx.font=`650 17px ${font}`;ctx.textAlign='left';ctx.fillText('西春野球ノート  •  観戦しながら、思い出を残そう。',64,H-32);
  return c;
 }
+
 function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
 async function saveResultImage(id){const g=db.games.find(x=>x.id===id);if(!g)return;try{const c=await resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(!blob)return toast('画像作成に失敗しました');const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`西春野球ノート_${g.date||'試合結果'}_${g.opponent||'相手'}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('試合結果画像を保存しました')}catch(e){toast('画像保存に失敗しました')}}
 async function shareGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return;const firstName=g.order==='後攻'?(g.opponent||'相手校'):db.team.name;
