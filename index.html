@@ -159,6 +159,44 @@ function ensureInning(g,index){
  while(g.innings.length<=i) g.innings.push({us:0,opp:0});
  if(!g.innings[i]) g.innings[i]={us:0,opp:0};
 }
+function autoFinishGame(g,result){
+ if(!g||g.finished)return false;
+ g.finished=true;
+ g.finishedAt=new Date().toISOString();
+ g.finishReason=result||'試合終了';
+ g.eventSeq=Number(g.eventSeq)||0;
+ const saved=JSON.parse(JSON.stringify(g));
+ const idx=db.games.findIndex(x=>x.id===g.id);
+ if(idx>=0)db.games[idx]=saved;else db.games.push(saved);
+ db.current=null;resultGameId=saved.id;tab='data';save();render();
+ setTimeout(()=>viewGameResult(saved.id),80);
+ toast(result||'試合終了');
+ return true;
+}
+function checkGameEndAfterHalf(g,endedHalf){
+ if(!g||g.finished)return true;
+ const inning=Math.max(1,Number(g.inning)||1);
+ if(inning<9)return false;
+ const own=ownHalf(g),opp=opponentHalf(g);
+ const us=Number(g.scoreUs)||0, os=Number(g.scoreOpp)||0;
+ if(inning===9){
+   // 後攻チーム：9回表（相手攻撃）終了時にリードしていれば、その時点でゲームセット。
+   if(own==='裏' && endedHalf===opp && us>os)return autoFinishGame(g,'9回表終了・自チーム勝利');
+   // 後攻チーム：9回裏に逆転したら即ゲームセット。9回裏終了時の勝敗も確定。
+   if(own==='裏' && endedHalf===own){
+     if(us>os)return autoFinishGame(g,'9回裏・逆転勝ち');
+     if(us<os)return autoFinishGame(g,'9回裏終了・敗戦');
+     return false; // 同点なら10回表へ
+   }
+   // 先攻チーム：9回裏（相手攻撃）終了時に勝敗確定。9回表終了時はまだ相手攻撃が残る。
+   if(own==='表' && endedHalf===opp){
+     if(us>os)return autoFinishGame(g,'9回裏終了・勝利');
+     if(us<os)return autoFinishGame(g,'9回裏終了・敗戦');
+     return false; // 同点なら10回表へ
+   }
+ }
+ return false;
+}
 function advanceHalf(g){
  if(!g)return false;
  const inning=Math.max(1,Number(g.inning)||1);
@@ -196,6 +234,8 @@ function endHalfOnThreeOuts(g){
  if(!g)return false;
  g.outs=Math.max(0,Number(g.outs)||0);
  if(g.outs<3)return false;
+ const endedHalf=g.half;
+ if(checkGameEndAfterHalf(g,endedHalf))return true;
  advanceHalf(g);
  return true;
 }
@@ -228,7 +268,7 @@ function setOutsAdjusted(n){
  const g=db.current;if(!g)return;
  pushGameHistory();
  g.outs=Math.max(0,Math.min(3,Number(n)||0));
- if(g.outs===3){advanceHalf(g);save();closeOutsAdjust();render();toast(`${g.inning}回${g.half}へ`);return;}
+ if(g.outs===3){const endedHalf=g.half;if(checkGameEndAfterHalf(g,endedHalf)){closeOutsAdjust();return;}advanceHalf(g);save();closeOutsAdjust();render();toast(`${g.inning}回${g.half}へ`);return;}
  save();closeOutsAdjust();render();toast(`アウトを${g.outs}に修正しました`);
 }
 function openDefensiveSub(){
@@ -342,13 +382,15 @@ function setOppRuns(n){
  const x=g.innings[g.inning-1];x.opp=Math.max(0,Number(n)||0);
  g.scoreOpp=g.innings.reduce((a,v)=>a+(Number(v.opp)||0),0);
  g.outs=0;g.runners=[0,0,0];g.runnerNames=[null,null,null];
+ const endedHalf=g.half;
+ if(checkGameEndAfterHalf(g,endedHalf))return;
  advanceHalf(g);
  save();render();
  toast(g.startedLate?`${g.inning}回${g.half}・次の打者確認へ`:`${g.inning}回${g.half}・自チーム攻撃へ`);
 }
 function oppOut(){
  const g=db.current;if(!g)return;pushGameHistory();g.outs=(Number(g.outs)||0)+1;addPitcherOut(g);
- if(endHalfOnThreeOuts(g)){save();render();toast(`${g.inning}回${g.half}へ`);return;}
+ if(endHalfOnThreeOuts(g)){if(g.finished)return;save();render();toast(`${g.inning}回${g.half}へ`);return;}
  save();render();
 }
 function finishHalf(){pushGameHistory();const g=db.current;if(!g)return;const x=g.innings[g.inning-1]||{us:0,opp:0};x.us=Number(x.us)||0;x.opp=Number(x.opp)||0;g.innings[g.inning-1]=x;advanceHalf(g);save();render();toast(`${g.inning}回${g.half}へ`)}
@@ -498,12 +540,16 @@ function pa(result){
  const paIndex=g.pa.length;
  g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:b.name,result,rbi:mv.rbi,runs:mv.scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(g.runners),afterRunnerNames:cloneRunnerNames(g.runnerNames),outsAfter:g.outs,beforeScoreUs:Number(g.scoreUs)-mv.scored,beforeScoreUsSnapshot:Number(g.scoreUs)-mv.scored,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:g.outs-out,beforeBatterIndex:g.batterIndex});
  updateInningScore(g);
+ if(g.inning===9 && g.half===ownHalf(g) && ownHalf(g)==='裏' && Number(g.scoreUs)>Number(g.scoreOpp)){
+   autoFinishGame(g,'9回裏・サヨナラ勝ち');
+   return;
+ }
  g.batterIndex++;
  if(g.startedLate && g.batterIndex<9) g.lateSetupStep=g.batterIndex;
  const summary=mv.scored?` ${mv.scored}点`:(mv.detail?` ${mv.detail}`:'');
  const threeOuts = g.outs>=3;
  if(g.startedLate && g.batterIndex>=9){g.startedLate=false;g.lateSetupStep=null;g.batterIndex=0}
- if(threeOuts){ endHalfOnThreeOuts(g); }
+ if(threeOuts){ endHalfOnThreeOuts(g); if(g.finished)return; }
  if(!g.startedLate && g.batterIndex===0 && g.lineup.length>=9 && threeOuts){save();render();toast('3アウト：攻守交代。相手チームの攻撃です');return;}
  save();render();toast(`${b.name}：${result}${summary}`);
 }
@@ -535,7 +581,7 @@ function renderRunnerConfirmEditor(){
  const batterBase=p.batterDest==='out'?'アウト':`${p.batterDest}塁`;
  const runnerRows=[0,1,2].filter(i=>before[i]).map(i=>`<div class="manualRunnerRow"><div class="manualRunnerName">${i+1}塁<br><span class="muted">${esc(names[i]||'走者')}</span></div><select class="manualRunnerSelect" onchange="setManualConfirm('runnerDest',Object.assign([],db.current.pendingRunnerConfirm.runnerDest,{[${i}]:this.value}))">${runnerDestinationOptions(i+1,p.runnerDest?.[i])}</select></div>`).join('');
  const outsBefore=Number(p.beforeOuts)||0;
- const outsBtns=[1,2,3].map(n=>`<button class="${Number(p.afterOuts)===n?'active':''}" onclick="setManualConfirm('outs',${n})" ${n<outsBefore?'disabled style="opacity:.35"':''}>${n}アウト</button>`).join('');
+ const outsBtns=[0,1,2,3].map(n=>`<button class="${Number(p.afterOuts)===n?'active':''}" onclick="setManualConfirm('outs',${n})" ${n<outsBefore?'disabled style="opacity:.35"':''}>${n}アウト</button>`).join('');
  const runBtns=[0,1,2,3].map(n=>`<button class="${Number(p.scored)===n?'active':''}" onclick="setManualConfirm('runs',${n})">${n}点</button>`).join('');
  document.getElementById('runnerConfirmTarget').textContent=`${p.result}：${p.batter} の進塁・アウト・得点を確認`;
  document.getElementById('runnerConfirmSummary').innerHTML=`
@@ -581,12 +627,17 @@ function confirmRunnerAdvance(){
  const rbi=scored;
  g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:p.batter,result:p.result,rbi,runs:scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(after),afterRunnerNames:cloneRunnerNames(afterNames),outsAfter:g.outs,beforeScoreUs:beforeScore,beforeScoreUsSnapshot:beforeScore,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:Number(p.beforeOuts),beforeBatterIndex:p.batterIndex});
  updateInningScore(g);
+ if(g.inning===9 && g.half===ownHalf(g) && ownHalf(g)==='裏' && Number(g.scoreUs)>Number(g.scoreOpp)){
+   autoFinishGame(g,'9回裏・サヨナラ勝ち');
+   return;
+ }
  g.batterIndex++;
  if(g.startedLate && g.batterIndex<9)g.lateSetupStep=g.batterIndex;
  g.pendingRunnerConfirm=null;
  const threeOuts=g.outs>=3;
  if(g.startedLate && g.batterIndex>=9){g.startedLate=false;g.lateSetupStep=null;g.batterIndex=0}
  if(threeOuts)endHalfOnThreeOuts(g);
+ if(g.finished)return;
  save();closeRunnerConfirm();render();
  toast(threeOuts?`${p.batter}：${p.result} → 3アウト・攻守交代`:`${p.batter}：${p.result}${scored?` ${scored}点`:''} → 次の打者へ`);
 }
@@ -826,7 +877,7 @@ function dataView(){
 async function loadImage(src){return await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=src;});}
 async function resultCanvas(g){
  const teamIcon=await loadImage('nishiharu-uniform.png');
- const W=1600, events=resultEvents(g), stats=battingStats(g), max=Math.max(1,g.innings?.length||0);
+ const W=1800, events=resultEvents(g), stats=battingStats(g), max=Math.max(9,g.innings?.length||0);
  const font='-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';
  const H=Math.min(2400,1040+Math.ceil(stats.length/10)*240+Math.ceil(events.length/12)*220+(g.pitching?.history?.length?180+(g.pitching.history.length-1)*60:0));
  const SCALE=5; const c=document.createElement('canvas');c.width=W*SCALE;c.height=H*SCALE;const ctx=c.getContext('2d');ctx.scale(SCALE,SCALE);
@@ -857,8 +908,8 @@ async function resultCanvas(g){
  let y=heroY+heroH+42;
  // 得点板
  ctx.textAlign='left';ctx.fillStyle=text;ctx.font=`950 28px ${font}`;ctx.fillText('得点板',64,y);y+=22;
- const left=64,top=y,rowH=64,teamW=360,totalW=100,usable=W-left*2-teamW-totalW,cellW=Math.max(70,Math.min(105,usable/max));
- const cell=(x,yy,w,h,val,bold=false,fill=panel2)=>{ctx.fillStyle=fill;ctx.fillRect(x,yy,w,h);ctx.strokeStyle=line;ctx.lineWidth=1;ctx.strokeRect(x,yy,w,h);ctx.fillStyle=text;ctx.font=`${bold?'950':'800'} ${bold?22:21}px ${font}`;ctx.textAlign='center';ctx.fillText(String(val),x+w/2,yy+h/2+7)};
+ const left=54,top=y,rowH=78,teamW=380,totalW=120,usable=W-left*2-teamW-totalW,cellW=Math.max(92,Math.min(138,usable/max));
+ const cell=(x,yy,w,h,val,bold=false,fill=panel2)=>{ctx.fillStyle=fill;ctx.fillRect(x,yy,w,h);ctx.strokeStyle=line;ctx.lineWidth=1;ctx.strokeRect(x,yy,w,h);ctx.fillStyle=text;ctx.font=`${bold?'950':'800'} ${bold?25:24}px ${font}`;ctx.textAlign='center';ctx.fillText(String(val),x+w/2,yy+h/2+7)};
  cell(left,top,teamW,rowH,'チーム',true,'#18263a');
  for(let i=0;i<max;i++)cell(left+teamW+i*cellW,top,cellW,rowH,`${i+1}回`,true,'#18263a');
  cell(left+teamW+max*cellW,top,totalW,rowH,'R',true,'#203a60');
