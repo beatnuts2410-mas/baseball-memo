@@ -255,6 +255,37 @@ body{background:linear-gradient(180deg,#ffffff 0%,#f4fbf6 45%,#e8f7ec 100%)!impo
 .sportsBoard .activeInning{background:#b7efc4!important;color:#111!important}
 .launchPrimary:active,.btn.primary:active{background:#15803d!important}
 </style>
+
+<style>
+/* v2.58: light mode + black text + result order/color grouping */
+:root{--bg:#f4fbf6;--panel:#ffffff;--panel2:#eaf8ee;--line:#c7dfce;--text:#111111;--muted:#243229;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--yellow:#f59e0b}
+html,body{background:#f4fbf6!important;color:#111!important}
+body{background:linear-gradient(180deg,#ffffff 0%,#f7fcf8 48%,#edf8f0 100%)!important;color:#111!important}
+body *{color:inherit}
+.card,.panel,.modal,.subCard,.resultPanel,.resultHero{background:#fff!important;color:#111!important;border-color:#c7dfce}
+.title,.batter,h1,h2,h3,h4,h5,h6,strong,b,label,button,.btn,.result,.setupLabel,.tab,.badge,.muted,.hint,.corrNote,.shareNote,.manualConfirmHint,.importHelp{color:#111!important}
+.muted,.hint,.corrNote,.shareNote,.manualConfirmHint,.importHelp{color:#26352b!important}
+.btn,.resultTool,.fileBtn,.manualRunnerSelect,.select,.rosterTextarea{background:#fff!important;color:#111!important;border-color:#9fc8aa!important}
+.launchPrimary,.btn.primary,.resultTool.primary{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important}
+/* 打席結果：青→緑→オレンジ→赤の順で、すべて太線 */
+.resultgrid .result{border-width:4px!important;border-style:solid!important;background:#fff!important;color:#111!important;min-height:58px}
+.resultgrid .result.hit{border-color:#2563eb!important}
+.resultgrid .result.good{border-color:#16a34a!important}
+.resultgrid .result.walk{border-color:#f59e0b!important}
+.resultgrid .result.out{border-color:#dc2626!important}
+.resultgrid .result.selected{outline:3px solid rgba(17,17,17,.22)!important;box-shadow:0 0 0 2px rgba(255,255,255,.9) inset!important}
+/* ライトモードの主要面 */
+.runnerGroundCard,.runnerPlayCard{background:linear-gradient(180deg,#effbf2,#ddf6e5)!important;color:#111!important;border-color:#9fd1aa!important}
+.runnerGroundCard *, .runnerPlayCard *{color:#111!important}
+.runnerGroundCard .btn,.runnerPlayCard .runnerActionBtn{background:#fff!important;color:#111!important;border-color:#78bd8a!important}
+.runnerGroundCard .btn.green{background:#c9f5d4!important;color:#111!important;border-color:#16a34a!important}
+.top,.tabs,header{background:rgba(255,255,255,.95)!important;color:#111!important;border-color:#c7dfce!important}
+.hist,.playerrow,.stat,.eventRow,.manualConfirmSection,.rosterBox,.shareStep{background:#fff!important;color:#111!important;border-color:#d2e4d7!important}
+.sportsHero,.sportsBoard,.stadiumBoard{background:#fff!important;color:#111!important}
+.sportsHeroTop,.sportsBoard thead th,.modernBoard thead th,.modernStats th,.resultStatsTable th{background:#eaf8ee!important;color:#111!important}
+.sportsInning,.modernBoard .modernR,.sportsBoard .total{background:#c9f5d4!important;color:#111!important}
+.tab.active,.sportsLive,.num{color:#15803d!important}
+</style>
 </head>
 <body>
 <div class="app">
@@ -524,7 +555,7 @@ function recordView(){
    const slot=Math.min(8,Number(g.batterIndex)||0);
    if(!g.lineup?.[slot]?.name)return lateBatterView(g);
    const b=g.lineup[slot];
-   const labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['四球','walk'],['死球','walk'],['三振','out'],['バント','good'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out'],['相手エラー','good']];
+   const labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['バント','good'],['相手エラー','good'],['四球','walk'],['死球','walk'],['三振','out'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out']];
    return gameHeader()+ruleEndAlert(g)+`<div class="card"><div class="title">スコア</div>${scoreTable(g)}</div><div class="card current"><div class="muted">途中開始・打順確認中</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${slot+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b></div></div></div><div class="card runnerGroundCard"><div class="title">走者・グランド</div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div></div><div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">走者がいる時に選択</span></div><div class="stealGrid" style="margin-top:10px"><button class="runnerActionBtn" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}>🏃 盗塁</button><button class="runnerActionBtn" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}>⚾ 捕逸(パスボール)</button><button class="runnerActionBtn" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}>🥎 暴投(ワイルドピッチ)</button><button class="runnerActionBtn" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}>🚨 ボーク</button></div></div><div class="card"><div class="title">${slot+1}番の打席結果を選択</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="latePA('${t}')">${t}</button>`).join('')}</div></div>`;
  }
  // 攻撃中の判定はオーダー未確定でも優先。後攻スタートなら1回表の相手得点を先に入力できる。
@@ -547,7 +578,7 @@ function lateBatterView(g){
  const selected=g.lineup?.[slot]?.name||'';
  const used=new Set((g.lineup||[]).filter(Boolean).map(p=>p?.name));
  const opts=db.team.players.filter(p=>p.role!=='manager'&&(!used.has(p.name)||p.name===selected)).map(p=>`<option value="${esc(p.name)}" ${p.name===selected?'selected':''}>${esc(p.name)}${p.num?' #'+p.num:''}</option>`).join('');
- const labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['四球','walk'],['死球','walk'],['三振','out'],['バント','good'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out'],['相手エラー','good']];
+ const labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['バント','good'],['相手エラー','good'],['四球','walk'],['死球','walk'],['三振','out'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out']];
  return gameHeader()+`<div class="card current"><div class="title">途中開始：${slot+1}番打者を確認</div><p class="muted">「打順確認中」です。${slot+1}番打者を選択して、打席結果を入力してください。入力後、進塁先・アウト・得点を確認してから次の打者へ進みます。</p><select id="lateBatterSelect" class="select"><option value="">${slot+1}番の選手を選択</option>${opts}</select><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveLateBatter()">${slot+1}番を確定して打席結果へ</button></div>
  <div class="card"><div class="title">現在の打順確認</div>${Array.from({length:9},(_,i)=>`<div class="row between" style="padding:8px 0;border-bottom:1px solid #243248"><span>${i+1}番</span><b>${esc(g.lineup[i]?.name||'未登録')}</b></div>`).join('')}</div>`;
 }
@@ -847,7 +878,7 @@ function restartFromPA(index){
 この打席以降の記録をいったん削除して、そこから再入力します。`))return;
  pushGameHistory(); g.scoreUs=Number(p.beforeScoreUsSnapshot ?? p.beforeScoreUs ?? 0);g.inning=p.beforeInning;g.half=p.beforeHalf;g.outs=p.beforeOuts;g.runners=cloneRunners(p.beforeRunners);g.runnerNames=cloneRunnerNames(p.beforeRunnerNames);g.batterIndex=p.beforeBatterIndex;g.pa=g.pa.slice(0,index);g.steals=(g.steals||[]).filter(x=>x.inning<p.inning || (x.inning===p.inning && x.half!==p.half));g.runnerMoves=(g.runnerMoves||[]).filter(x=>x.inning<p.inning || (x.inning===p.inning && x.half!==p.half));updateInningScore(g);save();render();toast('この打席から再入力できます');
 }
-const PA_RESULTS=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['四球','walk'],['死球','walk'],['三振','out'],['バント','good'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out'],['相手エラー','good']];
+const PA_RESULTS=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['バント','good'],['相手エラー','good'],['四球','walk'],['死球','walk'],['三振','out'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out']];
 function openPACorrection(){
  ensureGame(); const g=db.current;
  if(!g||!g.pa.length)return toast('まず打席を1つ記録してください');
