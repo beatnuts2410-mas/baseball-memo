@@ -317,6 +317,62 @@ input::placeholder,textarea::placeholder{color:#526257!important}
 /* inline dark backgrounds from older markup */
 [style*="background:#0b1422"],[style*="background:#101a29"],[style*="background:#0a1220"],[style*="background:#111d2d"],[style*="background:#080e17"],[style*="background:#172235"],[style*="background:#0b1422"]{background:#fff!important;color:#111!important}
 </style>
+
+<style id="final-light-mode-v260">
+/* FINAL LIGHT MODE: intentional full-app override */
+:root{
+ --bg:#f7f7f5!important;--panel:#ffffff!important;--panel2:#f1f1ee!important;
+ --line:#d9d9d4!important;--text:#111111!important;--muted:#444444!important;
+ --blue:#2563eb!important;--green:#16a34a!important;--red:#dc2626!important;--yellow:#d97706!important;
+}
+html,body{background:#f7f7f5!important;color:#111!important;color-scheme:light!important}
+body{background:#f7f7f5!important}
+.app{background:#f7f7f5!important;color:#111!important}
+.top,.tabs{background:#fff!important;color:#111!important;border-color:#ddd!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.brand,.sub,.title,.row,.between,.team,.batter,.p,.num,.muted,.hint,.small,.label,.current,.scoretable,.eventRow,.eventGroupTitle,.resultWin,.resultScore,.resultTeamName,.resultTeamRole,.resultModernScore,.resultPanelTitle,.resultHint,.resultBack,.sportsTeamLabel,.sportsCenter .sportsStatus,.sportsFooter,.sportsFooter strong{color:#111!important}
+.card,.resultPanel,.resultHero,.sportsHero,.subCard,.runnerCard,.manualConfirmSection,.rosterBox,.shareStep,.stat,.eventRow,.hist,.playerrow,.resultTool,.resultStatsWrap,.photoBoard,.sportsBoard,.sportsMiniInfo,.sportsHeroTop{background:#fff!important;color:#111!important;border-color:#d9d9d4!important;box-shadow:0 3px 14px rgba(0,0,0,.05)!important}
+.input,.select,.rosterTextarea,.subSelect{background:#fff!important;color:#111!important;border:1px solid #bdbdb7!important}
+.input::placeholder,.rosterTextarea::placeholder{color:#666!important}
+.btn,.secondaryBtn,.fileBtn,.subChoice,.resultTool,.manualConfirmGrid button,.runnerActionBtn,.primaryBtn{background:#f2f2ef!important;color:#111!important;border-color:#bdbdb7!important}
+.btn.primary,.launchPrimary,.primaryBtn{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important}
+.btn.green{background:#dcfce7!important;color:#111!important;border-color:#86efac!important}
+.btn.red{background:#fee2e2!important;color:#111!important;border-color:#fca5a5!important}
+.tabs{border-top:1px solid #ddd!important}.tab{background:#fff!important;color:#555!important}.tab.active{color:#111!important;font-weight:900!important}
+.current{background:#f0f7f1!important;border:1px solid #a9c7af!important}.badge{background:#efefec!important;color:#111!important;border-color:#c7c7c0!important}
+.resultgrid .result{background:#fff!important;color:#111!important;border-width:4px!important;border-style:solid!important}
+.resultgrid .result.hit{border-color:#2563eb!important}.resultgrid .result.good{border-color:#16a34a!important}.resultgrid .result.walk{border-color:#d97706!important}.resultgrid .result.out{border-color:#dc2626!important}
+.result.selected{outline:2px solid #111!important;box-shadow:none!important}
+.field{background:#fff!important}.diamond{border-color:#777!important}.base{background:#fff!important;border-color:#111!important}.pos{color:#111!important}
+.stat,.shareStep,.hist,.eventRow,.playerrow{background:#fafaf8!important;color:#111!important}
+.resultModernGrid,.resultHorizontal,.resultScrollX,.modernBoard,.modernStats,.stadiumBoard,.photoBoard,.sportsBoard{color:#111!important}
+.modernBoard th,.modernBoard td,.modernStats th,.modernStats td,.stadiumBoard th,.stadiumBoard td,.resultStatsTable th,.resultStatsTable td,.photoBoard th,.photoBoard td,.sportsBoard th,.sportsBoard td{background:#fff!important;color:#111!important;border-color:#d9d9d4!important}
+.modernBoard thead th,.modernStats th,.stadiumBoard thead th,.resultStatsTable th,.photoBoard thead th,.photoStats th,.sportsBoard thead th{background:#eeeeeb!important;color:#111!important}
+.modernBoard .modernR,.sportsBoard .total{background:#e8f5e9!important;color:#111!important}
+.eventTag,.shareNote,.corrNote,.manualConfirmHint,.importHelp{color:#444!important}
+.eventGroupTitle{background:#f0f0ed!important;color:#111!important;border-bottom-color:#999!important}
+.ruleAlert{background:#fff8e8!important;color:#111!important;border-color:#d6ad55!important}.ruleAlert *{color:#111!important}.ruleAlert .ruleBtn{background:#f0c36a!important;color:#111!important;border-color:#c99732!important}
+.runnerGroundCard,.runnerPlayCard{background:#f3f8f3!important;color:#111!important;border-color:#a8c9ad!important}.runnerGroundCard *,.runnerPlayCard *{color:#111!important}.runnerGroundCard .btn,.runnerPlayCard .runnerActionBtn{background:#fff!important;color:#111!important;border:2px solid #8dbb95!important}.runnerPlayCard .runnerActionBtn:disabled{background:#eee!important;color:#555!important;border-color:#bbb!important}
+.manualConfirmGrid button.active{background:#e1f2e4!important;color:#111!important;border-color:#16a34a!important}
+.toast{background:#222!important;color:#fff!important}
+.sportsHeroTop{background:#f1f1ee!important}.sportsInning{background:#e8f5e9!important;color:#111!important}.sportsMiniInfo span{background:#f7f7f5!important;color:#111!important;border-color:#ccc!important}.sportsBoard{background:#fafaf8!important}.sportsBoard .activeInning{background:#e5f3e7!important;color:#111!important}.sportsBoard .attackMark{box-shadow:inset 0 -3px 0 #555!important}
+/* remove remaining dark fills/shadows from common legacy blocks */
+[class*="panel"],[class*="Panel"],[class*="Box"],[class*="box"],[class*="modal"],[class*="Modal"]{color:#111}
+</style>
+<style id="final-light-mode-remaining">
+.secondaryBtn,.subChoice,.orderBtn,.backGameBtn,.launchSecondary,.installBtn{background:#fff!important;color:#111!important;border-color:#bdbdb7!important}
+.subPanel,.runnerModal{background:rgba(0,0,0,.35)!important}
+.subCard,.runnerCard{background:#fff!important;color:#111!important;border-color:#d9d9d4!important}
+.subChoice.active,.orderBtn.active{background:#e8f5e9!important;color:#111!important;border-color:#16a34a!important}
+.subSelect{background:#fff!important;color:#111!important;border-color:#bdbdb7!important}
+.setupLabel{color:#444!important}.seg button{background:#fff!important;color:#111!important;border-color:#bdbdb7!important}.seg button.active{background:#e8f5e9!important;color:#111!important;border-color:#16a34a!important}
+.homeInstallBtn{background:#e8f5e9!important;color:#111!important;border-color:#9ac6a3!important}
+.runnerConfirmRow{background:#fff!important;color:#111!important;border-color:#d0d0ca!important}
+.manualConfirmSection{background:#fafaf8!important;color:#111!important;border-color:#d9d9d4!important}
+.rosterBox{background:#fff!important;color:#111!important;border-color:#d9d9d4!important}.rosterTextarea{background:#fff!important;color:#111!important;border-color:#bdbdb7!important}
+.sportsHero{background:#fff!important;color:#111!important;border-color:#d9d9d4!important}.sportsHeroTop{background:#f0f0ed!important;color:#111!important;border-color:#d9d9d4!important}.sportsLive{color:#111!important}
+.sportsTeamLogo{background:#fff!important}.sportsInning{background:#e8f5e9!important;color:#111!important}.sportsMiniInfo span{background:#f7f7f5!important;color:#111!important}.sportsBoard{background:#fafaf8!important}.sportsBoard th,.sportsBoard td{background:#fff!important;color:#111!important}
+.launchSecondary{background:#fff!important;color:#111!important}.toast{background:#222!important;color:#fff!important}
+</style>
 </head>
 <body>
 <div class="app">
