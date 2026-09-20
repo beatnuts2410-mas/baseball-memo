@@ -885,9 +885,17 @@ async function resultCanvas(g){
  const statRows=Math.max(1,stats.length);
  const eventH=groups.reduce((sum,gr)=>sum+92+Math.max(1,gr.items.length)*58+18,0);
  const H=Math.max(2500,1080+Math.min(420,statRows*34)+Math.min(240,pitchHist.length*46)+eventH);
- const SCALE=10;
- const c=document.createElement('canvas');c.width=W*SCALE;c.height=H*SCALE;
- const ctx=c.getContext('2d');ctx.scale(SCALE,SCALE);
+ // 10倍を基準にしつつ、ブラウザのCanvas上限を超えないよう自動調整
+ const REQUESTED_SCALE=10;
+ const MAX_DIM=30000;
+ const MAX_PIXELS=90000000;
+ const SCALE=Math.min(REQUESTED_SCALE, MAX_DIM/W, MAX_DIM/H, Math.sqrt(MAX_PIXELS/(W*H)));
+ const c=document.createElement('canvas');
+ c.width=Math.max(1,Math.floor(W*SCALE));
+ c.height=Math.max(1,Math.floor(H*SCALE));
+ const ctx=c.getContext('2d');
+ if(!ctx) throw new Error('Canvas context unavailable');
+ ctx.scale(c.width/W,c.height/H);
  const bg='#07101b',panel='#0d1724',panel2='#132337',line='#36506d',text='#f7fafc',muted='#9db0c5',accent='#1976d2',accent2='#70b5ff',green='#22c55e';
  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
  const fit=(txt,x1,x2,y,size=28,weight=900,color=text)=>{let s=size;ctx.font=`${weight} ${s}px ${font}`;while(s>14&&ctx.measureText(txt).width>x2-x1){s--;ctx.font=`${weight} ${s}px ${font}`}ctx.fillStyle=color;ctx.textAlign='center';ctx.fillText(txt,(x1+x2)/2,y)};
@@ -934,10 +942,51 @@ async function resultCanvas(g){
  return c;
 }
 function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
-async function saveResultImage(id){const g=db.games.find(x=>x.id===id);if(!g)return;try{const c=await resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(!blob)return toast('画像作成に失敗しました');const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`西春野球ノート_${g.date||'試合結果'}_${g.opponent||'相手'}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('試合結果画像を保存しました')}catch(e){toast('画像保存に失敗しました')}}
-async function shareGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return;const firstName=g.order==='後攻'?(g.opponent||'相手校'):db.team.name;
+async function canvasBlob(c){
+ const png=await new Promise(r=>c.toBlob(r,'image/png'));
+ if(png) return {blob:png,ext:'png',type:'image/png'};
+ const jpg=await new Promise(r=>c.toBlob(r,'image/jpeg',0.94));
+ if(jpg) return {blob:jpg,ext:'jpg',type:'image/jpeg'};
+ return null;
+}
+async function saveResultImage(id){
+ const g=db.games.find(x=>x.id===id);if(!g)return;
+ try{
+   const c=await resultCanvas(g);
+   const out=await canvasBlob(c);
+   if(!out) throw new Error('画像Blobを作成できません');
+   const url=URL.createObjectURL(out.blob);
+   const a=document.createElement('a');
+   a.href=url;
+   a.download=`西春野球ノート_${g.date||'試合結果'}_${g.opponent||'相手'}.${out.ext}`;
+   a.rel='noopener';
+   document.body.appendChild(a);a.click();a.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),3000);
+   toast(out.ext==='png'?'試合結果画像を保存しました':'PNGが大きすぎたためJPEGで保存しました');
+ }catch(e){console.error('saveResultImage',e);toast('画像保存に失敗しました。ブラウザを最新版にして再度お試しください')}
+}
+async function shareGameResult(id){
+ const g=db.games.find(x=>x.id===id);if(!g)return;
+ const firstName=g.order==='後攻'?(g.opponent||'相手校'):db.team.name;
  const secondName=g.order==='後攻'?db.team.name:(g.opponent||'相手校');
- const text=`${g.date||''} 西春野球ノート\n先攻：${firstName} ${g.order==='後攻'?g.scoreOpp:g.scoreUs} - 後攻：${secondName} ${g.order==='後攻'?g.scoreUs:g.scoreOpp}\n試合結果・打撃成績・試合経過・全記録を画像で共有します。`;try{const c=await resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=blob?new File([blob],`西春野球ノート_${g.date||'試合結果'}.png`,{type:'image/png'}):null;if(navigator.share){if(file && (!navigator.canShare || navigator.canShare({files:[file]}))){await navigator.share({title:'西春野球ノート 試合結果',text,files:[file]})}else{await navigator.share({title:'西春野球ノート 試合結果',text})}toast('共有しました')}else{await navigator.clipboard?.writeText(text);toast('共有機能がないため、結果文をコピーしました')}}catch(e){if(e?.name!=='AbortError')toast('共有をキャンセルしました')}}
+ const text=`${g.date||''} 西春野球ノート\n先攻：${firstName} ${g.order==='後攻'?g.scoreOpp:g.scoreUs} - 後攻：${secondName} ${g.order==='後攻'?g.scoreUs:g.scoreOpp}\n試合結果・打撃成績・試合経過・全記録を画像で共有します。`;
+ try{
+   const c=await resultCanvas(g);
+   const out=await canvasBlob(c);
+   if(navigator.share){
+     if(out){
+       const file=new File([out.blob],`西春野球ノート_${g.date||'試合結果'}.${out.ext}`,{type:out.type});
+       if(!navigator.canShare || navigator.canShare({files:[file]})){await navigator.share({title:'西春野球ノート 試合結果',text,files:[file]});toast('画像を共有しました');return;}
+     }
+     await navigator.share({title:'西春野球ノート 試合結果',text});toast('結果文を共有しました');return;
+   }
+   if(out){
+     const url=URL.createObjectURL(out.blob);const a=document.createElement('a');a.href=url;a.download=`西春野球ノート_${g.date||'試合結果'}.${out.ext}`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);toast('共有機能がないため画像を保存しました');return;
+   }
+   if(navigator.clipboard) await navigator.clipboard.writeText(text);
+   toast('共有機能がないため、結果文をコピーしました');
+ }catch(e){if(e?.name!=='AbortError'){console.error('shareGameResult',e);toast('共有に失敗しました。画像保存をお試しください')}}
+}
 function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="西春野球ノート_バックアップ.json";a.click();URL.revokeObjectURL(a.href)}
 function deleteGame(id){
  const g=db.games.find(x=>x.id===id); if(!g)return;
