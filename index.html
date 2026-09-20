@@ -787,7 +787,12 @@ async function resultCanvas(g){
  cell(left,top,teamW,rowH,'チーム',true,'#18263a');
  for(let i=0;i<max;i++)cell(left+teamW+i*cellW,top,cellW,rowH,`${i+1}回`,true,'#18263a');
  cell(left+teamW+max*cellW,top,totalW,rowH,'R',true,'#203a60');
- [[db.team.name,'us',g.scoreUs],[g.opponent||'相手','opp',g.scoreOpp]].forEach((r,ri)=>{const yy=top+rowH*(ri+1);cell(left,yy,teamW,rowH,r[0],true,panel);for(let i=0;i<max;i++)cell(left+teamW+i*cellW,yy,cellW,rowH,Number(g.innings?.[i]?.[r[1]])||0,false,panel);cell(left+teamW+max*cellW,yy,totalW,rowH,r[2],true,'#203a60')});
+ const firstIsOwn=g.order!=='後攻';
+ const firstName=firstIsOwn?db.team.name:(g.opponent||'相手');
+ const secondName=firstIsOwn?(g.opponent||'相手'):db.team.name;
+ const firstKey=firstIsOwn?'us':'opp', secondKey=firstIsOwn?'opp':'us';
+ const firstTotal=firstIsOwn?g.scoreUs:g.scoreOpp, secondTotal=firstIsOwn?g.scoreOpp:g.scoreUs;
+ [[firstName,firstKey,firstTotal,firstIsOwn?'先攻':'先攻'],[secondName,secondKey,secondTotal,firstIsOwn?'後攻':'後攻']].forEach((r,ri)=>{const yy=top+rowH*(ri+1);cell(left,yy,teamW,rowH,r[0],true,panel);for(let i=0;i<max;i++)cell(left+teamW+i*cellW,yy,cellW,rowH,Number(g.innings?.[i]?.[r[1]])||0,false,panel);cell(left+teamW+max*cellW,yy,totalW,rowH,r[2],true,'#203a60')});
  y=top+rowH*3+40;
  // ハイライト
  const totalAB=stats.reduce((a,s)=>a+s.ab,0),totalH=stats.reduce((a,s)=>a+s.h,0),totalRBI=stats.reduce((a,s)=>a+s.rbi,0);
@@ -817,7 +822,9 @@ async function resultCanvas(g){
 }
 function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
 async function saveResultImage(id){const g=db.games.find(x=>x.id===id);if(!g)return;try{const c=await resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(!blob)return toast('画像作成に失敗しました');const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`西春野球ノート_${g.date||'試合結果'}_${g.opponent||'相手'}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('試合結果画像を保存しました')}catch(e){toast('画像保存に失敗しました')}}
-async function shareGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return;const text=`${g.date||''} 西春野球ノート\n${db.team.name} ${g.scoreUs}-${g.scoreOpp} ${g.opponent||'相手校'}\n試合結果・打撃成績・試合経過を記録しました。`;try{const c=await resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=blob?new File([blob],`西春野球ノート_${g.date||'試合結果'}.png`,{type:'image/png'}):null;if(navigator.share){if(file && (!navigator.canShare || navigator.canShare({files:[file]}))){await navigator.share({title:'西春野球ノート 試合結果',text,files:[file]})}else{await navigator.share({title:'西春野球ノート 試合結果',text})}toast('共有しました')}else{await navigator.clipboard?.writeText(text);toast('共有機能がないため、結果文をコピーしました')}}catch(e){if(e?.name!=='AbortError')toast('共有をキャンセルしました')}}
+async function shareGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return;const firstName=g.order==='後攻'?(g.opponent||'相手校'):db.team.name;
+ const secondName=g.order==='後攻'?db.team.name:(g.opponent||'相手校');
+ const text=`${g.date||''} 西春野球ノート\n先攻：${firstName} ${g.order==='後攻'?g.scoreOpp:g.scoreUs} - 後攻：${secondName} ${g.order==='後攻'?g.scoreUs:g.scoreOpp}\n試合結果・打撃成績・試合経過を記録しました。`;try{const c=await resultCanvas(g);const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=blob?new File([blob],`西春野球ノート_${g.date||'試合結果'}.png`,{type:'image/png'}):null;if(navigator.share){if(file && (!navigator.canShare || navigator.canShare({files:[file]}))){await navigator.share({title:'西春野球ノート 試合結果',text,files:[file]})}else{await navigator.share({title:'西春野球ノート 試合結果',text})}toast('共有しました')}else{await navigator.clipboard?.writeText(text);toast('共有機能がないため、結果文をコピーしました')}}catch(e){if(e?.name!=='AbortError')toast('共有をキャンセルしました')}}
 function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="西春野球ノート_バックアップ.json";a.click();URL.revokeObjectURL(a.href)}
 function deleteGame(id){
  const g=db.games.find(x=>x.id===id); if(!g)return;
