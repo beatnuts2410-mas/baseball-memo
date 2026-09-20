@@ -131,6 +131,44 @@ body{font-size:16px}
 @media(max-width:430px){.eventList .eventRow{font-size:37px;padding:25px 17px;line-height:1.5}.eventList .eventGroupTitle{font-size:33px;min-height:70px}.eventList .eventGroupTitle span{font-size:22px}.eventList .eventTag{font-size:20px;max-width:24%}}
 </style>
 </style>
+<style>
+/* v2.55 green accent / readability */
+:root{
+  --bg:#f4f8f5;--panel:#ffffff;--panel2:#edf7f0;--line:#cddbd1;--text:#17231c;--muted:#5f7065;
+  --blue:#15803d;--green:#15803d;--red:#b91c1c;--yellow:#a16207;
+}
+body{background:linear-gradient(180deg,#ffffff,#f5faf7 48%,#edf5f0);color:var(--text)}
+.top{background:rgba(255,255,255,.92);border-bottom:1px solid rgba(21,128,61,.18);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(248,252,249,.96));border-color:#d2dfd6;box-shadow:0 6px 22px rgba(25,70,40,.08)}
+.title,.brand,.team,.batter,.p,.playerrow,.resultWin,.resultScore{color:#17231c}
+.input,.select{background:rgba(255,255,255,.96);color:#17231c;border-color:#bfcfc4}
+.input:focus,.rosterTextarea:focus{border-color:#15803d;box-shadow:0 0 0 2px rgba(21,128,61,.12)}
+.btn{background:#eef5f0;color:#17231c;border-color:#bfd0c4}
+.btn.primary{background:#15803d;color:#fff;border-color:#15803d;box-shadow:0 2px 8px rgba(21,128,61,.18)}
+.btn.green{background:#dcfce7;color:#166534;border-color:#86efac}
+.tabs{background:rgba(255,255,255,.92);border-top-color:rgba(21,128,61,.18);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.tab{color:#64756a}.tab.active{color:#166534;font-weight:900}
+.current{border-color:#86b99a;background:linear-gradient(180deg,#edf8f0,#f9fcfa)}
+.badge{background:#e6f3e9;color:#315d3f}
+.result{background:#eff7f1;border-color:#bfd4c5;color:#17231c}.result.hit{border-color:#4ade80}.result.selected{outline:2px solid #166534;box-shadow:0 0 0 2px rgba(21,128,61,.35) inset}
+.hist,.playerrow,.stat,.eventRow,.manualConfirmSection,.rosterBox,.shareStep{background:#f7faf8;border-color:#d2dfd6}
+.num{color:#166534}.toast{background:#173b27;color:#fff}
+.resultHero{background:linear-gradient(160deg,#ffffff,#eef8f1);border-color:#8dbba0}.resultTool{background:#eef5f0;border-color:#c4d4c9;color:#17231c}.resultTool.primary{background:#15803d;color:#fff;border-color:#15803d}
+.resultPanel{background:linear-gradient(145deg,#ffffff,#f5faf7);border-color:#d2dfd6}.resultModernGrid .resultPanel{box-shadow:0 5px 18px rgba(25,70,40,.06)}
+.modernBoard th,.modernBoard td{background:#fff;border-color:#d2dfd6}.modernBoard thead th{background:#e8f3eb;color:#3f5d49}.modernBoard tbody th{background:#f7faf8}.modernBoard .modernR{background:#dcfce7;color:#17231c}
+.modernStats th{background:#e8f3eb;color:#3f5d49}.modernStats td{border-bottom-color:#d2dfd6}.modernStats th:first-child,.modernStats td:first-child{background:#fff}
+.stadiumBoard{background:#f7faf8;border-color:#c8d8cd}.stadiumBoard th,.stadiumBoard td{border-color:#d2dfd6}.stadiumBoard thead th{background:#e8f3eb;color:#31513d}.stadiumBoard th:first-child,.stadiumBoard td:first-child{background:#f7faf8}
+.resultStatsWrap{border-color:#d2dfd6}.resultStatsTable th{background:#e8f3eb;color:#31513d;border-bottom-color:#bfd4c5}.resultStatsTable td{border-bottom-color:#d2dfd6}.resultStatsTable th:first-child,.resultStatsTable td:first-child{background:#fff}
+.eventGroupTitle{border-bottom-color:#4f9b69}.photoBoard{background:#fff;border-color:#9ebcab}.photoBoard th,.photoBoard td{border-color:#cbdacf}.photoBoard thead th{background:#e8f3eb}.photoBoard tbody th{background:#f3f8f5}.photoBoard .rcol{background:#dcfce7}.photoStats th{background:#e8f3eb}.photoStats th,.photoStats td{border-bottom-color:#cbdacf}.photoEventGroupTitle{border-bottom-color:#4f9b69}.photoEvent{border-bottom-color:#d2dfd6}
+.manualConfirmGrid button{background:#f1f7f3;border-color:#c6d7cc;color:#17231c}.manualConfirmGrid button.active{background:#dcfce7;border-color:#4ade80;box-shadow:0 0 0 2px rgba(21,128,61,.18) inset}
+.manualRunnerSelect{background:#fff;color:#17231c;border-color:#bfd0c4}
+.fileBtn{background:#f7faf8;border-color:#7aaa8b}.rosterTextarea{background:#fff;color:#17231c;border-color:#bfd0c4}.shareStep .shareIcon{color:#166534}
+.sportsHero{background:linear-gradient(180deg,#ffffff,#f2f8f4);border-color:#cbdacf;box-shadow:0 8px 24px rgba(25,70,40,.08)}
+.sportsHeroTop{background:rgba(232,243,235,.92);border-bottom-color:#d2dfd6;color:#52685a}.sportsLive{color:#166534}.sportsTeamLogo{border-color:#c3d4c9;box-shadow:0 4px 14px rgba(25,70,40,.10)}.sportsTeamLogo.opponent{background:#f4f7f5}.sportsTeamLabel,.sportsCenter .sportsStatus{color:#607367}.sportsInning{background:#dcfce7;color:#166534}.sportsMiniInfo span{border-color:#c6d8cc;background:#f3f8f5;color:#4c6254}.sportsBoard{border-top-color:#d2dfd6;background:#f7faf8}.sportsBoard th,.sportsBoard td{border-color:#d2dfd6}.sportsBoard thead th{background:#e8f3eb;color:#4b6353}.sportsBoard th:first-child,.sportsBoard td:first-child{background:#f3f8f5}.sportsBoard .total{background:#dcfce7;color:#17231c}.sportsBoard .activeInning{background:#bbf7d0!important;color:#14532d!important}.sportsBoard .attackMark{box-shadow:inset 0 -3px 0 #15803d}.sportsFooter{color:#6a7d70}.sportsFooter strong{color:#315d3f}
+.ruleAlert{border-color:#d4a64a;background:linear-gradient(180deg,#fff9e8,#fffdf7)}
+/* readability: translucent surfaces never sacrifice text contrast */
+.shareNote,.corrNote,.manualConfirmHint,.importHelp{color:#53665a}
+</style>
 </head>
 <body>
 <div class="app">
@@ -992,7 +1030,7 @@ async function resultCanvas(g){
  const ctx=c.getContext('2d');
  if(!ctx) throw new Error('Canvas context unavailable');
  ctx.scale(c.width/W,c.height/H);
- const bg='#f5f7fb',panel='#ffffff',panel2='#eef3f8',line='#cbd6e2',text='#172033',muted='#66758a',accent='#2563eb',accent2='#1d4ed8',green='#15803d';
+ const bg='#f4f8f5',panel='#ffffff',panel2='#edf7f0',line='#cddbd1',text='#17231c',muted='#5f7065',accent='#15803d',accent2='#166534',green='#15803d';
  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
  const fit=(txt,x1,x2,y,size=28,weight=900,color=text)=>{let s=size;ctx.font=`${weight} ${s}px ${font}`;while(s>14&&ctx.measureText(txt).width>x2-x1){s--;ctx.font=`${weight} ${s}px ${font}`}ctx.fillStyle=color;ctx.textAlign='center';ctx.fillText(txt,(x1+x2)/2,y)};
  // Hero
@@ -1013,8 +1051,8 @@ async function resultCanvas(g){
  ctx.textAlign='left';ctx.fillStyle=text;ctx.font=`950 30px ${font}`;ctx.fillText('得点板',42,y);y+=14;
  const left=38,top=y,teamW=250,totalW=75,usable=W-left*2-teamW-totalW,cellW=Math.max(62,usable/maxInning),rowH=54;
  const cell=(x,yy,w,h,val,bold=false,fill=panel2)=>{ctx.fillStyle=fill;ctx.fillRect(x,yy,w,h);ctx.strokeStyle=line;ctx.lineWidth=1;ctx.strokeRect(x,yy,w,h);ctx.fillStyle=text;ctx.font=`${bold?'950':'800'} ${bold?20:19}px ${font}`;ctx.textAlign='center';ctx.fillText(String(val),x+w/2,yy+h/2+6)};
- cell(left,top,teamW,rowH,'チーム',true,'#eaf0f6');
- for(let i=0;i<maxInning;i++)cell(left+teamW+i*cellW,top,cellW,rowH,`${i+1}回`,true,'#eaf0f6');
+ cell(left,top,teamW,rowH,'チーム',true,'#e8f3eb');
+ for(let i=0;i<maxInning;i++)cell(left+teamW+i*cellW,top,cellW,rowH,`${i+1}回`,true,'#e8f3eb');
  cell(left+teamW+maxInning*cellW,top,totalW,rowH,'R',true,'#dbeafe');
  const firstIsOwn=g.order!=='後攻', firstName=firstIsOwn?db.team.name:(g.opponent||'相手校'), secondName=firstIsOwn?(g.opponent||'相手校'):db.team.name;
  [[firstName,firstIsOwn?'us':'opp',firstIsOwn?g.scoreUs:g.scoreOpp],[secondName,firstIsOwn?'opp':'us',firstIsOwn?g.scoreOpp:g.scoreUs]].forEach((r,ri)=>{const yy=top+rowH*(ri+1);cell(left,yy,teamW,rowH,r[0],true,panel);for(let i=0;i<maxInning;i++)cell(left+teamW+i*cellW,yy,cellW,rowH,Number(g.innings?.[i]?.[r[1]])||0,false,panel);cell(left+teamW+maxInning*cellW,yy,totalW,rowH,r[2],true,'#dbeafe')});
@@ -1028,8 +1066,8 @@ async function resultCanvas(g){
  // batting compact: all rows but small, readable
  ctx.fillStyle=text;ctx.font=`950 30px ${font}`;ctx.fillText('打撃成績',42,y);y+=28;
  const cols=[['選手',250],['打席',58],['打数',58],['安打',58],['2B',58],['3B',58],['HR',58],['打点',62],['四球',58],['死球',58],['三振',58],['バント',66],['打率',70]];
- let x=42;cols.forEach(([lab,w])=>{cell(x,y,w,34,lab,true,'#eaf0f6');x+=w});
- stats.forEach((st,ri)=>{y+=34;x=42;const vals=[st.name,st.pa,st.ab,st.h,st.d2,st.d3,st.hr,st.rbi,st.bb,st.hbp,st.so,st.sh,st.ab?(st.h/st.ab).toFixed(3).replace(/^0/,''):'.000'];cols.forEach(([_,w],i)=>{cell(x,y,w,34,vals[i],i===0||i===12, i===0?panel:(ri%2?panel:'#f7f9fb'));x+=w})});
+ let x=42;cols.forEach(([lab,w])=>{cell(x,y,w,34,lab,true,'#e8f3eb');x+=w});
+ stats.forEach((st,ri)=>{y+=34;x=42;const vals=[st.name,st.pa,st.ab,st.h,st.d2,st.d3,st.hr,st.rbi,st.bb,st.hbp,st.so,st.sh,st.ab?(st.h/st.ab).toFixed(3).replace(/^0/,''):'.000'];cols.forEach(([_,w],i)=>{cell(x,y,w,34,vals[i],i===0||i===12, i===0?panel:(ri%2?panel:'#f7faf8'));x+=w})});
  y+=46;
  // Full chronological vertical records
  ctx.fillStyle=accent;ctx.fillRect(38,y-22,W-76,5);y+=24;ctx.fillStyle=text;ctx.font=`950 42px ${font}`;ctx.textAlign='left';ctx.fillText('試合経過・全記録',42,y);y+=52;ctx.fillStyle=muted;ctx.font=`750 22px ${font}`;ctx.fillText('1回から順に、次のイニングを下へ表示',42,y);y+=34;
