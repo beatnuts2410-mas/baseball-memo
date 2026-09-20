@@ -1,3 +1,10 @@
+## v2.61 — ライトモード実デプロイ対策
+- Service Workerのキャッシュキーをv2.61へ更新
+- index.htmlをネットワーク優先にして古いダーク版キャッシュを残さないよう修正
+- Service Worker登録時にupdateViaCache:noneを指定
+- manifest.webmanifestのbackground/themeをライトへ変更
+- index.htmlの基本テーマ変数もライトへ変更
+
 # 西春野球ノート v2.57
 
 - 全体をライトモードへ統一
