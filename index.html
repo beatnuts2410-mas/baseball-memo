@@ -1168,8 +1168,46 @@ function loadGame(id){viewGameResult(id)}
 
 function qrBase64Encode(obj){const bytes=new TextEncoder().encode(JSON.stringify(obj));let bin='';for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function qrBase64Decode(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const bin=atob(s),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return JSON.parse(new TextDecoder().decode(bytes))}
-async function gzipEncode(obj){if(!('CompressionStream'in window))return null;const raw=new TextEncoder().encode(JSON.stringify(obj)),cs=new CompressionStream('gzip'),w=cs.writable.getWriter();w.write(raw);w.close();const bytes=new Uint8Array(await new Response(cs.readable).arrayBuffer());let bin='';for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
-async function gzipDecode(s){if(!('DecompressionStream'in window))return null;s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const bin=atob(s),bytes=new Uint8Array(bin.length),ds=new DecompressionStream('gzip'),w=ds.writable.getWriter();for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);w.write(bytes);w.close();return JSON.parse(await new Response(ds.readable).text())}
+function bytesToBase44(bytes){
+ const alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-$*+./:";
+ let out="";
+ for(let i=0;i<bytes.length;i+=2){
+   const a=bytes[i], b=i+1<bytes.length?bytes[i+1]:0, hasB=i+1<bytes.length;
+   let n=a*256+b;
+   let d0=n%44; n=Math.floor(n/44);
+   let d1=n%44; n=Math.floor(n/44);
+   let d2=n;
+   out+=alphabet[d0]+alphabet[d1];
+   if(hasB) out+=alphabet[d2];
+ }
+ return out;
+}
+function base44ToBytes(str){
+ const alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-$*+./:", rev=new Map([...alphabet].map((c,i)=>[c,i]));
+ const out=[];
+ for(let i=0;i<str.length;){
+   const d0=rev.get(str[i++]), d1=rev.get(str[i++]);
+   if(d0==null||d1==null) throw new Error('QR文字列が不正です');
+   const hasD2=i<str.length;
+   const d2=hasD2?rev.get(str[i++]):0;
+   if(d2==null) throw new Error('QR文字列が不正です');
+   const n=d0+d1*44+d2*44*44;
+   if(n>65535) throw new Error('QR文字列が不正です');
+   out.push((n>>8)&255); if(hasD2) out.push(n&255);
+ }
+ return new Uint8Array(out);
+}
+async function gzipEncode(obj){
+ if(!('CompressionStream'in window))return null;
+ const raw=new TextEncoder().encode(JSON.stringify(obj)),cs=new CompressionStream('gzip'),w=cs.writable.getWriter();w.write(raw);w.close();
+ const bytes=new Uint8Array(await new Response(cs.readable).arrayBuffer());
+ return bytesToBase44(bytes);
+}
+async function gzipDecode(s){
+ if(!('DecompressionStream'in window))return null;
+ const bytes=base44ToBytes(s),ds=new DecompressionStream('gzip'),w=ds.writable.getWriter();w.write(bytes);w.close();
+ return JSON.parse(await new Response(ds.readable).text());
+}
 function makeShareId(g){
  const seed=[g.date||'',g.opponent||'',g.scoreUs||0,g.scoreOpp||0,(g.pa||[]).length,(g.runnerMoves||[]).length,(g.pitching?.history||[]).length].join('|');
  let h=2166136261;for(let i=0;i<seed.length;i++){h^=seed.charCodeAt(i);h=Math.imul(h,16777619)}
@@ -1206,24 +1244,12 @@ function expandMatchFromQR(q){
    pitching:{history:(q.y||[]).map(x=>({name:S(x?.[0]),enteredInning:Number(x?.[1])||0,enteredHalf:H(x?.[2]),outs:Number(x?.[3])||0,started:!!x?.[4],seq:Number(x?.[5])||0}))}
  };
 }
-async function gzipEncode(obj){
- if(!('CompressionStream'in window))return null;
- const raw=new TextEncoder().encode(JSON.stringify(obj)),cs=new CompressionStream('gzip'),w=cs.writable.getWriter();w.write(raw);w.close();
- const bytes=new Uint8Array(await new Response(cs.readable).arrayBuffer());let bin='';
- for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000));
- return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-}
-async function gzipDecode(s){
- if(!('DecompressionStream'in window))return null;s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';
- const bin=atob(s),bytes=new Uint8Array(bin.length),ds=new DecompressionStream('gzip'),w=ds.writable.getWriter();for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);w.write(bytes);w.close();
- return JSON.parse(await new Response(ds.readable).text());
-}
 async function buildMatchShareUrl(g){
  const compact=compactMatchForQR(g);
  const payload={v:3,s:compact.s,t:compact.t,g:compact};
  const enc=await gzipEncode(payload);
  if(!enc)throw new Error('QR圧縮機能が使えません');
- return {url:location.origin+location.pathname+'#m3.'+enc,bytes:enc.length,payload};
+ return {url:location.origin.toUpperCase()+location.pathname+'#M3.'+enc,bytes:enc.length,payload};
 }
 async function createMatchQR(id){
  const g=db.games.find(x=>x.id===id);if(!g)return toast('試合結果が見つかりません');
@@ -1233,22 +1259,22 @@ async function createMatchQR(id){
    // QRの最大容量に合わせ、まずH→Q→Mの順で「1枚に収まる」設定を探します。
    const box=document.getElementById('matchQR'),panel=document.getElementById('matchQRPanel');
    if(!box||!panel)throw new Error('QR表示領域なし');if(typeof QRCode==='undefined')throw new Error('QRライブラリ未読込');box.innerHTML='';
-   const levels=[['H',QRCode.CorrectLevel.H,132],['Q',QRCode.CorrectLevel.Q,124],['M',QRCode.CorrectLevel.M,112]];
+   const levels=[['H',QRCode.CorrectLevel.H,72],['Q',QRCode.CorrectLevel.Q,64],['M',QRCode.CorrectLevel.M,56],['L',QRCode.CorrectLevel.L,48]];
    let src=null,levelUsed='';
    for(const [label,level,logoSize] of levels){
      const temp=document.createElement('div');temp.style.cssText='position:absolute;left:-99999px;top:-99999px;width:720px;height:720px;background:#fff';document.body.appendChild(temp);
      try{
-       new QRCode(temp,{text:url,width:720,height:720,correctLevel:level});
+       new QRCode(temp,{text:url,width:1000,height:1000,correctLevel:level});
        await new Promise(r=>setTimeout(r,40));src=temp.querySelector('canvas')||temp.querySelector('img');
        if(src){levelUsed=label;break;}
      }catch(e){src=null}
      document.body.removeChild(temp);
    }
    if(!src)throw new Error('QR_PAYLOAD_TOO_LARGE');
-   const out=document.createElement('canvas');out.width=720;out.height=720;const ctx=out.getContext('2d');
-   if(src.tagName==='CANVAS')ctx.drawImage(src,0,0,720,720);else{await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{ctx.drawImage(im,0,0,720,720);resolve()};im.onerror=reject;im.src=src.src})}
+   const out=document.createElement('canvas');out.width=1000;out.height=1000;const ctx=out.getContext('2d');
+   if(src.tagName==='CANVAS')ctx.drawImage(src,0,0,1000,1000);else{await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{ctx.drawImage(im,0,0,1000,1000);resolve()};im.onerror=reject;im.src=src.src})}
    const logo=new Image();logo.crossOrigin='anonymous';await new Promise((resolve,reject)=>{logo.onload=resolve;logo.onerror=reject;logo.src='qr-logo.png?v=qr70'});
-   const size=levelUsed==='H'?132:levelUsed==='Q'?124:112,x=(720-size)/2,y=(720-size)/2,pad=12,r=22;
+   const size=levelUsed==='H'?72:levelUsed==='Q'?64:levelUsed==='M'?56:48,x=(1000-size)/2,y=(1000-size)/2,pad=10,r=18;
    ctx.save();ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(x-pad,y-pad,size+pad*2,size+pad*2,r);ctx.fill();ctx.drawImage(logo,x,y,size,size);ctx.restore();
    document.body.removeChild(src?.parentNode||document.createElement('div'));
    out.className='specialQrCanvas';out.setAttribute('aria-label','野球メモ 特別QRコード');box.appendChild(out);panel.classList.remove('hidden');
@@ -1257,7 +1283,7 @@ async function createMatchQR(id){
  }catch(e){console.error(e);toast(e?.message==='QR_PAYLOAD_TOO_LARGE'?'試合データを超圧縮しても1枚のQR容量を超えました':'QR作成に失敗しました。もう一度お試しください')}
 }
 function saveSharedMatch(){if(!sharedGame)return;const sid=sharedGame.shareId||makeShareId(sharedGame),idx=db.games.findIndex(x=>x.shareId===sid||x.id===sharedGame.id),copy=JSON.parse(JSON.stringify(sharedGame));delete copy.sharedTeamName;if(idx>=0){toast('この試合はすでに保存されています');resultGameId=db.games[idx].id;sharedGame=null;history.replaceState(null,'',location.pathname);tab='data';render();setTimeout(()=>viewGameResult(resultGameId),50);return}copy.shareId=sid;copy.id=Date.now()+Math.floor(Math.random()*1000);copy.finished=true;db.games.push(copy);save();sharedGame=null;history.replaceState(null,'',location.pathname);resultGameId=copy.id;tab='data';render();setTimeout(()=>viewGameResult(copy.id),50);toast('自分の試合に保存しました')}
-async function loadSharedMatchFromHash(){const m=location.hash.match(/^#m3\.(.+)$/);if(!m)return false;try{const payload=await gzipDecode(m[1]);if(!payload?.g)return false;const g=expandMatchFromQR(payload.g);g.shareId=payload.s||g.shareId;g.sharedTeamName=payload.t?String((Array.isArray(payload.g.d)?payload.g.d[payload.t-1]:'')||'共有元チーム'):'共有元チーム';sharedGame=g;sharedSourceUrl=location.href;tab='data';resultGameId=null;render();return true}catch(e){console.error(e);toast('共有された試合を読み込めませんでした');return false}}
+async function loadSharedMatchFromHash(){const m=location.hash.match(/^#(?:m3|M3)\.(.+)$/);if(!m)return false;try{const payload=await gzipDecode(m[1]);if(!payload?.g)return false;const g=expandMatchFromQR(payload.g);g.shareId=payload.s||g.shareId;g.sharedTeamName=payload.t?String((Array.isArray(payload.g.d)?payload.g.d[payload.t-1]:'')||'共有元チーム'):'共有元チーム';sharedGame=g;sharedSourceUrl=location.href;tab='data';resultGameId=null;render();return true}catch(e){console.error(e);toast('共有された試合を読み込めませんでした');return false}}
 function viewGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return toast('試合結果が見つかりません');resultGameId=id;tab='data';render();setTimeout(()=>{const el=document.getElementById('gameResultView');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},0)}
 function battingStats(g){
  const stats={};
