@@ -1249,7 +1249,7 @@ async function buildMatchShareUrl(g){
  const payload={v:3,s:compact.s,t:compact.t,g:compact};
  const enc=await gzipEncode(payload);
  if(!enc)throw new Error('QR圧縮機能が使えません');
- return {url:location.origin+location.pathname+'?m3='+encodeURIComponent(enc),bytes:enc.length,payload};
+ return {url:location.origin+location.pathname+'#m3.'+enc,bytes:enc.length,payload};
 }
 async function createMatchQR(id){
  const g=db.games.find(x=>x.id===id);if(!g)return toast('試合結果が見つかりません');
@@ -1309,7 +1309,7 @@ async function shareMatchQR(id){
  }catch(e){if(e?.name!=='AbortError'){console.error('shareMatchQR',e);toast('共有に失敗しました。もう一度お試しください')}}
 }
 function saveSharedMatch(){if(!sharedGame)return;const sid=sharedGame.shareId||makeShareId(sharedGame),idx=db.games.findIndex(x=>x.shareId===sid||x.id===sharedGame.id),copy=JSON.parse(JSON.stringify(sharedGame));delete copy.sharedTeamName;if(idx>=0){toast('この試合はすでに保存されています');resultGameId=db.games[idx].id;sharedGame=null;history.replaceState(null,'',location.pathname);tab='data';render();setTimeout(()=>viewGameResult(resultGameId),50);return}copy.shareId=sid;copy.id=Date.now()+Math.floor(Math.random()*1000);copy.finished=true;db.games.push(copy);save();sharedGame=null;history.replaceState(null,'',location.pathname);resultGameId=copy.id;tab='data';render();setTimeout(()=>viewGameResult(copy.id),50);toast('試合結果をマイアプリに保存しました')}
-async function loadSharedMatchFromHash(){const qm=new URLSearchParams(location.search).get('m3');const hm=location.hash.match(/^#(?:m3|M3)\.(.+)$/);const encoded=qm||hm?.[1];if(!encoded)return false;try{const payload=await gzipDecode(encoded);if(!payload?.g)return false;const g=expandMatchFromQR(payload.g);g.shareId=payload.s||g.shareId;g.sharedTeamName=payload.t?String((Array.isArray(payload.g.d)?payload.g.d[payload.t-1]:'')||'共有元チーム'):'共有元チーム';sharedGame=g;sharedSourceUrl=location.href;tab='data';resultGameId=null;render();return true}catch(e){console.error(e);toast('共有された試合を読み込めませんでした');return false}}
+async function loadSharedMatchFromHash(){const qm=new URLSearchParams(location.search).get('m3');const hm=location.hash.match(/^#(?:m3|M3)\.([0-9A-Z\-\$\*\+\.\/:]+)$/);const encoded=qm||hm?.[1];if(!encoded)return false;try{const payload=await gzipDecode(encoded);if(!payload?.g)return false;const g=expandMatchFromQR(payload.g);g.shareId=payload.s||g.shareId;g.sharedTeamName=payload.t?String((Array.isArray(payload.g.d)?payload.g.d[payload.t-1]:'')||'共有元チーム'):'共有元チーム';sharedGame=g;sharedSourceUrl=location.href;tab='data';resultGameId=null;render();return true}catch(e){console.error(e);toast('共有された試合を読み込めませんでした');return false}}
 function viewGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return toast('試合結果が見つかりません');resultGameId=id;tab='data';render();setTimeout(()=>{const el=document.getElementById('gameResultView');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},0)}
 function battingStats(g){
  const stats={};
