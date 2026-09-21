@@ -419,7 +419,7 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 .toast{background:#222!important;color:#fff!important}
 .tab{background:#fff!important;color:#555!important}.tab.active{color:#111!important}
 </style>
-<!-- v2.66: 写真の試合経過・全記録の選手結果文字を28pxの約1.3倍へ調整。下端切れを最優先で防止。 -->
+<!-- v2.67: 試合経過・全記録は36pxを維持。全イニング件数から写真高さを自動算出し、下端切れを防止。 -->
 </head>
 <body>
 <div class="app">
@@ -1271,7 +1271,10 @@ async function resultCanvas(g){
  // 写真保存は下端切れを防ぐため、実際の全記録ブロック高さより余裕を持って確保。
  const PHOTO_EVENT_ROW_H=92;
  const eventH=groups.reduce((sum,gr)=>sum+112+Math.max(1,gr.items.length)*PHOTO_EVENT_ROW_H+24,0);
- const H=Math.max(3000,1500+Math.min(640,statRows*40)+Math.min(360,pitchHist.length*52)+eventH+120);
+ const PRE_EVENT_H=2700+Math.min(900,statRows*40)+Math.min(720,pitchHist.length*52);
+ // v2.67: 全記録の件数に応じて写真全体の高さを自動確保。7回付近で切れないよう固定上限ではなく、
+ // 試合経過ブロック開始位置＋全イニング分＋下端余白から算出する。
+ const H=Math.max(4200,PRE_EVENT_H+eventH+180);
  // 10倍を基準にしつつ、ブラウザのCanvas上限を超えないよう自動調整
  const REQUESTED_SCALE=10;
  const MAX_DIM=30000;
