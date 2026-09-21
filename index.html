@@ -419,7 +419,7 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 .toast{background:#222!important;color:#fff!important}
 .tab{background:#fff!important;color:#555!important}.tab.active{color:#111!important}
 </style>
-<!-- v2.68: 試合経過・全記録は32px。9回まで確実に収まり、10回以降も記録量に応じて自動延長。 -->
+<!-- v2.69: 試合経過・全記録は32px。9回まで確実に表示し、10回以降は記録量に応じて自動延長。 -->
 </head>
 <body>
 <div class="app">
@@ -1271,10 +1271,10 @@ async function resultCanvas(g){
  // 写真保存は下端切れを防ぐため、実際の全記録ブロック高さより余裕を持って確保。
  const PHOTO_EVENT_ROW_H=92;
  const eventH=groups.reduce((sum,gr)=>sum+112+Math.max(1,gr.items.length)*PHOTO_EVENT_ROW_H+24,0);
- const PRE_EVENT_H=3600+Math.min(900,statRows*40)+Math.min(720,pitchHist.length*52);
- // v2.67: 全記録の件数に応じて写真全体の高さを自動確保。7回付近で切れないよう固定上限ではなく、
+ const PRE_EVENT_H=5600+Math.min(1100,statRows*40)+Math.min(900,pitchHist.length*52);
+ // v2.69: 9回までの表示を最優先。イベント件数に加えて十分な固定安全領域を確保し、下端切れを防止。
  // 試合経過ブロック開始位置＋全イニング分＋下端余白から算出する。
- const H=Math.max(4200,PRE_EVENT_H+eventH+180);
+ const H=Math.max(7800,PRE_EVENT_H+eventH+480);
  // 10倍を基準にしつつ、ブラウザのCanvas上限を超えないよう自動調整
  const REQUESTED_SCALE=10;
  const MAX_DIM=30000;
@@ -1347,7 +1347,7 @@ async function resultCanvas(g){
      const tagReserve=tag?125:10;
      const textMax=w-92-tagReserve;
      ctx.fillStyle=text;ctx.font=`850 32px ${font}`;
-     // v2.68: 写真の「試合経過・全記録」は28pxの約1.3倍（32px）。
+     // v2.69: 写真の「試合経過・全記録」は32px。9回までの表示を最優先。
      // 長い結果だけ自動縮小し、最大2行まで。下端切れを最優先で防止。
      let fs=32;ctx.font=`850 ${fs}px ${font}`;
      while(fs>27 && ctx.measureText(String(e.text||'')).width>textMax){fs--;ctx.font=`850 ${fs}px ${font}`;}
