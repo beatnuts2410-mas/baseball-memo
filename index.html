@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>西春野球ノート</title>
-<meta name="app-version" content="v2.63">
+<meta name="app-version" content="v2.64">
 <style>
 :root{--bg:#f7f7f5;--panel:#ffffff;--panel2:#f1f1ee;--line:#d9d9d4;--text:#111111;--muted:#444444;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--yellow:#d97706;color-scheme:light}
 *{box-sizing:border-box}body{margin:0;background:#f7f7f5;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
@@ -123,13 +123,13 @@ body{font-size:16px}
 }
 
 <style>
-/* v2.63: 試合経過・全記録の選手結果をコンパクト化 */
-.eventList .eventGroupTitle{font-size:27px;padding:14px 10px 10px;line-height:1.25;min-height:50px;display:flex;align-items:center;gap:10px}
-.eventList .eventGroupTitle span{font-size:16px}
-.eventList .eventRow{font-size:12px;padding:7px 9px;line-height:1.3;min-height:42px;word-break:break-word;overflow-wrap:anywhere}
-.eventList .eventTop{align-items:center;gap:8px}
-.eventList .eventTag{font-size:9px;white-space:nowrap;line-height:1.2;flex:0 0 auto;max-width:18%;text-align:right}
-@media(max-width:430px){.eventList .eventRow{font-size:11px;padding:6px 8px;line-height:1.25;min-height:38px}.eventList .eventGroupTitle{font-size:24px;min-height:46px;padding:12px 9px 9px}.eventList .eventGroupTitle span{font-size:14px}.eventList .eventTag{font-size:8px;max-width:18%}}</style>
+/* v2.64: 試合経過・全記録の選手結果を写真と同じ読みやすさへ */
+.eventList .eventGroupTitle{font-size:24px;padding:12px 10px 9px;line-height:1.25;min-height:46px;display:flex;align-items:center;gap:8px}
+.eventList .eventGroupTitle span{font-size:14px}
+.eventList .eventRow{font-size:11px;padding:6px 8px;line-height:1.25;min-height:38px;word-break:break-word;overflow-wrap:anywhere}
+.eventList .eventTop{align-items:center;gap:6px}
+.eventList .eventTag{font-size:8px;white-space:nowrap;line-height:1.1;flex:0 0 auto;max-width:16%;text-align:right}
+@media(max-width:430px){.eventList .eventRow{font-size:10px;padding:5px 7px;line-height:1.2;min-height:34px}.eventList .eventGroupTitle{font-size:22px;min-height:42px;padding:10px 8px 8px}.eventList .eventGroupTitle span{font-size:13px}.eventList .eventTag{font-size:7px;max-width:16%}}</style>
 </style>
 <style>
 /* v2.55 green accent / readability */
@@ -170,7 +170,7 @@ body{background:linear-gradient(180deg,#ffffff,#f5faf7 48%,#edf5f0);color:var(--
 .shareNote,.corrNote,.manualConfirmHint,.importHelp{color:#53665a}
 </style>
 <style>
-/* v2.63: 試合結果を画面いっぱいに固定し、下部記録をスクロール */
+/* v2.64: 試合結果を画面いっぱいに固定し、下部記録をスクロール */
 #gameResultView .sportsResultHero{
   position:sticky;top:62px;z-index:4;
   width:calc(100% + 28px);margin-left:-14px;margin-right:-14px;
@@ -203,7 +203,7 @@ body{background:linear-gradient(180deg,#ffffff,#f5faf7 48%,#edf5f0);color:var(--
 .eventList .eventTop{display:grid;grid-template-columns:minmax(0,1fr) minmax(72px,24%);align-items:start;gap:12px}
 .eventList .eventTop>b{min-width:0;overflow-wrap:anywhere;word-break:break-word}
 .eventList .eventTag{max-width:none;min-width:0;overflow-wrap:anywhere;word-break:break-word;text-align:right}
-/* v2.63: 選手結果は1行優先。長い場合のみ2行に折り返す */
+/* v2.64: 選手結果は1行優先。長い場合のみ2行に折り返す */
 .eventList .eventTop{grid-template-columns:minmax(0,1fr) minmax(40px,16%);gap:6px;align-items:center}
 .eventList .eventTop>b{font-size:12px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .eventList .eventTag{font-size:8px;line-height:1.1;max-width:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -395,7 +395,7 @@ body{background:#f7f7f5!important}
 </style>
 
 <style id="absolute-light-v261">
-/* v2.63 ABSOLUTE LIGHT MODE: flatten every legacy dark surface */
+/* v2.64 ABSOLUTE LIGHT MODE: flatten every legacy dark surface */
 html,body,.app,.content,main,section,header,footer,nav,article,aside,form,fieldset,details,summary,div,table,thead,tbody,tfoot,tr,th,td,ul,ol,li{
   background:#fff!important;
   background-color:#fff!important;
@@ -1267,8 +1267,9 @@ async function resultCanvas(g){
  const groups=Array.from({length:maxInning},(_,i)=>({inning:i+1,items:events.filter(e=>(Number(e.inning)||1)===i+1)}));
  const pitchHist=g.pitching?.history||[];
  const statRows=Math.max(1,stats.length);
- const eventH=groups.reduce((sum,gr)=>sum+108+Math.max(1,gr.items.length)*72+16,0);
- const H=Math.max(2500,1080+Math.min(420,statRows*34)+Math.min(240,pitchHist.length*46)+eventH);
+ // 写真保存は下端切れを防ぐため、実際の全記録ブロック高さより余裕を持って確保。
+ const eventH=groups.reduce((sum,gr)=>sum+112+Math.max(1,gr.items.length)*82+24,0);
+ const H=Math.max(3000,1260+Math.min(520,statRows*36)+Math.min(280,pitchHist.length*48)+eventH);
  // 10倍を基準にしつつ、ブラウザのCanvas上限を超えないよう自動調整
  const REQUESTED_SCALE=10;
  const MAX_DIM=30000;
@@ -1321,8 +1322,37 @@ async function resultCanvas(g){
  y+=46;
  // Full chronological vertical records
  ctx.fillStyle=accent;ctx.fillRect(38,y-22,W-76,5);y+=24;ctx.fillStyle=text;ctx.font=`950 32px ${font}`;ctx.textAlign='left';ctx.fillText('試合経過・全記録',42,y);y+=42;ctx.fillStyle=muted;ctx.font=`750 18px ${font}`;ctx.fillText('1回から順に、次のイニングを下へ表示',42,y);y+=34;
- groups.forEach(gr=>{const x=38,w=W-76,scoreUs=Number(g.innings?.[gr.inning-1]?.us)||0;const rows=Math.max(1,gr.items.length);const blockH=108+rows*72;ctx.fillStyle=panel;ctx.fillRect(x,y,w,blockH);ctx.strokeStyle=line;ctx.lineWidth=2;ctx.strokeRect(x,y,w,blockH);ctx.fillStyle=accent;ctx.fillRect(x,y,8,blockH);ctx.fillStyle=accent2;ctx.font=`950 34px ${font}`;ctx.textAlign='left';ctx.fillText(`${gr.inning}回`,x+24,y+48);ctx.fillStyle=muted;ctx.font=`800 18px ${font}`;ctx.fillText(`この回の自チーム得点 ${scoreUs}点`,x+145,y+46);ctx.fillStyle=text;ctx.textAlign='right';ctx.font=`800 16px ${font}`;ctx.fillText(`${gr.items.length}件`,x+w-22,y+34);let ey=y+98;gr.items.forEach((e,ei)=>{const rowY=ey;ctx.fillStyle=ei%2===0?panel2:panel;ctx.fillRect(x+18,rowY-34,w-36,96);ctx.fillStyle=accent2;ctx.font=`950 14px ${font}`;ctx.textAlign='left';ctx.fillText(`${e.half}`,x+30,rowY+1);ctx.fillStyle=text;ctx.font=`850 12px ${font}`;const tag=String(e.kind||'');const textX=x+92;const tagReserve=tag?105:10;const textMax=w-92-tagReserve;drawWrappedText(ctx,String(e.text||''),textX,rowY+1,textMax,16,2);ctx.fillStyle=muted;ctx.font=`750 9px ${font}`;ctx.textAlign='right';if(tag)ctx.fillText(tag,x+w-24,rowY+1);ey+=72});y+=blockH+28});
- ctx.fillStyle=muted;ctx.font=`650 16px ${font}`;ctx.textAlign='left';ctx.fillText('西春野球ノート　•　写真保存・LINE・SNS共有用',42,H-24);
+ groups.forEach(gr=>{
+   const x=38,w=W-76,scoreUs=Number(g.innings?.[gr.inning-1]?.us)||0;
+   const rows=Math.max(1,gr.items.length);
+   const rowH=82;
+   const blockH=112+rows*rowH;
+   ctx.fillStyle=panel;ctx.fillRect(x,y,w,blockH);ctx.strokeStyle=line;ctx.lineWidth=2;ctx.strokeRect(x,y,w,blockH);
+   ctx.fillStyle=accent;ctx.fillRect(x,y,8,blockH);
+   ctx.fillStyle=accent2;ctx.font=`950 34px ${font}`;ctx.textAlign='left';ctx.fillText(`${gr.inning}回`,x+24,y+48);
+   ctx.fillStyle=muted;ctx.font=`800 18px ${font}`;ctx.fillText(`この回の自チーム得点 ${scoreUs}点`,x+145,y+46);
+   ctx.fillStyle=text;ctx.textAlign='right';ctx.font=`800 16px ${font}`;ctx.fillText(`${gr.items.length}件`,x+w-22,y+34);
+   let ey=y+108;
+   gr.items.forEach((e,ei)=>{
+     const rowY=ey;
+     ctx.fillStyle=ei%2===0?panel2:panel;ctx.fillRect(x+18,rowY-34,w-36,rowH-6);
+     ctx.fillStyle=accent2;ctx.font=`950 18px ${font}`;ctx.textAlign='left';ctx.fillText(`${e.half}`,x+30,rowY+8);
+     const tag=String(e.kind||'');
+     const textX=x+92;
+     const tagReserve=tag?125:10;
+     const textMax=w-92-tagReserve;
+     ctx.fillStyle=text;ctx.font=`850 28px ${font}`;
+     // 「西春高校」など上部のチーム名とほぼ同じ見た目を基準に、長文だけ自動縮小。
+     let fs=28;ctx.font=`850 ${fs}px ${font}`;
+     while(fs>20 && ctx.measureText(String(e.text||'')).width>textMax){fs--;ctx.font=`850 ${fs}px ${font}`;}
+     const lines=drawWrappedText(ctx,String(e.text||''),textX,rowY+8,textMax,32,2);
+     ctx.fillStyle=muted;ctx.font=`750 12px ${font}`;ctx.textAlign='right';
+     if(tag)ctx.fillText(tag,x+w-24,rowY+8);
+     ey+=rowH;
+   });
+   y+=blockH+28;
+ });
+ ctx.fillStyle=muted;ctx.font=`650 16px ${font}`;ctx.textAlign='left';ctx.fillText('西春野球ノート　•　写真保存・LINE・SNS共有用',42,H-28);
  return c;
 }
 function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
@@ -1400,7 +1430,7 @@ function render(){
  document.getElementById("app").innerHTML=tab==="record"?recordView():tab==="team"?teamView():tab==="lineup"?lineupView():dataView();
 }
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});
-if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js?v=2.62",{updateViaCache:"none"}));
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js?v=2.64",{updateViaCache:"none"}));
 render();
 
 let inGameSubType='代打',inGameSubSlot=null;
