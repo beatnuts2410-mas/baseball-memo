@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>西春野球ノート</title>
-<meta name="app-version" content="v2.61">
+<meta name="app-version" content="v2.63">
 <style>
 :root{--bg:#f7f7f5;--panel:#ffffff;--panel2:#f1f1ee;--line:#d9d9d4;--text:#111111;--muted:#444444;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--yellow:#d97706;color-scheme:light}
 *{box-sizing:border-box}body{margin:0;background:#f7f7f5;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
@@ -123,14 +123,13 @@ body{font-size:16px}
 }
 
 <style>
-/* v2.54: 試合経過・全記録をさらに拡大。回見出しと記録本文を完全分離 */
-.eventList .eventGroupTitle{font-size:38px;padding:24px 12px 20px;line-height:1.35;min-height:76px;display:flex;align-items:center;gap:16px}
-.eventList .eventGroupTitle span{font-size:25px}
-.eventList .eventRow{font-size:42px;padding:28px 20px;line-height:1.5;min-height:112px;word-break:break-word;overflow-wrap:anywhere}
-.eventList .eventTop{align-items:flex-start;gap:18px}
-.eventList .eventTag{font-size:23px;white-space:normal;line-height:1.35;flex:0 0 auto;max-width:22%;text-align:right}
-@media(max-width:430px){.eventList .eventRow{font-size:37px;padding:25px 17px;line-height:1.5}.eventList .eventGroupTitle{font-size:33px;min-height:70px}.eventList .eventGroupTitle span{font-size:22px}.eventList .eventTag{font-size:20px;max-width:24%}}
-</style>
+/* v2.63: 試合経過・全記録の選手結果をコンパクト化 */
+.eventList .eventGroupTitle{font-size:27px;padding:14px 10px 10px;line-height:1.25;min-height:50px;display:flex;align-items:center;gap:10px}
+.eventList .eventGroupTitle span{font-size:16px}
+.eventList .eventRow{font-size:12px;padding:7px 9px;line-height:1.3;min-height:42px;word-break:break-word;overflow-wrap:anywhere}
+.eventList .eventTop{align-items:center;gap:8px}
+.eventList .eventTag{font-size:9px;white-space:nowrap;line-height:1.2;flex:0 0 auto;max-width:18%;text-align:right}
+@media(max-width:430px){.eventList .eventRow{font-size:11px;padding:6px 8px;line-height:1.25;min-height:38px}.eventList .eventGroupTitle{font-size:24px;min-height:46px;padding:12px 9px 9px}.eventList .eventGroupTitle span{font-size:14px}.eventList .eventTag{font-size:8px;max-width:18%}}</style>
 </style>
 <style>
 /* v2.55 green accent / readability */
@@ -171,6 +170,21 @@ body{background:linear-gradient(180deg,#ffffff,#f5faf7 48%,#edf5f0);color:var(--
 .shareNote,.corrNote,.manualConfirmHint,.importHelp{color:#53665a}
 </style>
 <style>
+/* v2.63: 試合結果を画面いっぱいに固定し、下部記録をスクロール */
+#gameResultView .sportsResultHero{
+  position:sticky;top:62px;z-index:4;
+  width:calc(100% + 28px);margin-left:-14px;margin-right:-14px;
+  border-radius:0 0 18px 18px;
+  padding:12px 14px 14px;
+  box-shadow:0 8px 24px rgba(25,70,40,.10);
+}
+#gameResultView .sportsResultHero .sportsMainScore{font-size:clamp(40px,10vw,58px);}
+#gameResultView .sportsResultHero .sportsMatch{padding-top:10px;padding-bottom:10px;}
+#gameResultView .sportsResultHero .sportsBoard{margin-top:8px;}
+#gameResultView .sportsResultHero .sportsFooter{font-size:11px;}
+#gameResultView .resultTools,#gameResultView .card{scroll-margin-top:70px;}
+@media(max-width:480px){#gameResultView .sportsResultHero{top:58px;}#gameResultView .sportsResultHero .sportsTeamName{font-size:15px;}#gameResultView .sportsResultHero .sportsMainScore{font-size:42px;}}
+
 /* v2.56 UI fixes: result overlap + green runner controls */
 .launchPrimary{background:#15803d!important;border-color:#15803d!important;color:#fff!important;box-shadow:0 3px 10px rgba(21,128,61,.18)}
 .seg button.active{background:#15803d!important;border-color:#15803d!important;color:#fff!important;box-shadow:0 0 0 2px rgba(21,128,61,.14) inset}
@@ -189,6 +203,11 @@ body{background:linear-gradient(180deg,#ffffff,#f5faf7 48%,#edf5f0);color:var(--
 .eventList .eventTop{display:grid;grid-template-columns:minmax(0,1fr) minmax(72px,24%);align-items:start;gap:12px}
 .eventList .eventTop>b{min-width:0;overflow-wrap:anywhere;word-break:break-word}
 .eventList .eventTag{max-width:none;min-width:0;overflow-wrap:anywhere;word-break:break-word;text-align:right}
+/* v2.63: 選手結果は1行優先。長い場合のみ2行に折り返す */
+.eventList .eventTop{grid-template-columns:minmax(0,1fr) minmax(40px,16%);gap:6px;align-items:center}
+.eventList .eventTop>b{font-size:12px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.eventList .eventTag{font-size:8px;line-height:1.1;max-width:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:430px){.eventList .eventTop>b{font-size:11px}.eventList .eventTag{font-size:7px}}
 
 /* 走者・グランド：グリーン面＋黒文字 */
 .runnerGroundCard{background:linear-gradient(180deg,#ecfdf3,#dcfce7)!important;border-color:#86c99c!important}
@@ -376,7 +395,7 @@ body{background:#f7f7f5!important}
 </style>
 
 <style id="absolute-light-v261">
-/* v2.61 ABSOLUTE LIGHT MODE: flatten every legacy dark surface */
+/* v2.63 ABSOLUTE LIGHT MODE: flatten every legacy dark surface */
 html,body,.app,.content,main,section,header,footer,nav,article,aside,form,fieldset,details,summary,div,table,thead,tbody,tfoot,tr,th,td,ul,ol,li{
   background:#fff!important;
   background-color:#fff!important;
@@ -1199,14 +1218,14 @@ function renderGameResult(g){
    let lastInning=null;
    const groups=[];
    events.forEach(e=>{const key=Number(e.inning)||1;if(key!==lastInning){groups.push({inning:key,items:[]});lastInning=key;}groups[groups.length-1].items.push(e);});
-   eventHtml=groups.map(gr=>`<div class="eventGroup"><div class="eventGroupTitle">${gr.inning}回<span>試合経過</span></div>${gr.items.map(e=>`<div class="eventRow"><div class="eventTop"><b>${e.inning}回${e.half}　${esc(e.text)}</b><span class="eventTag">${e.kind}</span></div></div>`).join('')}</div>`).join('');
+   eventHtml=groups.map(gr=>`<div class="eventGroup"><div class="eventGroupTitle">${gr.inning}回<span>試合経過</span></div>${gr.items.map(e=>`<div class="eventRow"><div class="eventTop"><b>${e.half}　${esc(e.text)}</b><span class="eventTag">${e.kind}</span></div></div>`).join('')}</div>`).join('');
  }else eventHtml='<div class="empty">記録がありません</div>';
  const maxInning=Math.max(9,g.innings?.length||0);
  const resultClass=win==='勝利'?'':win==='敗戦'?'loss':'tie';
  const sportsRow=(name,key,total)=>`<tr><th>${esc(name)}</th>${Array.from({length:maxInning},(_,i)=>`<td>${Number(g.innings?.[i]?.[key])||0}</td>`).join('')}<td class="total">${Number(total)||0}</td></tr>`;
  const sportsBoard=`<div class="sportsBoard"><table><thead><tr><th>チーム</th>${Array.from({length:maxInning},(_,i)=>`<th>${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody>${sportsRow(firstName,firstIsOwn?'us':'opp',firstIsOwn?g.scoreUs:g.scoreOpp)}${sportsRow(secondName,firstIsOwn?'opp':'us',firstIsOwn?g.scoreOpp:g.scoreUs)}</tbody></table></div>`;
  return `<div id="gameResultView"><div class="resultHero sportsResultHero"><div class="sportsHeroTop"><span>試合結果</span><span>${esc(g.date||'')}　${esc(g.tournament||'')}</span></div><div class="sportsMatch"><div class="sportsTeam"><img class="sportsTeamLogo nishiharuUniform" src="nishiharu-uniform.png" alt="西春高校ユニフォーム"><div class="sportsTeamName">${esc(db.team.name)}</div><div class="sportsTeamLabel">自チーム</div></div><div class="sportsCenter"><div class="sportsStatus">FINAL</div><div class="sportsMainScore">${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}</div><span class="sportsResultBadge ${resultClass}">${win}</span><div class="sportsMiniInfo"><span>${g.innings?.length||1}回制</span><span>得点 ${Number(g.scoreUs)||0}</span><span>打撃記録 ${stats.length}人</span></div></div><div class="sportsTeam"><div class="sportsHomePlate" aria-label="相手チーム ホームベース"></div><div class="sportsTeamName">${esc(g.opponent||'相手校')}</div><div class="sportsTeamLabel">相手</div></div></div>${sportsBoard}<div class="sportsFooter"><span>${esc(g.stadium||'')}</span><span>${g.finishedAt?new Date(g.finishedAt).toLocaleString('ja-JP'):''}</span></div></div>
- <div class="card"><div class="title">結果を保存・共有</div><div class="resultTools"><button class="resultTool primary" onclick="saveResultImage(${g.id})">📷 写真として保存</button><button class="resultTool" onclick="shareGameResult(${g.id})">📤 SNS・共有</button></div><p class="shareNote">保存・SNS共有画像は、自チーム中心の試合結果・投手記録・打撃成績・全記録を上から下へ追える縦長レイアウトです。試合経過・全記録は大きな文字で重なりを避けて表示します。相手チームの投手・打撃・全記録・エラー表示は省き、選手交代は残します。</p><div class="shareVisual"><div class="shareStep"><span class="shareIcon">①📷</span><b>写真として保存</b><span>結果画像をスマホに保存</span></div><div class="shareStep"><span class="shareIcon">②📤</span><b>共有ボタン</b><span>「SNS・共有」をタップ</span></div><div class="shareStep"><span class="shareIcon">③📱</span><b>送信先を選択</b><span>LINE・SNSなど</span></div></div></div>
+ <div class="card"><div class="title">結果を保存・共有</div><div class="resultTools"><button class="resultTool primary" onclick="saveResultImage(${g.id})">📷 写真として保存</button><button class="resultTool" onclick="shareGameResult(${g.id})">📤 SNS・共有</button></div><p class="shareNote">保存・SNS共有画像は、試合結果を上部いっぱいに見せ、下部の投手記録・打撃成績・全記録をスクロール感覚で追える縦長レイアウトです。全記録の本文は見やすくコンパクトにし、高解像度のまま軽量化しています。相手チームの投手・打撃・全記録・エラー表示は省き、選手交代は残します。</p><div class="shareVisual"><div class="shareStep"><span class="shareIcon">①📷</span><b>写真として保存</b><span>結果画像をスマホに保存</span></div><div class="shareStep"><span class="shareIcon">②📤</span><b>共有ボタン</b><span>「SNS・共有」をタップ</span></div><div class="shareStep"><span class="shareIcon">③📱</span><b>送信先を選択</b><span>LINE・SNSなど</span></div></div></div>
  <div class="card"><div class="title">投手記録・登板履歴</div>${pitchingHtml}</div><div class="card"><div class="title">打撃成績</div>${batting}</div>
  <div class="card"><div class="title">試合経過・全記録</div><div class="eventList">${eventHtml}</div></div>
  <button class="btn resultBack" onclick="resultGameId=null;render()">← 試合データへ戻る</button></div>`;
@@ -1248,7 +1267,7 @@ async function resultCanvas(g){
  const groups=Array.from({length:maxInning},(_,i)=>({inning:i+1,items:events.filter(e=>(Number(e.inning)||1)===i+1)}));
  const pitchHist=g.pitching?.history||[];
  const statRows=Math.max(1,stats.length);
- const eventH=groups.reduce((sum,gr)=>sum+164+Math.max(1,gr.items.length)*220+28,0);
+ const eventH=groups.reduce((sum,gr)=>sum+108+Math.max(1,gr.items.length)*72+16,0);
  const H=Math.max(2500,1080+Math.min(420,statRows*34)+Math.min(240,pitchHist.length*46)+eventH);
  // 10倍を基準にしつつ、ブラウザのCanvas上限を超えないよう自動調整
  const REQUESTED_SCALE=10;
@@ -1301,16 +1320,19 @@ async function resultCanvas(g){
  stats.forEach((st,ri)=>{y+=34;x=42;const vals=[st.name,st.pa,st.ab,st.h,st.d2,st.d3,st.hr,st.rbi,st.bb,st.hbp,st.so,st.sh,st.ab?(st.h/st.ab).toFixed(3).replace(/^0/,''):'.000'];cols.forEach(([_,w],i)=>{cell(x,y,w,34,vals[i],i===0||i===12, i===0?panel:(ri%2?panel:'#f7faf8'));x+=w})});
  y+=46;
  // Full chronological vertical records
- ctx.fillStyle=accent;ctx.fillRect(38,y-22,W-76,5);y+=24;ctx.fillStyle=text;ctx.font=`950 42px ${font}`;ctx.textAlign='left';ctx.fillText('試合経過・全記録',42,y);y+=52;ctx.fillStyle=muted;ctx.font=`750 22px ${font}`;ctx.fillText('1回から順に、次のイニングを下へ表示',42,y);y+=34;
- groups.forEach(gr=>{const x=38,w=W-76,scoreUs=Number(g.innings?.[gr.inning-1]?.us)||0;const rows=Math.max(1,gr.items.length);const blockH=164+rows*220;ctx.fillStyle=panel;ctx.fillRect(x,y,w,blockH);ctx.strokeStyle=line;ctx.lineWidth=2;ctx.strokeRect(x,y,w,blockH);ctx.fillStyle=accent;ctx.fillRect(x,y,8,blockH);ctx.fillStyle=accent2;ctx.font=`950 46px ${font}`;ctx.textAlign='left';ctx.fillText(`${gr.inning}回`,x+24,y+52);ctx.fillStyle=muted;ctx.font=`800 22px ${font}`;ctx.fillText(`この回の自チーム得点 ${scoreUs}点`,x+155,y+50);ctx.fillStyle=text;ctx.textAlign='right';ctx.font=`800 18px ${font}`;ctx.fillText(`${gr.items.length}件`,x+w-22,y+40);let ey=y+126;gr.items.forEach((e,ei)=>{const rowY=ey;ctx.fillStyle=ei%2===0?panel2:panel;ctx.fillRect(x+18,rowY-48,w-36,184);ctx.fillStyle=accent2;ctx.font=`950 40px ${font}`;ctx.textAlign='left';ctx.fillText(`${e.half}`,x+32,rowY+2);ctx.fillStyle=text;ctx.font=`850 40px ${font}`;const tag=String(e.kind||'');const textX=x+125;const tagReserve=tag?210:20;const textMax=w-125-tagReserve;drawWrappedText(ctx,String(e.text||''),textX,rowY+2,textMax,54,3);ctx.fillStyle=muted;ctx.font=`750 22px ${font}`;ctx.textAlign='right';if(tag)ctx.fillText(tag,x+w-28,rowY+2);ey+=220});y+=blockH+28});
+ ctx.fillStyle=accent;ctx.fillRect(38,y-22,W-76,5);y+=24;ctx.fillStyle=text;ctx.font=`950 32px ${font}`;ctx.textAlign='left';ctx.fillText('試合経過・全記録',42,y);y+=42;ctx.fillStyle=muted;ctx.font=`750 18px ${font}`;ctx.fillText('1回から順に、次のイニングを下へ表示',42,y);y+=34;
+ groups.forEach(gr=>{const x=38,w=W-76,scoreUs=Number(g.innings?.[gr.inning-1]?.us)||0;const rows=Math.max(1,gr.items.length);const blockH=108+rows*72;ctx.fillStyle=panel;ctx.fillRect(x,y,w,blockH);ctx.strokeStyle=line;ctx.lineWidth=2;ctx.strokeRect(x,y,w,blockH);ctx.fillStyle=accent;ctx.fillRect(x,y,8,blockH);ctx.fillStyle=accent2;ctx.font=`950 34px ${font}`;ctx.textAlign='left';ctx.fillText(`${gr.inning}回`,x+24,y+48);ctx.fillStyle=muted;ctx.font=`800 18px ${font}`;ctx.fillText(`この回の自チーム得点 ${scoreUs}点`,x+145,y+46);ctx.fillStyle=text;ctx.textAlign='right';ctx.font=`800 16px ${font}`;ctx.fillText(`${gr.items.length}件`,x+w-22,y+34);let ey=y+98;gr.items.forEach((e,ei)=>{const rowY=ey;ctx.fillStyle=ei%2===0?panel2:panel;ctx.fillRect(x+18,rowY-34,w-36,96);ctx.fillStyle=accent2;ctx.font=`950 14px ${font}`;ctx.textAlign='left';ctx.fillText(`${e.half}`,x+30,rowY+1);ctx.fillStyle=text;ctx.font=`850 12px ${font}`;const tag=String(e.kind||'');const textX=x+92;const tagReserve=tag?105:10;const textMax=w-92-tagReserve;drawWrappedText(ctx,String(e.text||''),textX,rowY+1,textMax,16,2);ctx.fillStyle=muted;ctx.font=`750 9px ${font}`;ctx.textAlign='right';if(tag)ctx.fillText(tag,x+w-24,rowY+1);ey+=72});y+=blockH+28});
  ctx.fillStyle=muted;ctx.font=`650 16px ${font}`;ctx.textAlign='left';ctx.fillText('西春野球ノート　•　写真保存・LINE・SNS共有用',42,H-24);
  return c;
 }
 function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
 async function canvasBlob(c){
+ // 文字の輪郭を守るため、まず可逆圧縮WebP→PNG。非対応時のみ高品質JPEGへ。
+ const webp=await new Promise(r=>c.toBlob(r,'image/webp',1));
+ if(webp) return {blob:webp,ext:'webp',type:'image/webp'};
  const png=await new Promise(r=>c.toBlob(r,'image/png'));
  if(png) return {blob:png,ext:'png',type:'image/png'};
- const jpg=await new Promise(r=>c.toBlob(r,'image/jpeg',0.94));
+ const jpg=await new Promise(r=>c.toBlob(r,'image/jpeg',0.98));
  if(jpg) return {blob:jpg,ext:'jpg',type:'image/jpeg'};
  return null;
 }
@@ -1327,7 +1349,7 @@ async function saveResultImage(id){
    a.rel='noopener';
    document.body.appendChild(a);a.click();a.remove();
    setTimeout(()=>URL.revokeObjectURL(url),3000);
-   toast(out.ext==='png'?'試合結果画像を保存しました':'PNGが大きすぎたためJPEGで保存しました');
+   toast(out.ext==='jpg'?'JPEGで軽量化して保存しました':'高解像度・文字くっきりで保存しました');
  }catch(e){console.error('saveResultImage',e);toast('画像保存に失敗しました。ブラウザを最新版にして再度お試しください')}
 }
 async function shareGameResult(id){
@@ -1378,7 +1400,7 @@ function render(){
  document.getElementById("app").innerHTML=tab==="record"?recordView():tab==="team"?teamView():tab==="lineup"?lineupView():dataView();
 }
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});
-if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js?v=2.61",{updateViaCache:"none"}));
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js?v=2.62",{updateViaCache:"none"}));
 render();
 
 let inGameSubType='代打',inGameSubSlot=null;
