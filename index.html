@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>西春野球ノート</title>
-<meta name="app-version" content="v2.66">
+<meta name="app-version" content="v2.68">
 <style>
 :root{--bg:#f7f7f5;--panel:#ffffff;--panel2:#f1f1ee;--line:#d9d9d4;--text:#111111;--muted:#444444;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--yellow:#d97706;color-scheme:light}
 *{box-sizing:border-box}body{margin:0;background:#f7f7f5;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
@@ -419,7 +419,7 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 .toast{background:#222!important;color:#fff!important}
 .tab{background:#fff!important;color:#555!important}.tab.active{color:#111!important}
 </style>
-<!-- v2.67: 試合経過・全記録は36pxを維持。全イニング件数から写真高さを自動算出し、下端切れを防止。 -->
+<!-- v2.68: 試合経過・全記録は32px。9回まで確実に収まり、10回以降も記録量に応じて自動延長。 -->
 </head>
 <body>
 <div class="app">
@@ -1271,7 +1271,7 @@ async function resultCanvas(g){
  // 写真保存は下端切れを防ぐため、実際の全記録ブロック高さより余裕を持って確保。
  const PHOTO_EVENT_ROW_H=92;
  const eventH=groups.reduce((sum,gr)=>sum+112+Math.max(1,gr.items.length)*PHOTO_EVENT_ROW_H+24,0);
- const PRE_EVENT_H=2700+Math.min(900,statRows*40)+Math.min(720,pitchHist.length*52);
+ const PRE_EVENT_H=3600+Math.min(900,statRows*40)+Math.min(720,pitchHist.length*52);
  // v2.67: 全記録の件数に応じて写真全体の高さを自動確保。7回付近で切れないよう固定上限ではなく、
  // 試合経過ブロック開始位置＋全イニング分＋下端余白から算出する。
  const H=Math.max(4200,PRE_EVENT_H+eventH+180);
@@ -1346,12 +1346,12 @@ async function resultCanvas(g){
      const textX=x+92;
      const tagReserve=tag?125:10;
      const textMax=w-92-tagReserve;
-     ctx.fillStyle=text;ctx.font=`850 36px ${font}`;
-     // v2.66: 写真の「試合経過・全記録」は28pxの約1.3倍（36px）。
+     ctx.fillStyle=text;ctx.font=`850 32px ${font}`;
+     // v2.68: 写真の「試合経過・全記録」は28pxの約1.3倍（32px）。
      // 長い結果だけ自動縮小し、最大2行まで。下端切れを最優先で防止。
-     let fs=36;ctx.font=`850 ${fs}px ${font}`;
-     while(fs>30 && ctx.measureText(String(e.text||'')).width>textMax){fs--;ctx.font=`850 ${fs}px ${font}`;}
-     const lineHeight=42;
+     let fs=32;ctx.font=`850 ${fs}px ${font}`;
+     while(fs>27 && ctx.measureText(String(e.text||'')).width>textMax){fs--;ctx.font=`850 ${fs}px ${font}`;}
+     const lineHeight=38;
      const lines=drawWrappedText(ctx,String(e.text||''),textX,rowY+18,textMax,lineHeight,2);
      ctx.fillStyle=muted;ctx.font=`750 18px ${font}`;ctx.textAlign='right';
      if(tag)ctx.fillText(tag,x+w-24,rowY+8);
@@ -1437,7 +1437,7 @@ function render(){
  document.getElementById("app").innerHTML=tab==="record"?recordView():tab==="team"?teamView():tab==="lineup"?lineupView():dataView();
 }
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});
-if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js?v=2.64",{updateViaCache:"none"}));
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js?v=2.68",{updateViaCache:"none"}));
 render();
 
 let inGameSubType='代打',inGameSubSlot=null;
