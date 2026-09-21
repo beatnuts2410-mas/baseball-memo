@@ -1208,13 +1208,26 @@ async function gzipDecode(s){
  const bytes=base44ToBytes(s),ds=new DecompressionStream('gzip'),w=ds.writable.getWriter();w.write(bytes);w.close();
  return JSON.parse(await new Response(ds.readable).text());
 }
+async function gzipEncodeUrlSafe(obj){
+ if(!('CompressionStream'in window))return null;
+ const raw=new TextEncoder().encode(JSON.stringify(obj)),cs=new CompressionStream('gzip'),w=cs.writable.getWriter();w.write(raw);w.close();
+ const bytes=new Uint8Array(await new Response(cs.readable).arrayBuffer());
+ let bin='';for(let i=0;i<bytes.length;i++)bin+=String.fromCharCode(bytes[i]);
+ return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+async function gzipDecodeUrlSafe(s){
+ if(!('DecompressionStream'in window))return null;
+ const b64=String(s||'').replace(/-/g,'+').replace(/_/g,'/');
+ const pad='='.repeat((4-b64.length%4)%4);
+ const bin=atob(b64+pad),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+ const ds=new DecompressionStream('gzip'),w=ds.writable.getWriter();w.write(bytes);w.close();
+ return JSON.parse(await new Response(ds.readable).text());
+}
 function makeShareId(g){
  const seed=[g.date||'',g.opponent||'',g.scoreUs||0,g.scoreOpp||0,(g.pa||[]).length,(g.runnerMoves||[]).length,(g.pitching?.history||[]).length].join('|');
  let h=2166136261;for(let i=0;i<seed.length;i++){h^=seed.charCodeAt(i);h=Math.imul(h,16777619)}
  g.shareId='bm69-'+(h>>>0).toString(36);return g.shareId;
 }
-// QR専用「超圧縮」形式。通常の試合データは変更せず、QRに載せる瞬間だけ
-// 文字列辞書＋配列化＋gzipにして、1枚のQRに収まりやすいサイズまで縮小します。
 function compactMatchForQR(g){
  const dict=[],map=new Map();
  const S=v=>{v=String(v??'');if(!v)return 0;let n=map.get(v);if(n)return n;n=dict.length+1;dict.push(v);map.set(v,n);return n};
@@ -1222,94 +1235,42 @@ function compactMatchForQR(g){
  const P=(x)=>[Number(x?.seq)||0,Number(x?.inning)||0,H(x?.half),S(x?.batter),S(x?.result),Number(x?.rbi)||0,Number(x?.runs)||0];
  const R=(x)=>[Number(x?.seq)||0,S(x?.type),S(x?.judgement),Number(x?.inning)||0,H(x?.half),S(x?.name),x?.dest==null?0:Number(x.dest)||0,Number(x?.runs)||0];
  const T=(x)=>[S(x?.name),Number(x?.enteredInning)||0,H(x?.enteredHalf),Number(x?.outs)||0,x?.started?1:0,Number(x?.seq)||0];
- return {
-   v:3,s:makeShareId(g),
-   t:S(db.team.name),
-   h:[g.date||'',g.tournament||'',g.stadium||'',g.opponent||'相手校',Number(g.scoreUs)||0,Number(g.scoreOpp)||0,g.order==='後攻'?1:0],
-   d:dict,
-   i:(g.innings||[]).map(x=>[Number(x?.us)||0,Number(x?.opp)||0]),
-   p:(g.pa||[]).map(P),
-   r:(g.runnerMoves||[]).map(R),
-   y:(g.pitching?.history||[]).map(T)
- };
+ return {v:3,s:makeShareId(g),t:S(db.team.name),h:[g.date||'',g.tournament||'',g.stadium||'',g.opponent||'相手校',Number(g.scoreUs)||0,Number(g.scoreOpp)||0,g.order==='後攻'?1:0],d:dict,i:(g.innings||[]).map(x=>[Number(x?.us)||0,Number(x?.opp)||0]),p:(g.pa||[]).map(P),r:(g.runnerMoves||[]).map(R),y:(g.pitching?.history||[]).map(T)};
 }
 function expandMatchFromQR(q){
- const D=Array.isArray(q.d)?q.d:[];const S=n=>n?D[n-1]||'':'';const H=n=>n?'裏':'表';
- const h=q.h||[];
- return {
-   date:h[0]||'',tournament:h[1]||'',stadium:h[2]||'',opponent:h[3]||'相手校',scoreUs:Number(h[4])||0,scoreOpp:Number(h[5])||0,order:h[6]?'後攻':'先攻',finished:true,
-   shareId:q.s||'',innings:(q.i||[]).map(x=>({us:Number(x?.[0])||0,opp:Number(x?.[1])||0})),
-   pa:(q.p||[]).map(x=>({seq:Number(x?.[0])||0,inning:Number(x?.[1])||0,half:H(x?.[2]),batter:S(x?.[3]),result:S(x?.[4]),rbi:Number(x?.[5])||0,runs:Number(x?.[6])||0})),
-   runnerMoves:(q.r||[]).map(x=>({seq:Number(x?.[0])||0,type:S(x?.[1]),judgement:S(x?.[2])||null,inning:Number(x?.[3])||0,half:H(x?.[4]),name:S(x?.[5]),dest:Number(x?.[6])||0,runs:Number(x?.[7])||0})),
-   pitching:{history:(q.y||[]).map(x=>({name:S(x?.[0]),enteredInning:Number(x?.[1])||0,enteredHalf:H(x?.[2]),outs:Number(x?.[3])||0,started:!!x?.[4],seq:Number(x?.[5])||0}))}
- };
+ const D=Array.isArray(q.d)?q.d:[];const S=n=>n?D[n-1]||'':'';const H=n=>n?'裏':'表';const h=q.h||[];
+ return {date:h[0]||'',tournament:h[1]||'',stadium:h[2]||'',opponent:h[3]||'相手校',scoreUs:Number(h[4])||0,scoreOpp:Number(h[5])||0,order:h[6]?'後攻':'先攻',finished:true,shareId:q.s||'',innings:(q.i||[]).map(x=>({us:Number(x?.[0])||0,opp:Number(x?.[1])||0})),pa:(q.p||[]).map(x=>({seq:Number(x?.[0])||0,inning:Number(x?.[1])||0,half:H(x?.[2]),batter:S(x?.[3]),result:S(x?.[4]),rbi:Number(x?.[5])||0,runs:Number(x?.[6])||0})),runnerMoves:(q.r||[]).map(x=>({seq:Number(x?.[0])||0,type:S(x?.[1]),judgement:S(x?.[2])||null,inning:Number(x?.[3])||0,half:H(x?.[4]),name:S(x?.[5]),dest:Number(x?.[6])||0,runs:Number(x?.[7])||0})),pitching:{history:(q.y||[]).map(x=>({name:S(x?.[0]),enteredInning:Number(x?.[1])||0,enteredHalf:H(x?.[2]),outs:Number(x?.[3])||0,started:!!x?.[4],seq:Number(x?.[5])||0}))}};
 }
 async function buildMatchShareUrl(g){
- const compact=compactMatchForQR(g);
- const payload={v:3,s:compact.s,t:compact.t,g:compact};
- const enc=await gzipEncode(payload);
- if(!enc)throw new Error('QR圧縮機能が使えません');
- return {url:location.origin+location.pathname+'#m3.'+enc,bytes:enc.length,payload};
+ const compact=compactMatchForQR(g),payload={v:4,s:compact.s,t:compact.t,g:compact},enc=await gzipEncodeUrlSafe(payload);
+ if(!enc)throw new Error('共有リンク圧縮機能が使えません');
+ return {url:location.origin+location.pathname+'?m4='+enc,bytes:enc.length,payload};
 }
 async function createMatchQR(id){
  const g=db.games.find(x=>x.id===id);if(!g)return toast('試合結果が見つかりません');
  try{
-   makeShareId(g);save();
-   const built=await buildMatchShareUrl(g),url=built.url;
-   const box=document.getElementById('matchQR'),panel=document.getElementById('matchQRPanel');
-   if(!box||!panel)throw new Error('QR表示領域なし');if(typeof QRCode==='undefined')throw new Error('QRライブラリ未読込');box.innerHTML='';
-   // 読み取りやすさを最優先：ロゴはQRの中に入れず、QRの外側に配置します。
-   const levels=[['H',QRCode.CorrectLevel.H],['Q',QRCode.CorrectLevel.Q],['M',QRCode.CorrectLevel.M],['L',QRCode.CorrectLevel.L]];
-   let src=null,levelUsed='';let holder=null;
-   for(const [label,level] of levels){
-     const temp=document.createElement('div');temp.style.cssText='position:absolute;left:-99999px;top:-99999px;width:720px;height:720px;background:#fff';document.body.appendChild(temp);
-     try{
-       new QRCode(temp,{text:url,width:1000,height:1000,correctLevel:level});
-       await new Promise(r=>setTimeout(r,40));
-       const candidate=temp.querySelector('canvas')||temp.querySelector('img');
-       if(candidate){src=candidate;levelUsed=label;holder=temp;break;}
-     }catch(e){}
-     document.body.removeChild(temp);
-   }
-   if(!src||!holder)throw new Error('QR_PAYLOAD_TOO_LARGE');
-   // QR本体にはロゴや画像を一切重ねず、読み取りやすさを最優先します。
-   // QRの上側に「自チーム × 相手チーム」を表示します。
-   const qrCanvas=document.createElement('canvas');qrCanvas.width=900;qrCanvas.height=900;const qctx=qrCanvas.getContext('2d');
-   qctx.fillStyle='#fff';qctx.fillRect(0,0,900,900);
-   if(src.tagName==='CANVAS')qctx.drawImage(src,0,0,900,900);
-   else{await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{qctx.drawImage(im,0,0,900,900);resolve()};im.onerror=reject;im.src=src.src})}
-   document.body.removeChild(holder);
-   const out=document.createElement('canvas');out.width=1000;out.height=1040;const ctx=out.getContext('2d');
-   ctx.fillStyle='#fff';ctx.fillRect(0,0,out.width,out.height);
-   const teamLabel=`${db.team.name||'西春高校'} × ${g.opponent||'相手チーム'}`;
-   ctx.fillStyle='#172033';ctx.font='800 34px -apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(teamLabel,500,48);
-   ctx.drawImage(qrCanvas,50,100,900,900);
-   out.className='specialQrCanvas';out.setAttribute('aria-label',`${teamLabel} 本日の試合結果QRコード`);box.appendChild(out);
-   panel.dataset.shareUrl=url;
-   panel.dataset.gameId=String(id);
-   panel.classList.remove('hidden');
-   toast(`本日の試合結果QRを作成しました（${levelUsed}・圧縮${built.bytes}文字）`);
- }catch(e){console.error(e);toast(e?.message==='QR_PAYLOAD_TOO_LARGE'?'試合データを超圧縮しても1枚のQR容量を超えました':'QR作成に失敗しました。もう一度お試しください')}
+   makeShareId(g);save();const built=await buildMatchShareUrl(g),panel=document.getElementById('matchQRPanel'),box=document.getElementById('matchQR');
+   if(!panel||!box)throw new Error('共有リンク表示領域なし');
+   box.innerHTML=`<div class="shareLinkBox"><div class="shareLinkLabel">このリンクを送れば、受け取った人は試合データへ直行します。</div><input id="matchShareUrl" class="shareUrlInput" readonly value="${built.url.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"><button class="btn primary" style="width:100%;margin-top:8px" onclick="copyMatchShareUrl()">🔗 共有リンクをコピー</button></div>`;
+   panel.dataset.shareUrl=built.url;panel.dataset.gameId=String(id);panel.classList.remove('hidden');toast(`試合データへ直行する共有リンクを作成しました（${built.bytes}文字）`);
+ }catch(e){console.error(e);toast('共有リンクの作成に失敗しました。もう一度お試しください')}
+}
+async function copyMatchShareUrl(){
+ const url=document.getElementById('matchShareUrl')?.value; if(!url)return;
+ try{await navigator.clipboard.writeText(url);toast('共有リンクをコピーしました。LINEなどに貼り付けて送れます');}
+ catch(e){const el=document.getElementById('matchShareUrl');el?.select();document.execCommand('copy');toast('共有リンクをコピーしました');}
 }
 async function shareMatchQR(id){
- const panel=document.getElementById('matchQRPanel'),out=document.querySelector('#matchQR canvas');
- const g=db.games.find(x=>x.id===id),url=panel?.dataset.shareUrl;
- if(!g||!out||!url)return toast('先に本日の試合結果QRを作成してください');
+ const panel=document.getElementById('matchQRPanel'),g=db.games.find(x=>x.id===id),url=panel?.dataset.shareUrl;
+ if(!g||!url)return toast('先に共有リンクを作成してください');
  try{
-   const blob=await new Promise(resolve=>out.toBlob(resolve,'image/png',1));
-   const file=new File([blob],`野球メモ_本日の試合結果QR_${g.date||'試合'}.png`,{type:'image/png'});
-   const data={title:'野球メモ 本日の試合結果',text:`${g.date||''} ${db.team.name||'野球メモ'} 本日の試合結果QR`,files:[file]};
-   if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
-     await navigator.share(data);toast('本日の試合結果QRを共有しました');return;
-   }
-   if(navigator.share){
-     await navigator.share({title:data.title,text:data.text+'\n'+url});toast('共有画面を開きました');return;
-   }
-   await navigator.clipboard?.writeText(url);toast('共有機能に対応していないため、共有URLをコピーしました');
- }catch(e){if(e?.name!=='AbortError'){console.error('shareMatchQR',e);toast('共有に失敗しました。もう一度お試しください')}}
+   const data={title:'野球メモ 試合結果',text:`${g.date||''} ${db.team.name||'野球メモ'} 試合結果\n${url}`};
+   if(navigator.share){await navigator.share(data);toast('試合結果の共有画面を開きました');return;}
+   await navigator.clipboard.writeText(url);toast('共有リンクをコピーしました。LINEなどに貼り付けて送れます');
+ }catch(e){if(e?.name!=='AbortError'){console.error('shareMatchLink',e);toast('共有に失敗しました。もう一度お試しください')}}
 }
 function saveSharedMatch(){if(!sharedGame)return;const sid=sharedGame.shareId||makeShareId(sharedGame),idx=db.games.findIndex(x=>x.shareId===sid||x.id===sharedGame.id),copy=JSON.parse(JSON.stringify(sharedGame));delete copy.sharedTeamName;if(idx>=0){toast('この試合はすでに保存されています');resultGameId=db.games[idx].id;sharedGame=null;history.replaceState(null,'',location.pathname);tab='data';render();setTimeout(()=>viewGameResult(resultGameId),50);return}copy.shareId=sid;copy.id=Date.now()+Math.floor(Math.random()*1000);copy.finished=true;db.games.push(copy);save();sharedGame=null;history.replaceState(null,'',location.pathname);resultGameId=copy.id;tab='data';render();setTimeout(()=>viewGameResult(copy.id),50);toast('試合結果をマイアプリに保存しました')}
-async function loadSharedMatchFromHash(){const qm=new URLSearchParams(location.search).get('m3');const hm=location.hash.match(/^#(?:m3|M3)\.([0-9A-Z\-\$\*\+\.\/:]+)$/);const encoded=qm||hm?.[1];if(!encoded)return false;try{const payload=await gzipDecode(encoded);if(!payload?.g)return false;const g=expandMatchFromQR(payload.g);g.shareId=payload.s||g.shareId;g.sharedTeamName=payload.t?String((Array.isArray(payload.g.d)?payload.g.d[payload.t-1]:'')||'共有元チーム'):'共有元チーム';sharedGame=g;sharedSourceUrl=location.href;tab='data';resultGameId=null;render();return true}catch(e){console.error(e);toast('共有された試合を読み込めませんでした');return false}}
+async function loadSharedMatchFromHash(){const m4=new URLSearchParams(location.search).get('m4');const m3=new URLSearchParams(location.search).get('m3');const hm=location.hash.match(/^#(?:m3|M3)\.([0-9A-Z\-\$\*\+\.\/:]+)$/);try{if(m4){const payload=await gzipDecodeUrlSafe(m4);if(!payload?.g)return false;const g=expandMatchFromQR(payload.g);g.shareId=payload.s||g.shareId;g.sharedTeamName=payload.t?String((Array.isArray(payload.g.d)?payload.g.d[payload.t-1]:'')||'共有元チーム'):'共有元チーム';sharedGame=g;sharedSourceUrl=location.href;tab='data';resultGameId=null;render();return true}const encoded=m3||hm?.[1];if(!encoded)return false;const payload=await gzipDecode(encoded);if(!payload?.g)return false;const g=expandMatchFromQR(payload.g);g.shareId=payload.s||g.shareId;g.sharedTeamName=payload.t?String((Array.isArray(payload.g.d)?payload.g.d[payload.t-1]:'')||'共有元チーム'):'共有元チーム';sharedGame=g;sharedSourceUrl=location.href;tab='data';resultGameId=null;render();return true}catch(e){console.error(e);toast('共有された試合を読み込めませんでした');return false}}
 function viewGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return toast('試合結果が見つかりません');resultGameId=id;tab='data';render();setTimeout(()=>{const el=document.getElementById('gameResultView');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},0)}
 function battingStats(g){
  const stats={};
@@ -1374,7 +1335,7 @@ function renderGameResult(g){
  const sportsBoard=`<div class="sportsBoard"><table><thead><tr><th>チーム</th>${Array.from({length:maxInning},(_,i)=>`<th>${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody>${sportsRow(firstName,firstIsOwn?'us':'opp',firstIsOwn?g.scoreUs:g.scoreOpp)}${sportsRow(secondName,firstIsOwn?'opp':'us',firstIsOwn?g.scoreOpp:g.scoreUs)}</tbody></table></div>`;
  return `<div id="gameResultView"><div class="resultHero sportsResultHero"><div class="sportsHeroTop"><span>試合結果</span><span>${esc(g.date||'')}　${esc(g.tournament||'')}</span></div><div class="sportsMatch"><div class="sportsTeam"><img class="sportsTeamLogo nishiharuUniform" src="nishiharu-uniform.png" alt="西春高校ユニフォーム"><div class="sportsTeamName">${esc(myTeamName)}</div><div class="sportsTeamLabel">自チーム</div></div><div class="sportsCenter"><div class="sportsStatus">FINAL</div><div class="sportsMainScore">${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}</div><span class="sportsResultBadge ${resultClass}">${win}</span><div class="sportsMiniInfo"><span>${g.innings?.length||1}回制</span><span>得点 ${Number(g.scoreUs)||0}</span><span>打撃記録 ${stats.length}人</span></div></div><div class="sportsTeam"><div class="sportsHomePlate" aria-label="相手チーム ホームベース"></div><div class="sportsTeamName">${esc(g.opponent||'相手校')}</div><div class="sportsTeamLabel">相手</div></div></div>${sportsBoard}<div class="sportsFooter"><span>${esc(g.stadium||'')}</span><span>${g.finishedAt?new Date(g.finishedAt).toLocaleString('ja-JP'):''}</span></div></div>
  ${g.sharedTeamName?`<div class="sharedBanner"><b>📱 共有された試合</b><span class="muted">共有された試合結果をそのまま見ています。気に入ったらマイアプリに保存できます。</span><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveSharedMatch()">試合結果をマイアプリに保存</button></div>`:''}
- ${!g.sharedTeamName?`<div class="card qrShareCard special"><div class="title">今日の試合、QRでシェアしよう！</div><p class="muted">QRを作ると、今日の試合結果をそのまま共有できます。SNS・LINEなどで送れて、受け取った人はQRを読み取るだけで同じ試合画面を開けます。</p><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="createMatchQR(${g.id})">⚾ 試合結果QRを作る</button><div id="matchQRPanel" class="hidden"><div id="matchQRWrap" class="specialQrWrap"><div id="matchQR"></div></div><div class="qrAutoNote">QRは読み取りやすさを優先しています。上に対戦カードを表示しています。</div><button class="btn qrShareBtn" onclick="shareMatchQR(${g.id})">📤 SNS・共有</button></div></div>`:''}
+ ${!g.sharedTeamName?`<div class="card qrShareCard special"><div class="title">今日の試合結果、リンクでシェアしよう！</div><p class="muted">QR画像は使わず、共有リンクそのものをLINE・SNSなどへ送ります。受け取った人はリンクを開くだけで、この試合の「試合データ」に直行します。</p><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="createMatchQR(${g.id})">⚾ 試合結果リンクを作る</button><div id="matchQRPanel" class="hidden"><div id="matchQR"></div><button class="btn qrShareBtn" onclick="shareMatchQR(${g.id})">📤 LINE・SNSへ送る</button></div></div>`:''}
  <div class="card"><div class="title">投手記録・登板履歴</div>${pitchingHtml}</div><div class="card"><div class="title">打撃成績</div>${batting}</div>
  <div class="card"><div class="title">試合経過・全記録</div><div class="eventList">${eventHtml}</div></div>
  <button class="btn resultBack" onclick="resultGameId=null;render()">← 試合データへ戻る</button></div>`;
