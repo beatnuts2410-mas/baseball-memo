@@ -452,6 +452,7 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .runnerBases.groundImageBase .runnerBase .baseTag .baseNo{font-size:11px;color:#fff!important;background:#1459a6;border-radius:7px;padding:2px 7px;margin:-3px -9px 3px;min-width:100%;}
+.runnerBases.groundImageBase .runnerBase .baseTag .runnerPlayerName{display:block!important;color:#12355d!important;font-size:15px!important;font-weight:900!important;line-height:1.15!important;white-space:nowrap!important;visibility:visible!important;opacity:1!important;}
 .runnerBases.groundImageBase .runnerBase:not(.occupied) .baseTag{background:rgba(255,255,255,.82);border-color:#fff;color:#24405e!important;min-width:58px;min-height:34px;}
 .runnerBases.groundImageBase .runnerBase.on .baseTag{border:3px solid #1683e8;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 3px 9px rgba(0,0,0,.38);}
 .runnerBases.groundImageBase .rb1{left:76.5%!important;top:54%!important}
@@ -463,6 +464,7 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   font-size:12px;font-weight:900;box-shadow:0 2px 6px rgba(0,0,0,.18);
 }
 .runnerBases.groundImageBase.correctionGround .runnerBase .baseTag{border-color:#f59e0b;}
+.runnerBases.groundImageBase.correctionGround .runnerBase .baseTag .runnerPlayerName{display:block!important;color:#12355d!important;font-size:15px!important;font-weight:900!important;line-height:1.15!important;white-space:nowrap!important;visibility:visible!important;opacity:1!important;}
 .runnerBases.groundImageBase.correctionGround .runnerBase.on .baseTag{border:4px solid #f59e0b;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 3px 10px rgba(0,0,0,.38);}
 .runnerBases.groundImageBase.correctionGround .runnerBase{cursor:pointer}
 @media(max-width:480px){
@@ -845,8 +847,12 @@ function advanceRunners(g,result,batterName){
   after=before;afterNames=names;syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored:0,rbi:0,detail:''};
 }
 function renderBaseDiamond(g){
- const names=cloneRunnerNames(g.runnerNames);
- const baseTag=(i,base)=>g.runners[i]?`<span class="baseTag"><span class="baseNo">${base}</span><span>${esc(names[i]||'走者')}</span></span>`:`<span class="baseTag">${base}</span>`;
+ // 走者名は現行データを最優先。旧データ等でrunnerNamesが欠けている場合は、直近打席のafterRunnerNamesから補完する。
+ const latest=(g.pa||[]).slice(-1)[0]||{};
+ const currentNames=cloneRunnerNames(g.runnerNames);
+ const latestNames=cloneRunnerNames(latest.afterRunnerNames);
+ const names=[0,1,2].map(i=>currentNames[i]||latestNames[i]||null);
+ const baseTag=(i,base)=>g.runners[i]?`<span class="baseTag"><span class="baseNo">${base}</span><span class="runnerPlayerName">${esc(names[i]||'走者')}</span></span>`:`<span class="baseTag">${base}</span>`;
  return `<div class="runnerBases groundImageBase" aria-label="走者・グランド">
    <button type="button" class="runnerBase rb1 ${g.runners[0]?'on occupied':''}" onclick="toggleRunner(0)">${baseTag(0,'1塁')}</button>
    <button type="button" class="runnerBase rb2 ${g.runners[1]?'on occupied':''}" onclick="toggleRunner(1)">${baseTag(1,'2塁')}</button>
@@ -1122,11 +1128,13 @@ function openRunnerCorrection(){
  document.getElementById('corrTarget').textContent=`直前：${p.inning}回${p.half} ${p.batter} → ${p.result}`;
  document.getElementById('corrRuns').innerHTML=[0,1,2,3,4].map(n=>`<button class="btn ${p.runs===n?'primary':''}" onclick="setCorrectionRuns(${n})">${n}点</button>`).join('');
  const names=cloneRunnerNames(p.afterRunnerNames||[null,null,null]);
+ const fallbackNames=cloneRunnerNames(g.runnerNames);
  [[1,0],[2,1],[3,2]].forEach(([b,i])=>{
    const el=document.getElementById('corrB'+b);
    if(!el)return;
+   const displayName=names[i]||fallbackNames[i]||'走者';
    el.classList.toggle('on',!!p.afterRunners?.[i]);
-   el.innerHTML=`<span class="baseTag"><span class="baseNo">${b}塁</span><span>${p.afterRunners?.[i]?esc(names[i]||'走者'):'走者なし'}</span></span>`;
+   el.innerHTML=`<span class="baseTag"><span class="baseNo">${b}塁</span><span class="runnerPlayerName">${p.afterRunners?.[i]?esc(displayName):'走者なし'}</span></span>`;
  });
 }
 function setCorrectionRuns(n){document.getElementById('corrRuns').dataset.value=n;document.querySelectorAll('#corrRuns button').forEach(b=>b.classList.remove('primary'));const btn=[...document.querySelectorAll('#corrRuns button')].find(b=>b.textContent===n+'点');if(btn)btn.classList.add('primary')}
