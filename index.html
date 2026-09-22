@@ -640,6 +640,29 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 .runnerMovePick button,.runnerActions button,.manualConfirmGrid button,.resultgrid .result{border-width:4px!important;border-style:solid!important}
 @media(max-width:480px){.runnerMoveDest>.runnerDestButtons button{min-height:54px!important;font-size:15px!important}}
 </style>
+
+<style id="v279-unified-real-field">
+/* v2.79: 初めから／途中からで同一の走者・グランド表示を強制。旧四角表示を上書き。 */
+.runnerGroundCard .realBaseField{
+ position:relative!important;width:min(100%,460px)!important;max-width:460px!important;aspect-ratio:1/1!important;height:auto!important;
+ margin:14px auto 10px!important;overflow:hidden!important;border-radius:22px!important;
+ background:linear-gradient(180deg,#68b84f 0%,#4d9f3c 100%)!important;border:2px solid #2f7d2d!important;
+ box-shadow:inset 0 0 0 5px rgba(255,255,255,.12),inset 0 -18px 30px rgba(20,80,20,.12)!important;
+}
+.runnerGroundCard .realBaseField::before{content:"";position:absolute!important;left:14%!important;top:14%!important;width:72%!important;height:72%!important;background:#c79a64!important;transform:rotate(45deg)!important;border:3px solid rgba(120,78,38,.45)!important;border-radius:5%!important;z-index:1!important}
+.runnerGroundCard .realBaseField::after{content:"";position:absolute!important;left:3%!important;bottom:7%!important;width:94%!important;height:2px!important;background:rgba(255,255,255,.9)!important;transform:rotate(-22deg)!important;transform-origin:left center!important;box-shadow:0 -1px 0 rgba(255,255,255,.25)!important;z-index:3!important}
+.runnerGroundCard .realBaseField .fieldMound{position:absolute!important;left:50%!important;top:46%!important;width:15%!important;height:15%!important;transform:translate(-50%,-50%)!important;border-radius:50%!important;background:#bd8f5e!important;border:2px solid #8f673f!important;z-index:4!important}
+.runnerGroundCard .realBaseField .foulLineLeft,.runnerGroundCard .realBaseField .foulLineRight{position:absolute!important;bottom:7%!important;width:94%!important;height:2px!important;background:rgba(255,255,255,.9)!important;z-index:3!important}
+.runnerGroundCard .realBaseField .foulLineLeft{left:3%!important;transform:rotate(-22deg)!important;transform-origin:left center!important}.runnerGroundCard .realBaseField .foulLineRight{right:3%!important;transform:rotate(22deg)!important;transform-origin:right center!important}
+.runnerGroundCard .realBaseField .runnerBase{position:absolute!important;z-index:5!important;width:9%!important;height:9%!important;min-width:25px!important;min-height:25px!important;transform:translate(-50%,-50%) rotate(45deg)!important;border:3px solid #fff!important;background:#fff!important;border-radius:2px!important;padding:0!important;color:transparent!important;display:block!important}
+.runnerGroundCard .realBaseField .runnerBase.on{background:#22c55e!important;border-color:#fff!important;box-shadow:0 0 0 2px rgba(0,0,0,.18)!important}
+.runnerGroundCard .realBaseField .rb1{left:72%!important;top:50%!important}.runnerGroundCard .realBaseField .rb2{left:50%!important;top:28%!important}.runnerGroundCard .realBaseField .rb3{left:28%!important;top:50%!important}
+.runnerGroundCard .realBaseField .homePlateShape{position:absolute!important;left:50%!important;top:73%!important;width:10%!important;height:11%!important;transform:translate(-50%,-50%)!important;background:#fff!important;clip-path:polygon(0 0,100% 0,100% 48%,50% 100%,0 48%)!important;border:0!important;z-index:5!important}
+.runnerGroundCard .realBaseField .baseName{position:absolute!important;z-index:7!important;transform:translate(-50%,-50%)!important;font-size:17px!important;font-weight:950!important;line-height:1!important;width:max-content!important;max-width:125px!important;min-width:64px!important;padding:3px 5px!important;border-radius:7px!important;background:rgba(0,0,0,.72)!important;color:#fff!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;text-align:center!important;pointer-events:none!important}
+.runnerGroundCard .realBaseField .bn1{left:72%!important;top:50%!important}.runnerGroundCard .realBaseField .bn2{left:50%!important;top:28%!important}.runnerGroundCard .realBaseField .bn3{left:28%!important;top:50%!important}
+@media(max-width:480px){.runnerGroundCard .realBaseField{width:min(100%,390px)!important;max-width:390px!important}.runnerGroundCard .realBaseField .baseName{font-size:16px!important;max-width:125px!important}}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -1017,9 +1040,16 @@ function advanceRunners(g,result,batterName){
 }
 function renderBaseDiamond(g){
  const names=cloneRunnerNames(g.runnerNames);
- const lab=(i)=>g.runners[i]?`<div class="baseName ${['bn1','bn2','bn3'][i]}">${esc(names[i]||'走者')}</div>`:'';
- return `<div class="runnerBases" aria-label="野球場・走者位置"><div class="fieldDirt"></div><div class="fieldMound"></div><div class="foulLineLeft"></div><div class="foulLineRight"></div><div class="runnerBase rb1 ${g.runners[0]?'on':''}" aria-label="一塁"></div><div class="runnerBase rb2 ${g.runners[1]?'on':''}" aria-label="二塁"></div><div class="runnerBase rb3 ${g.runners[2]?'on':''}" aria-label="三塁"></div><div class="homePlateShape" aria-label="本塁"></div>${lab(0)}${lab(1)}${lab(2)}</div>`;
+ const lab=(i)=>g.runners[i]?`<div class="baseName ${['bn1','bn2','bn3'][i]}" title="${esc(names[i]||'走者')}">${esc(names[i]||'走者')}</div>`:'';
+ return `<div class="runnerBases realBaseField" aria-label="野球場・走者位置">
+   <div class="fieldDirt"></div><div class="fieldMound"></div><div class="foulLineLeft"></div><div class="foulLineRight"></div>
+   <div class="runnerBase rb1 ${g.runners[0]?'on':''}" aria-label="一塁"></div>
+   <div class="runnerBase rb2 ${g.runners[1]?'on':''}" aria-label="二塁"></div>
+   <div class="runnerBase rb3 ${g.runners[2]?'on':''}" aria-label="三塁"></div>
+   <div class="homePlateShape" aria-label="本塁"></div>${lab(0)}${lab(1)}${lab(2)}
+ </div>`;
 }
+
 let runnerMoveMode=null,runnerMoveFrom=null,runnerMoveJudged=false;
 function openRunnerMove(mode){
  const g=db.current;if(!g||!g.runners.some(Boolean))return toast('走者がいません');
