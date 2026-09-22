@@ -130,7 +130,7 @@ body{font-size:16px}
 .eventList .eventRow{font-size:11px;padding:6px 8px;line-height:1.25;min-height:38px;word-break:break-word;overflow-wrap:anywhere}
 .eventList .eventTop{align-items:center;gap:6px}
 .eventList .eventTag{font-size:8px;white-space:nowrap;line-height:1.1;flex:0 0 auto;max-width:16%;text-align:right}
-@media(max-width:430px){.eventList .eventRow{font-size:10px;padding:5px 7px;line-height:1.2;min-height:34px}.eventList .eventGroupTitle{font-size:22px;min-height:42px;padding:10px 8px 8px}.eventList .eventGroupTitle span{font-size:13px}.eventList .eventTag{font-size:7px;max-width:16%}}.shareLinkCard{border:1px solid #315fa9;background:linear-gradient(180deg,#10223a,#0d1725)}.qrShareGrid{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.qrBox{background:#fff;border-radius:12px;padding:10px;min-width:190px;min-height:190px;display:flex;align-items:center;justify-content:center}.qrBox canvas,.qrBox img{max-width:190px;height:auto}.qrUrl{font-size:11px;word-break:break-all;background:#0a1220;border:1px solid #2b3b52;border-radius:8px;padding:8px;color:#aebdd0}.sharedBanner{border:1px solid #2563eb;background:#102b55;border-radius:12px;padding:12px;margin-bottom:12px}.sharedBanner b{display:block;margin-bottom:4px} .specialQrWrap{display:flex;justify-content:center;align-items:center;gap:22px;padding:18px;background:linear-gradient(145deg,#f8fbf9,#eaf4ed);border:1px solid #c7dccd;border-radius:18px;margin-top:12px}.specialQrCanvas{width:min(560px,92vw);height:auto;display:block;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(21,128,61,.14)}.qrAutoNote{text-align:center;font-size:12px;color:#4c6254;line-height:1.55;margin-top:10px}.shareLinkBtn{width:100%;margin-top:12px;font-size:16px;padding:13px;background:#166534;border-color:#1f7a3e}.shareLinkCard.special{border:1px solid #8dbba0;background:linear-gradient(180deg,#fff,#f3faf5)}@media(max-width:520px){.qrShareGrid{grid-template-columns:1fr}.qrBox{width:210px;margin:auto}.qrBox canvas,.qrBox img{max-width:190px}.specialQrWrap{flex-direction:column;gap:10px}.specialQrCanvas{width:min(560px,94vw)}}</style>
+@media(max-width:430px){.eventList .eventRow{font-size:10px;padding:5px 7px;line-height:1.2;min-height:34px}.eventList .eventGroupTitle{font-size:22px;min-height:42px;padding:10px 8px 8px}.eventList .eventGroupTitle span{font-size:13px}.eventList .eventTag{font-size:7px;max-width:16%}}.qrShareCard{border:1px solid #315fa9;background:linear-gradient(180deg,#10223a,#0d1725)}.qrShareGrid{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.qrBox{background:#fff;border-radius:12px;padding:10px;min-width:190px;min-height:190px;display:flex;align-items:center;justify-content:center}.qrBox canvas,.qrBox img{max-width:190px;height:auto}.qrUrl{font-size:11px;word-break:break-all;background:#0a1220;border:1px solid #2b3b52;border-radius:8px;padding:8px;color:#aebdd0}.sharedBanner{border:1px solid #2563eb;background:#102b55;border-radius:12px;padding:12px;margin-bottom:12px}.sharedBanner b{display:block;margin-bottom:4px} .specialQrWrap{display:flex;justify-content:center;align-items:center;gap:22px;padding:18px;background:linear-gradient(145deg,#f8fbf9,#eaf4ed);border:1px solid #c7dccd;border-radius:18px;margin-top:12px}.specialQrCanvas{width:min(560px,92vw);height:auto;display:block;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(21,128,61,.14)}.qrAutoNote{text-align:center;font-size:12px;color:#4c6254;line-height:1.55;margin-top:10px}.qrShareBtn{width:100%;margin-top:12px;font-size:16px;padding:13px;background:#166534;border-color:#1f7a3e}.qrShareCard.special{border:1px solid #8dbba0;background:linear-gradient(180deg,#fff,#f3faf5)}@media(max-width:520px){.qrShareGrid{grid-template-columns:1fr}.qrBox{width:210px;margin:auto}.qrBox canvas,.qrBox img{max-width:190px}.specialQrWrap{flex-direction:column;gap:10px}.specialQrCanvas{width:min(560px,94vw)}}</style>
 </style>
 <style>
 /* v2.55 green accent / readability */
@@ -171,13 +171,16 @@ body{background:linear-gradient(180deg,#ffffff,#f5faf7 48%,#edf5f0);color:var(--
 .shareNote,.corrNote,.manualConfirmHint,.importHelp{color:#53665a}
 </style>
 <style>
-/* v2.64: 試合結果を画面いっぱいに固定し、下部記録をスクロール */
+/* v2.70: 試合結果は固定せず、画面全体を自然に縦スクロール */
 #gameResultView .sportsResultHero{
-  position:sticky;top:62px;z-index:4;
-  width:calc(100% + 28px);margin-left:-14px;margin-right:-14px;
-  border-radius:0 0 18px 18px;
-  padding:12px 14px 14px;
-  box-shadow:0 8px 24px rgba(25,70,40,.10);
+  position:relative;
+  top:auto;
+  z-index:auto;
+  width:100%;
+  margin:0 0 12px;
+  border-radius:18px;
+  padding:0;
+  box-shadow:none;
 }
 #gameResultView .sportsResultHero .sportsMainScore{font-size:clamp(40px,10vw,58px);}
 #gameResultView .sportsResultHero .sportsMatch{padding-top:10px;padding-bottom:10px;}
@@ -420,7 +423,7 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 .toast{background:#222!important;color:#fff!important}
 .tab{background:#fff!important;color:#555!important}.tab.active{color:#111!important}
 </style>
-<!-- v2.70: 試合経過・全記録は32px。9回まで確実に表示し、10回以降は記録量に応じて自動延長。 -->
+<!-- v2.69: 試合経過・全記録は32px。9回まで確実に表示し、10回以降は記録量に応じて自動延長。 -->
 </head>
 <body>
 <div class="app">
@@ -1246,10 +1249,10 @@ async function buildMatchShareUrl(g){
  if(!enc)throw new Error('共有リンク圧縮機能が使えません');
  return {url:location.origin+location.pathname+'?m4='+enc,bytes:enc.length,payload};
 }
-async function createMatchShareLink(id){
+async function createMatchQR(id){
  const g=db.games.find(x=>x.id===id);if(!g)return toast('試合結果が見つかりません');
  try{
-   makeShareId(g);save();const built=await buildMatchShareUrl(g),panel=document.getElementById('matchSharePanel'),box=document.getElementById('matchShareBox');
+   makeShareId(g);save();const built=await buildMatchShareUrl(g),panel=document.getElementById('matchQRPanel'),box=document.getElementById('matchQR');
    if(!panel||!box)throw new Error('共有リンク表示領域なし');
    box.innerHTML=`<div class="shareLinkBox"><div class="shareLinkLabel">このリンクを送れば、受け取った人は試合データへ直行します。</div><input id="matchShareUrl" class="shareUrlInput" readonly value="${built.url.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"><button class="btn primary" style="width:100%;margin-top:8px" onclick="copyMatchShareUrl()">🔗 共有リンクをコピー</button></div>`;
    panel.dataset.shareUrl=built.url;panel.dataset.gameId=String(id);panel.classList.remove('hidden');toast(`試合データへ直行する共有リンクを作成しました（${built.bytes}文字）`);
@@ -1260,8 +1263,8 @@ async function copyMatchShareUrl(){
  try{await navigator.clipboard.writeText(url);toast('共有リンクをコピーしました。LINEなどに貼り付けて送れます');}
  catch(e){const el=document.getElementById('matchShareUrl');el?.select();document.execCommand('copy');toast('共有リンクをコピーしました');}
 }
-async function shareMatchLink(id){
- const panel=document.getElementById('matchSharePanel'),g=db.games.find(x=>x.id===id),url=panel?.dataset.shareUrl;
+async function shareMatchQR(id){
+ const panel=document.getElementById('matchQRPanel'),g=db.games.find(x=>x.id===id),url=panel?.dataset.shareUrl;
  if(!g||!url)return toast('先に共有リンクを作成してください');
  try{
    const data={title:'野球メモ 試合結果',text:`${g.date||''} ${db.team.name||'野球メモ'} 試合結果\n${url}`};
@@ -1335,7 +1338,7 @@ function renderGameResult(g){
  const sportsBoard=`<div class="sportsBoard"><table><thead><tr><th>チーム</th>${Array.from({length:maxInning},(_,i)=>`<th>${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody>${sportsRow(firstName,firstIsOwn?'us':'opp',firstIsOwn?g.scoreUs:g.scoreOpp)}${sportsRow(secondName,firstIsOwn?'opp':'us',firstIsOwn?g.scoreOpp:g.scoreUs)}</tbody></table></div>`;
  return `<div id="gameResultView"><div class="resultHero sportsResultHero"><div class="sportsHeroTop"><span>試合結果</span><span>${esc(g.date||'')}　${esc(g.tournament||'')}</span></div><div class="sportsMatch"><div class="sportsTeam"><img class="sportsTeamLogo nishiharuUniform" src="nishiharu-uniform.png" alt="西春高校ユニフォーム"><div class="sportsTeamName">${esc(myTeamName)}</div><div class="sportsTeamLabel">自チーム</div></div><div class="sportsCenter"><div class="sportsStatus">FINAL</div><div class="sportsMainScore">${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}</div><span class="sportsResultBadge ${resultClass}">${win}</span><div class="sportsMiniInfo"><span>${g.innings?.length||1}回制</span><span>得点 ${Number(g.scoreUs)||0}</span><span>打撃記録 ${stats.length}人</span></div></div><div class="sportsTeam"><div class="sportsHomePlate" aria-label="相手チーム ホームベース"></div><div class="sportsTeamName">${esc(g.opponent||'相手校')}</div><div class="sportsTeamLabel">相手</div></div></div>${sportsBoard}<div class="sportsFooter"><span>${esc(g.stadium||'')}</span><span>${g.finishedAt?new Date(g.finishedAt).toLocaleString('ja-JP'):''}</span></div></div>
  ${g.sharedTeamName?`<div class="sharedBanner"><b>📱 共有された試合</b><span class="muted">共有された試合結果をそのまま見ています。気に入ったらマイアプリに保存できます。</span><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveSharedMatch()">試合結果をマイアプリに保存</button></div>`:''}
- ${!g.sharedTeamName?`<div class="card shareLinkCard special"><div class="title">今日の試合結果、リンクでシェアしよう！</div><p class="muted">QR画像は使わず、共有リンクそのものをLINE・SNSなどへ送ります。受け取った人はリンクを開くだけで、この試合の「試合データ」に直行します。</p><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="createMatchShareLink(${g.id})">⚾ 試合結果リンクを作る</button><div id="matchSharePanel" class="hidden"><div id="matchShareBox"></div><button class="btn shareLinkBtn" onclick="shareMatchLink(${g.id})">📤 LINE・SNSへ送る</button></div></div>`:''}
+ ${!g.sharedTeamName?`<div class="card qrShareCard special"><div class="title">今日の試合結果、リンクでシェアしよう！</div><p class="muted">QR画像は使わず、共有リンクそのものをLINE・SNSなどへ送ります。受け取った人はリンクを開くだけで、この試合の「試合データ」に直行します。</p><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="createMatchQR(${g.id})">⚾ 試合結果リンクを作る</button><div id="matchQRPanel" class="hidden"><div id="matchQR"></div><button class="btn qrShareBtn" onclick="shareMatchQR(${g.id})">📤 LINE・SNSへ送る</button></div></div>`:''}
  <div class="card"><div class="title">投手記録・登板履歴</div>${pitchingHtml}</div><div class="card"><div class="title">打撃成績</div>${batting}</div>
  <div class="card"><div class="title">試合経過・全記録</div><div class="eventList">${eventHtml}</div></div>
  <button class="btn resultBack" onclick="resultGameId=null;render()">← 試合データへ戻る</button></div>`;
@@ -1382,7 +1385,7 @@ async function resultCanvas(g){
  const PHOTO_EVENT_ROW_H=92;
  const eventH=groups.reduce((sum,gr)=>sum+112+Math.max(1,gr.items.length)*PHOTO_EVENT_ROW_H+24,0);
  const PRE_EVENT_H=5600+Math.min(1100,statRows*40)+Math.min(900,pitchHist.length*52);
- // v2.70: 9回までの表示を最優先。イベント件数に加えて十分な固定安全領域を確保し、下端切れを防止。
+ // v2.69: 9回までの表示を最優先。イベント件数に加えて十分な固定安全領域を確保し、下端切れを防止。
  // 試合経過ブロック開始位置＋全イニング分＋下端余白から算出する。
  const H=Math.max(7800,PRE_EVENT_H+eventH+480);
  // 10倍を基準にしつつ、ブラウザのCanvas上限を超えないよう自動調整
@@ -1457,7 +1460,7 @@ async function resultCanvas(g){
      const tagReserve=tag?125:10;
      const textMax=w-92-tagReserve;
      ctx.fillStyle=text;ctx.font=`850 32px ${font}`;
-     // v2.70: 写真の「試合経過・全記録」は32px。9回までの表示を最優先。
+     // v2.69: 写真の「試合経過・全記録」は32px。9回までの表示を最優先。
      // 長い結果だけ自動縮小し、最大2行まで。下端切れを最優先で防止。
      let fs=32;ctx.font=`850 ${fs}px ${font}`;
      while(fs>27 && ctx.measureText(String(e.text||'')).width>textMax){fs--;ctx.font=`850 ${fs}px ${font}`;}
