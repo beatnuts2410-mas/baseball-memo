@@ -431,6 +431,32 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 .resultgrid .result{min-height:50px!important;height:50px!important;padding:6px 5px!important;font-size:14px!important;line-height:1.15!important}
 @media(max-width:480px){.resultgrid{grid-template-columns:repeat(3,1fr)!important;gap:6px!important}.resultgrid .result{min-height:50px!important;height:50px!important;font-size:13px!important;padding:6px 3px!important}}
 </style>
+
+<style>
+/* v2.72: 表示を少し大きくして視認性を優先。2列表示は使わず3列を維持。 */
+.team{font-size:18px!important;line-height:1.25!important}
+.batter{font-size:30px!important;line-height:1.2!important}
+.resultgrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+.resultgrid .result{min-height:54px!important;height:54px!important;font-size:15px!important;font-weight:850!important;padding:7px 4px!important}
+.hist{font-size:15px!important;line-height:1.45!important}
+.eventRow{font-size:15px!important;line-height:1.45!important}
+.resultStatsTable{font-size:14px!important}
+.resultStatsTable th,.resultStatsTable td{padding:10px 7px!important}
+.resultHero .sportsHeroTop{font-size:15px!important}
+.resultHero .sportsTeamName{font-size:21px!important}
+.resultHero .sportsTeamLabel{font-size:12px!important}
+.resultHero .sportsMainScore{font-size:clamp(46px,11vw,64px)!important}
+.resultHero .sportsResultBadge{font-size:14px!important}
+.resultHero .sportsMiniInfo{font-size:13px!important}
+.resultHero .sportsFooter{font-size:13px!important}
+.pitchingLive{font-size:15px!important;line-height:1.55!important}
+@media(max-width:480px){
+ .resultgrid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ .resultgrid .result{font-size:14px!important;min-height:54px!important;height:54px!important}
+ .team{font-size:17px!important}
+ .batter{font-size:29px!important}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -669,7 +695,6 @@ function applyDefensiveSub(){
  if(!before)return toast('交代対象を選択してください'); if(!replacement)return toast('交代選手を選択してください');
  if(before.name===replacement.name)return toast('同じ選手です');
  pushGameHistory();g.subs=g.subs||[];g.subs.push({time:new Date().toISOString(),type:'守備交代',slot:idx,position:before.pos||'',from:before,to:replacement,defenseOnly:true});
- if(g.pitching?.current?.name===before.name){registerPitcher(g,replacement.name,'投手交代',before.name);}
  g.lineup[idx]=Object.assign({},replacement,{pos:before.pos||''});
  save();closeDefensiveSub();render();toast(`守備交代：${before.pos||'守備'} ${replacement.name}`);
 }
@@ -683,6 +708,13 @@ function registerPitcher(g,name,type='投手交代',fromName=''){
  g.pitching.lastChange={seq,time:new Date().toISOString(),type,inning:g.inning,half:g.half,from:fromName||cur?.name||'',to:name}; return true;
 }
 function addPitcherOut(g){ensurePitching(g);if(g.pitching.current)g.pitching.current.outs=(Number(g.pitching.current.outs)||0)+1;}
+function completePitcherHalf(g){
+ ensurePitching(g);
+ const cur=g?.pitching?.current;
+ if(!cur)return;
+ const outs=Number(cur.outs)||0;
+ if(outs<3)cur.outs=outs+(3-Math.min(3,Number(g.outs)||0));
+}
 function pitcherInningsText(rec){const outs=Math.max(0,Number(rec?.outs)||0);const rem=outs%3;return `${Math.floor(outs/3)}回${rem?rem+'/3':''}`;}
 function changePitcher(){
  const g=db.current;if(!g)return;ensurePitching(g);const current=g.pitching.current?.name||g.pitcher?.name||'';const roster=(db.team.players||[]).filter(p=>p.role!=='manager');
@@ -701,7 +733,7 @@ function recordView(){
    if(!g.lineup?.[slot]?.name)return lateBatterView(g);
    const b=g.lineup[slot];
    const labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['バント','good'],['相手エラー','good'],['四球','walk'],['死球','walk'],['三振','out'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out']];
-   return gameHeader()+ruleEndAlert(g)+`<div class="card"><div class="title">スコア</div>${scoreTable(g)}</div><div class="card current"><div class="muted">途中開始・打順確認中</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${slot+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b></div></div></div><div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">走者がいる時に選択</span></div><div class="stealGrid" style="margin-top:10px"><button class="runnerActionBtn" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}>🏃 盗塁</button><button class="runnerActionBtn" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}>⚾ 捕逸(パスボール)</button><button class="runnerActionBtn" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}>🥎 暴投(ワイルドピッチ)</button><button class="runnerActionBtn" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}>🚨 ボーク</button></div></div><div class="card runnerGroundCard"><div class="title">走者・グランド</div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div></div><div class="card"><div class="title">${slot+1}番の打席結果を選択</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="latePA('${t}')">${t}</button>`).join('')}</div></div>`;
+   return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">途中開始・打順確認中</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${slot+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b></div></div></div><div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">走者がいる時に選択</span></div><div class="stealGrid" style="margin-top:10px"><button class="runnerActionBtn" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}>🏃 盗塁</button><button class="runnerActionBtn" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}>⚾ 捕逸(パスボール)</button><button class="runnerActionBtn" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}>🥎 暴投(ワイルドピッチ)</button><button class="runnerActionBtn" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}>🚨 ボーク</button></div></div><div class="card runnerGroundCard"><div class="title">走者・グランド</div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div></div><div class="card"><div class="title">${slot+1}番の打席結果を選択</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="latePA('${t}')">${t}</button>`).join('')}</div></div>`;
  }
  // 攻撃中の判定はオーダー未確定でも優先。後攻スタートなら1回表の相手得点を先に入力できる。
  if(g.half!==ownHalf(g)) return opponentView();
@@ -710,8 +742,7 @@ function recordView(){
  }
  let b=g.lineup[g.batterIndex%9]||{name:"打者"};
  let labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['四球','walk'],['死球','walk'],['三振','out'],['バント','good'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out'],['相手エラー','good']];
- return gameHeader()+ruleEndAlert(g)+`<div class="card"><div class="title">スコア</div>${scoreTable(g)}<button class="btn small" style="margin-top:8px" onclick="undoGame()">↩ 直前の操作を戻す</button></div>
- <div class="card current"><div class="muted">${g.inning}回${g.half}・自チーム攻撃</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${(g.batterIndex%9)+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b><button class="btn small" style="margin-top:6px" onclick="adjustOuts()">✎ アウト修正</button></div></div></div>
+ return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">${g.inning}回${g.half}・自チーム攻撃</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${(g.batterIndex%9)+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b><button class="btn small" style="margin-top:6px" onclick="adjustOuts()">✎ アウト修正</button></div></div></div>
  <div class="card"><div class="title">打席結果を選択</div><div class="hint" style="margin-bottom:8px">打席結果を入力する前に、上の「走者・グランド」「走者プレー」もそのまま操作できます。</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="pa('${t}')">${t}</button>`).join('')}</div></div>
  <div class="card"><div class="row between"><div class="title" style="margin:0">選手交代</div><button class="btn small" onclick="openInGameSub()">交代</button></div><div class="muted">${(g.subs||[]).slice(-2).map(x=>`${x.type}：${x.from?.name||''} → ${x.to?.name||''}`).join('<br>')||'交代なし'}</div></div>
  <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→アウト/セーフ→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div><div class="stealGrid" style="margin-top:10px"><button class="runnerActionBtn" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}>🏃 盗塁</button><button class="runnerActionBtn" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}>⚾ 捕逸(パスボール)</button><button class="runnerActionBtn" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}>🥎 暴投(ワイルドピッチ)</button><button class="runnerActionBtn" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}>🚨 ボーク</button></div></div>
@@ -746,7 +777,7 @@ function latePA(result){
 function opponentView(){
  let g=db.current;
  let x=g.innings[g.inning-1]||{us:0,opp:0};
- return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">現在：${g.inning}回${g.half}・相手チーム攻撃</div><div style="font-size:26px;font-weight:900;margin:8px 0">相手は何点入りましたか？</div><div class="hint">得点を選ぶと、その回の相手攻撃を終了して自チームの攻撃へ切り替わります。${g.startedLate?'途中開始では、このあと前の打席でアウトになった次の打者から確認します。':''}</div><div class="grid2"><button class="btn" onclick="setOppRuns(-1)">−</button><div class="input" style="text-align:center;font-weight:900;font-size:24px">${x.opp||0} 点</div></div><div class="row" style="flex-wrap:wrap;margin-top:10px">${[0,1,2,3,4,5,6,7,8,9].map(n=>`<button class="btn ${x.opp===n?'primary':''}" onclick="setOppRuns(${n})">${n}</button>`).join('')}</div><div class="title" style="margin-top:16px">相手のアウト</div><div class="row"><button class="btn" onclick="oppOut()">アウト＋1</button><span class="badge">${g.outs} / 3</span><button class="btn small" onclick="adjustOuts()">✎ アウト修正</button></div><div class="hint" style="margin-top:8px">3アウトになると自動で次の攻撃へ切り替わります。</div><div class="card" style="margin-top:10px;margin-bottom:0;background:#0b1422"><div class="row between"><div><div class="title" style="margin:0">投手</div><div class="muted">${esc(g.pitching?.current?.name||g.pitcher?.name||'未登録')}　投球回 ${pitcherInningsText(g.pitching?.current||{})}</div></div><button class="btn small primary" onclick="changePitcher()">投手交代</button></div></div><button class="btn" style="width:100%;margin-top:10px" onclick="openDefensiveSub()">🧤 自チームの守備交代</button></div>
+ return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">現在：${g.inning}回${g.half}・相手チーム攻撃</div><div style="font-size:26px;font-weight:900;margin:8px 0">相手は何点入りましたか？</div><div class="hint">得点を選ぶと、その回の相手攻撃を終了して自チームの攻撃へ切り替わります。${g.startedLate?'途中開始では、このあと前の打席でアウトになった次の打者から確認します。':''}</div><div class="grid2"><button class="btn" onclick="setOppRuns(-1)">−</button><div class="input" style="text-align:center;font-weight:900;font-size:24px">${x.opp||0} 点</div></div><div class="row" style="flex-wrap:wrap;margin-top:10px">${[0,1,2,3,4,5,6,7,8,9].map(n=>`<button class="btn ${x.opp===n?'primary':''}" onclick="setOppRuns(${n})">${n}</button>`).join('')}</div><div class="title" style="margin-top:16px">相手のアウト</div><div class="row"><button class="btn" onclick="oppOut()">アウト＋1</button><span class="badge">${g.outs} / 3</span><button class="btn small" onclick="adjustOuts()">✎ アウト修正</button></div><div class="hint" style="margin-top:8px">3アウトになると自動で次の攻撃へ切り替わります。</div><div class="card pitchingLive" style="margin-top:10px;margin-bottom:0;background:#0b1422"><div class="row between"><div><div class="title" style="margin:0;font-size:17px">投手記録</div><div>${esc(g.pitching?.current?.name||g.pitcher?.name||'未登録')}</div><div class="muted">${g.pitching?.current?.started?'先発':'途中登板'}・登板開始 ${g.pitching?.current?.enteredInning||g.inning}回${g.pitching?.current?.enteredHalf||'表'}・投球回 ${pitcherInningsText(g.pitching?.current||{})}</div></div><button class="btn small primary" onclick="changePitcher()">投手交代</button></div><div class="muted" style="margin-top:7px">相手攻撃のイニングごとに投球回を自動更新。投手交代まで同じ投手として記録します。</div></div><button class="btn" style="width:100%;margin-top:10px" onclick="openDefensiveSub()">🧤 自チームの守備交代</button></div>
  <div class="card"><div class="title">イニングスコア</div>${scoreTable(g)}</div>`;
 }
 function setOppRuns(n){
@@ -757,6 +788,7 @@ function setOppRuns(n){
  g.scoreOpp=g.innings.reduce((a,v)=>a+(Number(v.opp)||0),0);
  g.outs=0;g.runners=[0,0,0];g.runnerNames=[null,null,null];
  const endedHalf=g.half;
+ completePitcherHalf(g);
  if(checkGameEndAfterHalf(g,endedHalf))return;
  advanceHalf(g);
  save();render();
@@ -767,7 +799,7 @@ function oppOut(){
  if(endHalfOnThreeOuts(g)){if(g.finished)return;save();render();toast(`${g.inning}回${g.half}へ`);return;}
  save();render();
 }
-function finishHalf(){pushGameHistory();const g=db.current;if(!g)return;const x=g.innings[g.inning-1]||{us:0,opp:0};x.us=Number(x.us)||0;x.opp=Number(x.opp)||0;g.innings[g.inning-1]=x;advanceHalf(g);save();render();toast(`${g.inning}回${g.half}へ`)}
+function finishHalf(){pushGameHistory();const g=db.current;if(!g)return;if(g.half===opponentHalf(g))completePitcherHalf(g);const x=g.innings[g.inning-1]||{us:0,opp:0};x.us=Number(x.us)||0;x.opp=Number(x.opp)||0;g.innings[g.inning-1]=x;advanceHalf(g);save();render();toast(`${g.inning}回${g.half}へ`)}
 
 function cloneRunners(r){return [Number(r?.[0])||0,Number(r?.[1])||0,Number(r?.[2])||0]}
 function cloneRunnerNames(r){return [r?.[0]||null,r?.[1]||null,r?.[2]||null]}
@@ -1326,7 +1358,7 @@ function renderGameResult(g){
  const win=g.scoreUs>g.scoreOpp?'勝利':g.scoreUs<g.scoreOpp?'敗戦':'引き分け';
  const stats=battingStats(g),events=resultEvents(g);
  const batting=stats.length?`<div class="resultStatsWrap"><table class="resultStatsTable"><thead><tr><th>選手</th><th>打席</th><th>打数</th><th>安打</th><th>二塁打</th><th>三塁打</th><th>本塁打</th><th>打点</th><th>四球</th><th>死球</th><th>三振</th><th>バント</th><th>犠飛</th><th>打率</th></tr></thead><tbody>${stats.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.pa}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.d2}</td><td>${s.d3}</td><td>${s.hr}</td><td>${s.rbi}</td><td>${s.bb}</td><td>${s.hbp}</td><td>${s.so}</td><td>${s.sh}</td><td>${s.sf}</td><td class="avg">${s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">打席記録はありません</div>`;
- const pitchingHtml=(g.pitching?.history||[]).length?`<div class="resultStatsWrap"><table class="resultStatsTable"><thead><tr><th>投手</th><th>登板</th><th>投球回</th><th>登板開始</th></tr></thead><tbody>${(g.pitching.history||[]).map((p,i)=>`<tr><td>${esc(p.name)}</td><td>${i===0?'先発':'途中登板'}</td><td>${pitcherInningsText(p)}</td><td>${p.enteredInning}回${p.enteredHalf}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">投手記録はありません</div>`; const max=Math.max(1,g.innings?.length||0);
+ const pitchingHtml=(g.pitching?.history||[]).length?`<div class="resultStatsWrap"><table class="resultStatsTable"><thead><tr><th>投手</th><th>登板</th><th>投球回</th><th>登板開始</th></tr></thead><tbody>${(g.pitching.history||[]).map((p,i)=>`<tr><td>${esc(p.name)}</td><td>${p.started?'先発':'途中登板'}</td><td>${pitcherInningsText(p)}</td><td>${p.enteredInning}回${p.enteredHalf}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">投手記録はありません</div>`; const max=Math.max(1,g.innings?.length||0);
  const firstIsOwn=g.order!=='後攻';
  const firstName=firstIsOwn?myTeamName:(g.opponent||'相手');
  const secondName=firstIsOwn?(g.opponent||'相手'):myTeamName;
