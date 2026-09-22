@@ -576,6 +576,23 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   .runnerGroundCard .baseLabel{font-size:14px!important;padding:5px 7px!important}
   .runnerGroundCard .baseName{font-size:17px!important;max-width:125px!important;min-width:64px!important}
 }
+
+/* v2.75: 塁表示をグラウンドから廃止。進塁先は打席結果と同じ3列で表示。選択枠を太く。 */
+.runnerGroundCard .baseLabel{display:none!important}
+.runnerMoveDest{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+.runnerMoveDest .runnerActions{display:contents!important}
+.runnerMoveDest .runnerActions button{min-height:54px!important;padding:7px 4px!important;border-radius:12px!important;font-size:14px!important;font-weight:900!important;border:4px solid #111!important;background:#fff!important;color:#111!important}
+.runnerMoveDest .runnerActions button:disabled{opacity:.35!important;cursor:not-allowed!important}
+.runnerMoveDest .runnerHomeAction{grid-column:1/-1!important;display:block!important;margin-top:2px}
+.runnerMoveDest .runnerHomeAction button{width:100%!important;border-color:#8b5a2b!important}
+.resultgrid .result{border-width:4px!important;border-style:solid!important}
+.resultgrid .result.hit{border-color:#2563eb!important}
+.resultgrid .result.hr{border-color:#ec4899!important}
+.resultgrid .result.walk{border-color:#9ca3af!important}
+.resultgrid .result.good{border-color:#16a34a!important}
+.resultgrid .result.out{border-color:#111!important}
+.resultgrid .result.error{border-color:#8b5a2b!important}
+.manualConfirmGrid button,.runnerActionBtn,.orderBtn,.subChoice,.select{border-width:3px!important}
 </style>
 
 </head>
@@ -868,7 +885,7 @@ function recordView(){
  <div class="card"><div class="row between"><div class="title" style="margin:0">選手交代</div><button class="btn small" onclick="openInGameSub()">交代</button></div><div class="muted">${(g.subs||[]).slice(-2).map(x=>`${x.type}：${x.from?.name||''} → ${x.to?.name||''}`).join('<br>')||'交代なし'}</div></div>
  <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→アウト/セーフ→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div><div class="stealGrid" style="margin-top:10px"><button class="runnerActionBtn" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}>🏃 盗塁</button><button class="runnerActionBtn" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}>⚾ 捕逸(パスボール)</button><button class="runnerActionBtn" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}>🥎 暴投(ワイルドピッチ)</button><button class="runnerActionBtn" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}>🚨 ボーク</button></div></div>
  <div class="card"><div class="row between"><div class="title" style="margin:0">走者・グランド</div><button class="btn small" onclick="openRunnerCorrection()">✎ 走者修正</button></div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div><div class="corrNote" style="margin-top:8px">ヒット・四死球後の打者も現在の塁に表示。盗塁は「走者→アウト/セーフ→進塁先」。その他は「走者→進塁先」。ボークは全走者を自動で1つ進めます。</div></div>
- <div class="card"><div class="row between"><div class="title" style="margin:0">今日の試合経過</div><button class="btn small" onclick="finishGame()">試合終了</button></div><div class="history">${g.pa.slice(-8).reverse().map((x,i)=>{const isLast=i===0;return `<div class="hist"><div class="row between"><div><b>${x.inning}回${x.half}</b>　${esc(x.batter)} <span class="muted">→</span> ${esc(x.result)}${x.runs?` <span class="badge">${x.runs}点</span>`:''}</div>${`<button class="editBtn" onclick="restartFromPA(${g.pa.length-1-i})">✎ この打席から修正</button>`}</div></div>`}).join('')||`<div class="empty">まだ記録がありません</div>`}</div></div>`;
+ <div class="card"><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="finishGame()">試合終了</button></div>`;
 }
 function lateBatterView(g){
  const slot=Math.min(8,Number(g.lateSetupStep ?? g.batterIndex)||0);
@@ -956,7 +973,7 @@ function advanceRunners(g,result,batterName){
 function renderBaseDiamond(g){
  const names=cloneRunnerNames(g.runnerNames);
  const lab=(i)=>g.runners[i]?`<div class="baseName ${['bn1','bn2','bn3'][i]}">${esc(names[i]||'走者')}</div>`:'';
- return `<div class="runnerBases" aria-label="野球場・走者位置"><div class="fieldDirt"></div><div class="fieldMound"></div><div class="foulLineLeft"></div><div class="foulLineRight"></div><div class="runnerBase rb1 ${g.runners[0]?'on':''}" aria-label="一塁"></div><div class="runnerBase rb2 ${g.runners[1]?'on':''}" aria-label="二塁"></div><div class="runnerBase rb3 ${g.runners[2]?'on':''}" aria-label="三塁"></div><div class="homePlateShape" aria-label="本塁"></div><div class="baseLabel bl1">1塁</div><div class="baseLabel bl2">2塁</div><div class="baseLabel bl3">3塁</div>${lab(0)}${lab(1)}${lab(2)}</div>`;
+ return `<div class="runnerBases" aria-label="野球場・走者位置"><div class="fieldDirt"></div><div class="fieldMound"></div><div class="foulLineLeft"></div><div class="foulLineRight"></div><div class="runnerBase rb1 ${g.runners[0]?'on':''}" aria-label="一塁"></div><div class="runnerBase rb2 ${g.runners[1]?'on':''}" aria-label="二塁"></div><div class="runnerBase rb3 ${g.runners[2]?'on':''}" aria-label="三塁"></div><div class="homePlateShape" aria-label="本塁"></div>${lab(0)}${lab(1)}${lab(2)}</div>`;
 }
 let runnerMoveMode=null,runnerMoveFrom=null,runnerMoveJudged=false;
 function openRunnerMove(mode){
@@ -980,7 +997,7 @@ function selectRunnerToMove(i){
 function renderRunnerDestinations(){
  const g=db.current;if(runnerMoveFrom==null||!g)return;
  const i=runnerMoveFrom;
- document.getElementById('moveDest').className='runnerScore runnerMoveDest'; document.getElementById('moveDest').innerHTML=`<div class="hint">進塁先を選択してください。</div><div class="runnerActions">${[1,2,3,4].filter(d=>d>i+1&&(d===4||!g.runners[d-1])).map(d=>`<button class="btn ${d===4?'red':''}" onclick="applyRunnerMove(${d})">${d===4?'本塁・得点':d+'塁へ'}</button>`).join('')}</div>`;
+ document.getElementById('moveDest').className='runnerScore runnerMoveDest'; document.getElementById('moveDest').innerHTML=`<div class="hint">進塁先を選択してください。</div><div class="runnerActions">${[1,2,3].map(d=>{const valid=d>i+1&&!g.runners[d-1];return `<button class="btn" ${valid?'':'disabled'} onclick="${valid?`applyRunnerMove(${d})`:''}">${d}塁へ</button>`}).join('')}</div><div class="runnerActions runnerHomeAction"><button class="btn red" onclick="applyRunnerMove(4)">本塁・得点</button></div>`;
 }
 function judgeSteal(judgement){
  const g=db.current;if(runnerMoveFrom==null||!g?.runners[runnerMoveFrom])return closeRunnerMove();
