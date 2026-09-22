@@ -431,6 +431,47 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 @media(max-width:480px){.resultgrid{grid-template-columns:repeat(3,1fr)!important;gap:6px!important}.resultgrid .result{min-height:50px!important;height:50px!important;font-size:13px!important;padding:6px 3px!important}}
 </style>
 <style id="v272baseReset">/* v2.72-base: 現場入力画面はv2.71の初めからレイアウトを基準に統一。明示的なスコアカードは非表示。 */</style>
+
+<style id="groundImageOnlyV2722">
+/* v2.72.2: グラウンド表示だけを画像ベースへ固定。その他のUI/レイアウトは変更しない。 */
+.runnerBases.groundImageBase{
+  position:relative!important;width:min(100%,454px)!important;aspect-ratio:454/340!important;height:auto!important;
+  margin:10px auto!important;background:url("ground-bg.jpg") center center/100% 100% no-repeat!important;
+  border-radius:10px!important;overflow:hidden!important;
+}
+.runnerBases.groundImageBase .diamond{display:none!important}
+.runnerBases.groundImageBase .runnerBase{
+  position:absolute!important;width:25%!important;height:22%!important;transform:translate(-50%,-50%)!important;
+  border:0!important;background:transparent!important;border-radius:12px!important;display:flex!important;
+  align-items:center!important;justify-content:center!important;z-index:3!important;padding:0!important;
+}
+.runnerBases.groundImageBase .runnerBase .baseTag{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:74px;max-width:110px;
+  min-height:42px;padding:3px 9px;border-radius:10px;background:rgba(255,255,255,.97);color:#12355d!important;
+  border:2px solid #1683e8;box-shadow:0 2px 7px rgba(0,0,0,.32);font-weight:900;line-height:1.08;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.runnerBases.groundImageBase .runnerBase .baseTag .baseNo{font-size:11px;color:#fff!important;background:#1459a6;border-radius:7px;padding:2px 7px;margin:-3px -9px 3px;min-width:100%;}
+.runnerBases.groundImageBase .runnerBase:not(.occupied) .baseTag{background:rgba(255,255,255,.82);border-color:#fff;color:#24405e!important;min-width:58px;min-height:34px;}
+.runnerBases.groundImageBase .runnerBase.on .baseTag{border:3px solid #1683e8;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 3px 9px rgba(0,0,0,.38);}
+.runnerBases.groundImageBase .rb1{left:76.5%!important;top:54%!important}
+.runnerBases.groundImageBase .rb2{left:50%!important;top:27%!important}
+.runnerBases.groundImageBase .rb3{left:23.5%!important;top:54%!important}
+.runnerBases.groundImageBase .homeTag{
+  position:absolute;left:50%;top:87%;transform:translate(-50%,-50%);z-index:2;min-width:58px;text-align:center;
+  padding:4px 8px;border-radius:9px;background:rgba(255,255,255,.88);border:1px solid #fff;color:#24405e!important;
+  font-size:12px;font-weight:900;box-shadow:0 2px 6px rgba(0,0,0,.18);
+}
+.runnerBases.groundImageBase.correctionGround .runnerBase .baseTag{border-color:#f59e0b;}
+.runnerBases.groundImageBase.correctionGround .runnerBase.on .baseTag{border:4px solid #f59e0b;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 3px 10px rgba(0,0,0,.38);}
+.runnerBases.groundImageBase.correctionGround .runnerBase{cursor:pointer}
+@media(max-width:480px){
+  .runnerBases.groundImageBase .runnerBase{width:29%!important;height:24%!important}
+  .runnerBases.groundImageBase .runnerBase .baseTag{min-width:66px;max-width:92px;font-size:13px}
+  .runnerBases.groundImageBase .runnerBase .baseTag .baseNo{font-size:10px}
+  .runnerBases.groundImageBase .rb1{left:76%!important}.runnerBases.groundImageBase .rb3{left:24%!important}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -804,8 +845,14 @@ function advanceRunners(g,result,batterName){
   after=before;afterNames=names;syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored:0,rbi:0,detail:''};
 }
 function renderBaseDiamond(g){
- const names=cloneRunnerNames(g.runnerNames); const lab=(i,base)=>g.runners[i]?`<div class="baseName ${['bn1','bn2','bn3'][i]}">${esc(names[i]||'走者')}<br><span class="muted">${base}</span></div>`:'';
- return `<div class="runnerBases" style="height:250px"><div class="diamond" style="width:125px;height:125px;left:62px;top:62px"></div><div class="runnerBase rb1 ${g.runners[0]?'on':''}"><span>1塁</span></div><div class="runnerBase rb2 ${g.runners[1]?'on':''}"><span>2塁</span></div><div class="runnerBase rb3 ${g.runners[2]?'on':''}"><span>3塁</span></div><div class="baseName" style="left:50%;top:94%">本塁</div>${lab(0,'1塁')}${lab(1,'2塁')}${lab(2,'3塁')}</div>`;
+ const names=cloneRunnerNames(g.runnerNames);
+ const baseTag=(i,base)=>g.runners[i]?`<span class="baseTag"><span class="baseNo">${base}</span><span>${esc(names[i]||'走者')}</span></span>`:`<span class="baseTag">${base}</span>`;
+ return `<div class="runnerBases groundImageBase" aria-label="走者・グランド">
+   <button type="button" class="runnerBase rb1 ${g.runners[0]?'on occupied':''}" onclick="toggleRunner(0)">${baseTag(0,'1塁')}</button>
+   <button type="button" class="runnerBase rb2 ${g.runners[1]?'on occupied':''}" onclick="toggleRunner(1)">${baseTag(1,'2塁')}</button>
+   <button type="button" class="runnerBase rb3 ${g.runners[2]?'on occupied':''}" onclick="toggleRunner(2)">${baseTag(2,'3塁')}</button>
+   <div class="homeTag">本塁</div>
+ </div>`;
 }
 let runnerMoveMode=null,runnerMoveFrom=null,runnerMoveJudged=false;
 function openRunnerMove(mode){
@@ -1074,7 +1121,13 @@ function openRunnerCorrection(){
  document.getElementById('runnerCorrectionModal').style.display='flex';
  document.getElementById('corrTarget').textContent=`直前：${p.inning}回${p.half} ${p.batter} → ${p.result}`;
  document.getElementById('corrRuns').innerHTML=[0,1,2,3,4].map(n=>`<button class="btn ${p.runs===n?'primary':''}" onclick="setCorrectionRuns(${n})">${n}点</button>`).join('');
- ['1','2','3'].forEach((b,i)=>{document.getElementById('corrB'+b).classList.toggle('on',!!p.afterRunners[i])});
+ const names=cloneRunnerNames(p.afterRunnerNames||[null,null,null]);
+ [[1,0],[2,1],[3,2]].forEach(([b,i])=>{
+   const el=document.getElementById('corrB'+b);
+   if(!el)return;
+   el.classList.toggle('on',!!p.afterRunners?.[i]);
+   el.innerHTML=`<span class="baseTag"><span class="baseNo">${b}塁</span><span>${p.afterRunners?.[i]?esc(names[i]||'走者'):'走者なし'}</span></span>`;
+ });
 }
 function setCorrectionRuns(n){document.getElementById('corrRuns').dataset.value=n;document.querySelectorAll('#corrRuns button').forEach(b=>b.classList.remove('primary'));const btn=[...document.querySelectorAll('#corrRuns button')].find(b=>b.textContent===n+'点');if(btn)btn.classList.add('primary')}
 function toggleCorrectionBase(i){document.getElementById('corrB'+(i+1)).classList.toggle('on')}
@@ -1691,10 +1744,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
   <h3 style="margin:0">走者修正</h3>
   <div id="corrTarget" class="muted" style="margin-top:6px"></div>
   <div class="corrNote" style="margin-top:8px">この打席が終わった直後の状態に合わせて、塁上の走者と得点を修正します。</div>
-  <div class="runnerBases">
-   <button id="corrB2" class="runnerBase rb2" onclick="toggleCorrectionBase(1)"><span>2塁</span></button>
-   <button id="corrB3" class="runnerBase rb3" onclick="toggleCorrectionBase(2)"><span>3塁</span></button>
-   <button id="corrB1" class="runnerBase rb1" onclick="toggleCorrectionBase(0)"><span>1塁</span></button>
+  <div id="corrGround" class="runnerBases groundImageBase correctionGround" aria-label="走者修正グラウンド">
+   <button id="corrB1" type="button" class="runnerBase rb1" onclick="toggleCorrectionBase(0)"><span class="baseTag"><span class="baseNo">1塁</span><span>走者なし</span></span></button>
+   <button id="corrB2" type="button" class="runnerBase rb2" onclick="toggleCorrectionBase(1)"><span class="baseTag"><span class="baseNo">2塁</span><span>走者なし</span></span></button>
+   <button id="corrB3" type="button" class="runnerBase rb3" onclick="toggleCorrectionBase(2)"><span class="baseTag"><span class="baseNo">3塁</span><span>走者なし</span></span></button>
+   <div class="homeTag">本塁</div>
   </div>
   <div class="title">この打席で入った得点</div>
   <div id="corrRuns" class="runnerScore"></div>
