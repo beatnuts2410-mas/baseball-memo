@@ -524,12 +524,64 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 .resultgrid .result.out{border:2px solid #111!important;color:#111!important;background:#fff!important}
 .resultgrid .result.error{border:2px solid #8b5a2b!important;color:#111!important;background:#fff!important}
 .resultgrid .result.selected{outline:2px solid #111!important;box-shadow:0 0 0 2px rgba(0,0,0,.12) inset!important}
+
+/* v2.74: 走者グランドをさらに実球場寄りに拡大。塁番号と走者名を明確化。 */
+.runnerGroundCard .runnerBases{
+  width:min(100%,460px)!important;
+  max-width:460px!important;
+  margin:14px auto 10px!important;
+  aspect-ratio:1/1!important;
+  border-radius:22px!important;
+  background:linear-gradient(180deg,#68b84f 0%,#4d9f3c 100%)!important;
+}
+.runnerGroundCard .runnerBases::before{
+  left:14%!important;top:14%!important;width:72%!important;height:72%!important;
+  background:#c79a64!important;border-width:3px!important;
+}
+.runnerGroundCard .fieldMound{width:15%!important;height:15%!important}
+.runnerGroundCard .runnerBase{
+  width:9%!important;height:9%!important;min-width:25px!important;min-height:25px!important;
+  border-width:3px!important;
+}
+.runnerGroundCard .rb1{left:72%!important;top:50%!important}
+.runnerGroundCard .rb2{left:50%!important;top:28%!important}
+.runnerGroundCard .rb3{left:28%!important;top:50%!important}
+.runnerGroundCard .homePlateShape{
+  left:50%!important;top:73%!important;width:10%!important;height:11%!important;
+  clip-path:polygon(0 0,100% 0,100% 48%,50% 100%,0 48%)!important;
+  background:#fff!important;
+}
+.runnerGroundCard .baseLabel{
+  position:absolute;z-index:8;transform:translate(-50%,-50%);
+  font-size:15px!important;line-height:1!important;font-weight:900!important;
+  padding:6px 8px!important;border:3px solid #111!important;border-radius:10px!important;
+  background:#fff!important;color:#111!important;white-space:nowrap!important;
+  box-shadow:0 2px 5px rgba(0,0,0,.18)!important;
+}
+.runnerGroundCard .bl1{left:72%!important;top:61%!important}
+.runnerGroundCard .bl2{left:50%!important;top:39%!important}
+.runnerGroundCard .bl3{left:28%!important;top:61%!important}
+.runnerGroundCard .baseName{
+  font-size:18px!important;line-height:1.15!important;font-weight:950!important;
+  max-width:150px!important;min-width:72px!important;padding:5px 7px!important;
+  border-radius:9px!important;background:rgba(0,0,0,.72)!important;
+  color:#fff!important;text-shadow:none!important;
+  white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+}
+.runnerGroundCard .bn1{left:72%!important;top:50%!important}
+.runnerGroundCard .bn2{left:50%!important;top:28%!important}
+.runnerGroundCard .bn3{left:28%!important;top:50%!important}
+@media(max-width:480px){
+  .runnerGroundCard .runnerBases{width:min(100%,390px)!important;max-width:390px!important}
+  .runnerGroundCard .baseLabel{font-size:14px!important;padding:5px 7px!important}
+  .runnerGroundCard .baseName{font-size:17px!important;max-width:125px!important;min-width:64px!important}
+}
 </style>
 
 </head>
 <body>
 <div class="app">
-<header class="top"><div class="brand">⚾ 西春野球ノート</div><div class="sub">高校野球の試合記録を、少ないタップで。</div></header>
+<header class="top"><div class="brand">⚾ 西春野球ノート</div><div class="sub">高校野球の試合記録・試合結果をリンクでシェアしよう！</div></header>
 <main class="content" id="app"></main>
 <nav class="tabs">
 <button class="tab active" data-tab="record"><span class="ico">📝</span>記録</button>
@@ -904,7 +956,7 @@ function advanceRunners(g,result,batterName){
 function renderBaseDiamond(g){
  const names=cloneRunnerNames(g.runnerNames);
  const lab=(i)=>g.runners[i]?`<div class="baseName ${['bn1','bn2','bn3'][i]}">${esc(names[i]||'走者')}</div>`:'';
- return `<div class="runnerBases" aria-label="野球場・走者位置"><div class="fieldDirt"></div><div class="fieldMound"></div><div class="foulLineLeft"></div><div class="foulLineRight"></div><div class="runnerBase rb1 ${g.runners[0]?'on':''}" aria-label="一塁"></div><div class="runnerBase rb2 ${g.runners[1]?'on':''}" aria-label="二塁"></div><div class="runnerBase rb3 ${g.runners[2]?'on':''}" aria-label="三塁"></div><div class="homePlateShape" aria-label="本塁"></div>${lab(0)}${lab(1)}${lab(2)}</div>`;
+ return `<div class="runnerBases" aria-label="野球場・走者位置"><div class="fieldDirt"></div><div class="fieldMound"></div><div class="foulLineLeft"></div><div class="foulLineRight"></div><div class="runnerBase rb1 ${g.runners[0]?'on':''}" aria-label="一塁"></div><div class="runnerBase rb2 ${g.runners[1]?'on':''}" aria-label="二塁"></div><div class="runnerBase rb3 ${g.runners[2]?'on':''}" aria-label="三塁"></div><div class="homePlateShape" aria-label="本塁"></div><div class="baseLabel bl1">1塁</div><div class="baseLabel bl2">2塁</div><div class="baseLabel bl3">3塁</div>${lab(0)}${lab(1)}${lab(2)}</div>`;
 }
 let runnerMoveMode=null,runnerMoveFrom=null,runnerMoveJudged=false;
 function openRunnerMove(mode){
