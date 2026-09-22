@@ -12,7 +12,6 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>西春野球ノート</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <meta name="app-version" content="v2.68">
 <style>
 :root{--bg:#f7f7f5;--panel:#ffffff;--panel2:#f1f1ee;--line:#d9d9d4;--text:#111111;--muted:#444444;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--yellow:#d97706;color-scheme:light}
@@ -50,7 +49,7 @@ button,input,select{font:inherit}button{border:0;color:inherit;cursor:pointer}.a
 
 .homeInstallBtn{width:100%;padding:14px 16px;margin-top:0;border-radius:14px;font-size:16px;background:#17345d;border-color:#477fc9}
 .installGuide{margin-top:10px;color:#91a2bb;font-size:12px;line-height:1.55}
-.runnerModal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:flex-end;justify-content:center;z-index:60;padding:8px 0 env(safe-area-inset-bottom)}.runnerCard{width:min(560px,100%);max-height:calc(100dvh - 16px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:#0f1725;border:1px solid #26344b;border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.45)}.runnerBases{position:relative;width:250px;height:210px;margin:10px auto}.runnerBase{position:absolute;width:70px;height:70px;transform:rotate(45deg);border:2px solid #52647e;background:#111c2c;border-radius:8px;display:flex;align-items:center;justify-content:center}.runnerBase span{transform:rotate(-45deg);font-weight:900;font-size:14px}.runnerBase.on{background:#12652f;border-color:#39c96b}.rb1{right:25px;top:70px}.rb2{left:90px;top:0}.rb3{left:25px;top:70px}.runnerScore{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.runnerScore button{padding:11px 5px}.runnerMovePick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.runnerMovePick button{min-height:76px;padding:18px 12px;border-radius:16px;font-size:18px;font-weight:900;width:100%}.runnerMovePick .hint{padding:12px 6px}.runnerMoveDest{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.runnerMoveDest button{min-height:76px;padding:18px 12px;border-radius:16px;font-size:18px;font-weight:900;width:100%}.runnerMoveDest .hint{grid-column:1/-1;padding:12px 6px}.runnerActions{display:flex;gap:8px;margin-top:12px}
+.runnerModal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:flex-end;justify-content:center;z-index:60;padding:8px 0 env(safe-area-inset-bottom)}.runnerCard{width:min(560px,100%);max-height:calc(100dvh - 16px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:#0f1725;border:1px solid #26344b;border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.45)}.runnerBases{position:relative;width:250px;height:210px;margin:10px auto}.runnerBase{position:absolute;width:70px;height:70px;transform:rotate(45deg);border:2px solid #52647e;background:#111c2c;border-radius:8px;display:flex;align-items:center;justify-content:center}.runnerBase span{transform:rotate(-45deg);font-weight:900;font-size:14px}.runnerBase.on{background:#12652f;border-color:#39c96b}.rb1{right:25px;top:70px}.rb2{left:90px;top:0}.rb3{left:25px;top:70px}.runnerScore{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.runnerScore button{padding:11px 5px}.runnerMovePick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.runnerMovePick button{min-height:76px;padding:18px 12px;border-radius:16px;font-size:18px;font-weight:900;width:100%}.runnerMovePick .hint{padding:12px 6px}.runnerMoveDest{display:block}.runnerMoveDest .runnerActions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.runnerMoveDest button{min-height:54px;padding:10px 8px;border-radius:14px;font-size:16px;font-weight:900;width:100%;white-space:nowrap}.runnerMoveDest .hint{grid-column:1/-1;padding:12px 6px}.runnerActions{display:flex;gap:8px;margin-top:12px}
 .runnerConfirmSummary{display:grid;gap:8px;margin-top:12px}.runnerConfirmRow{padding:12px;border:1px solid #33435e;background:#172235;border-radius:14px;font-weight:800}.runnerConfirmBtns{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}.runnerConfirmBtns button{min-height:58px;font-size:17px}.runnerActions button{flex:1}.corrNote{font-size:12px;color:#91a2bb;line-height:1.5}.manualConfirmSection{margin-top:12px;padding:12px;border:1px solid #2d405c;background:#0b1422;border-radius:14px}.manualConfirmLabel{font-size:12px;color:#9fb0c8;font-weight:900;margin-bottom:7px}.manualConfirmGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.manualConfirmGrid button{min-height:50px;border-radius:11px;background:#172235;border:1px solid #33435e;font-weight:900}.manualConfirmGrid button.active{background:#1d5fbe;border-color:#66a3ff;box-shadow:0 0 0 2px #3b82f644 inset}.manualRunnerRow{display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #23334a}.manualRunnerRow:last-child{border-bottom:0}.manualRunnerName{font-weight:900;font-size:13px}.manualRunnerSelect{width:100%;background:#111d2d;border:1px solid #33445d;border-radius:10px;color:#fff;padding:11px 10px;min-height:48px}.manualConfirmPreview{margin-top:12px}.manualConfirmPreview .runnerConfirmRow{font-size:13px}.manualConfirmHint{font-size:11px;color:#91a2bb;line-height:1.45;margin-top:8px}
 
 .rosterImportGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.rosterBox{background:#0b1422;border:1px solid #26364d;border-radius:12px;padding:12px}.rosterBoxTitle{font-weight:900;font-size:13px;margin-bottom:7px}.rosterTextarea{width:100%;min-height:150px;resize:vertical;background:#08111d;color:#fff;border:1px solid #33445d;border-radius:10px;padding:10px;line-height:1.6;outline:none}.rosterTextarea:focus{border-color:#3b82f6}.fileBtn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:1px dashed #4b6383;background:#101b2b;border-radius:11px;font-weight:900;text-align:center}.fileInput{display:none}.importHelp{font-size:11px;color:#91a2bb;line-height:1.55;margin-top:7px}.rosterPreview{margin-top:9px;font-size:12px;color:#b8c7da}.rosterPreview b{color:#fff}@media(max-width:500px){.rosterImportGrid{grid-template-columns:1fr}}
@@ -130,7 +129,7 @@ body{font-size:16px}
 .eventList .eventRow{font-size:11px;padding:6px 8px;line-height:1.25;min-height:38px;word-break:break-word;overflow-wrap:anywhere}
 .eventList .eventTop{align-items:center;gap:6px}
 .eventList .eventTag{font-size:8px;white-space:nowrap;line-height:1.1;flex:0 0 auto;max-width:16%;text-align:right}
-@media(max-width:430px){.eventList .eventRow{font-size:10px;padding:5px 7px;line-height:1.2;min-height:34px}.eventList .eventGroupTitle{font-size:22px;min-height:42px;padding:10px 8px 8px}.eventList .eventGroupTitle span{font-size:13px}.eventList .eventTag{font-size:7px;max-width:16%}}.qrShareCard{border:1px solid #315fa9;background:linear-gradient(180deg,#10223a,#0d1725)}.qrShareGrid{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.qrBox{background:#fff;border-radius:12px;padding:10px;min-width:190px;min-height:190px;display:flex;align-items:center;justify-content:center}.qrBox canvas,.qrBox img{max-width:190px;height:auto}.qrUrl{font-size:11px;word-break:break-all;background:#0a1220;border:1px solid #2b3b52;border-radius:8px;padding:8px;color:#aebdd0}.sharedBanner{border:1px solid #2563eb;background:#102b55;border-radius:12px;padding:12px;margin-bottom:12px}.sharedBanner b{display:block;margin-bottom:4px} .specialQrWrap{display:flex;justify-content:center;align-items:center;gap:22px;padding:18px;background:linear-gradient(145deg,#f8fbf9,#eaf4ed);border:1px solid #c7dccd;border-radius:18px;margin-top:12px}.specialQrCanvas{width:min(560px,92vw);height:auto;display:block;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(21,128,61,.14)}.qrAutoNote{text-align:center;font-size:12px;color:#4c6254;line-height:1.55;margin-top:10px}.qrShareBtn{width:100%;margin-top:12px;font-size:16px;padding:13px;background:#166534;border-color:#1f7a3e}.qrShareCard.special{border:1px solid #8dbba0;background:linear-gradient(180deg,#fff,#f3faf5)}@media(max-width:520px){.qrShareGrid{grid-template-columns:1fr}.qrBox{width:210px;margin:auto}.qrBox canvas,.qrBox img{max-width:190px}.specialQrWrap{flex-direction:column;gap:10px}.specialQrCanvas{width:min(560px,94vw)}}</style>
+@media(max-width:430px){.eventList .eventRow{font-size:10px;padding:5px 7px;line-height:1.2;min-height:34px}.eventList .eventGroupTitle{font-size:22px;min-height:42px;padding:10px 8px 8px}.eventList .eventGroupTitle span{font-size:13px}.eventList .eventTag{font-size:7px;max-width:16%}}</style>
 </style>
 <style>
 /* v2.55 green accent / readability */
@@ -171,16 +170,13 @@ body{background:linear-gradient(180deg,#ffffff,#f5faf7 48%,#edf5f0);color:var(--
 .shareNote,.corrNote,.manualConfirmHint,.importHelp{color:#53665a}
 </style>
 <style>
-/* v2.70: 試合結果は固定せず、画面全体を自然に縦スクロール */
+/* v2.64: 試合結果を画面いっぱいに固定し、下部記録をスクロール */
 #gameResultView .sportsResultHero{
-  position:relative;
-  top:auto;
-  z-index:auto;
-  width:100%;
-  margin:0 0 12px;
-  border-radius:18px;
-  padding:0;
-  box-shadow:none;
+  position:sticky;top:62px;z-index:4;
+  width:calc(100% + 28px);margin-left:-14px;margin-right:-14px;
+  border-radius:0 0 18px 18px;
+  padding:12px 14px 14px;
+  box-shadow:0 8px 24px rgba(25,70,40,.10);
 }
 #gameResultView .sportsResultHero .sportsMainScore{font-size:clamp(40px,10vw,58px);}
 #gameResultView .sportsResultHero .sportsMatch{padding-top:10px;padding-bottom:10px;}
@@ -448,7 +444,7 @@ lastLineup:[]
 };
 let tab="record";
 let resultGameId=null;
-let gameHistory = []; let sharedGame=null; let sharedSourceUrl="";
+let gameHistory = [];
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function toast(t){let x=document.createElement("div");x.className="toast";x.textContent=t;document.body.appendChild(x);setTimeout(()=>x.remove(),1800)}
@@ -683,6 +679,20 @@ function changePitcher(){
  document.body.insertAdjacentHTML('beforeend',html);
 }
 function applyPitcherChange(){const g=db.current,name=document.getElementById('pitcherQuickSelect')?.value;if(!g||!name)return;ensurePitching(g);const from=g.pitching.current?.name||g.pitcher?.name||'';if(from===name)return toast('同じ投手です');pushGameHistory();registerPitcher(g,name,'投手交代',from);save();document.getElementById('pitcherQuickModal')?.remove();render();toast(`投手交代：${from||'未登録'} → ${name}`);}
+const PA_RESULT_OPTIONS=[
+ ['中前安打','hit'],['左前安打','hit'],['右前安打','hit'],
+ ['二塁打','hit'],['三塁打','hit'],['本塁打','good'],
+ ['四球','walk'],['死球','walk'],['犠打','good'],['犠飛','good'],
+ ['三振','out'],['内野ゴロ','out'],['内野フライ','out'],['外野フライ','out'],
+ ['ライナー','out'],['グランドルール','out'],['エラー','good']
+];
+function canonicalPAResult(result){
+ if(['中前安打','左前安打','右前安打'].includes(result))return '単打';
+ if(result==='内野ゴロ')return 'ゴロ';
+ if(result==='内野フライ'||result==='外野フライ')return 'フライ';
+ if(result==='エラー')return '相手エラー';
+ return result;
+}
 function recordView(){
  if(!db.current)return setupView();
  let g=db.current;
@@ -693,8 +703,8 @@ function recordView(){
    const slot=Math.min(8,Number(g.batterIndex)||0);
    if(!g.lineup?.[slot]?.name)return lateBatterView(g);
    const b=g.lineup[slot];
-   const labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['バント','good'],['相手エラー','good'],['四球','walk'],['死球','walk'],['三振','out'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out']];
-   return gameHeader()+ruleEndAlert(g)+`<div class="card"><div class="title">スコア</div>${scoreTable(g)}</div><div class="card current"><div class="muted">途中開始・打順確認中</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${slot+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b></div></div></div><div class="card runnerGroundCard"><div class="title">走者・グランド</div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div></div><div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">走者がいる時に選択</span></div><div class="stealGrid" style="margin-top:10px"><button class="runnerActionBtn" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}>🏃 盗塁</button><button class="runnerActionBtn" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}>⚾ 捕逸(パスボール)</button><button class="runnerActionBtn" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}>🥎 暴投(ワイルドピッチ)</button><button class="runnerActionBtn" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}>🚨 ボーク</button></div></div><div class="card"><div class="title">${slot+1}番の打席結果を選択</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="latePA('${t}')">${t}</button>`).join('')}</div></div>`;
+   const labels=PA_RESULT_OPTIONS;
+   return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">途中開始・打順確認中</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${slot+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b></div></div></div><div class="card runnerGroundCard"><div class="title">走者・グランド</div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div></div><div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">走者がいる時に選択</span></div><div class="stealGrid" style="margin-top:10px"><button class="runnerActionBtn" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}>🏃 盗塁</button><button class="runnerActionBtn" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}>⚾ 捕逸(パスボール)</button><button class="runnerActionBtn" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}>🥎 暴投(ワイルドピッチ)</button><button class="runnerActionBtn" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}>🚨 ボーク</button></div></div><div class="card"><div class="title">${slot+1}番の打席結果を選択</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="latePA('${t}')">${t}</button>`).join('')}</div></div>`;
  }
  // 攻撃中の判定はオーダー未確定でも優先。後攻スタートなら1回表の相手得点を先に入力できる。
  if(g.half!==ownHalf(g)) return opponentView();
@@ -702,13 +712,12 @@ function recordView(){
    return `<div class="card"><div class="title">まずオーダーを作成</div><p class="muted">チーム登録済みの選手から1〜9番を選びます。</p><button class="btn primary" onclick="tab='lineup';render()">オーダー作成へ</button></div>`;
  }
  let b=g.lineup[g.batterIndex%9]||{name:"打者"};
- let labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['四球','walk'],['死球','walk'],['三振','out'],['バント','good'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out'],['相手エラー','good']];
- return gameHeader()+ruleEndAlert(g)+`<div class="card"><div class="title">スコア</div>${scoreTable(g)}<button class="btn small" style="margin-top:8px" onclick="undoGame()">↩ 直前の操作を戻す</button></div>
- <div class="card current"><div class="muted">${g.inning}回${g.half}・自チーム攻撃</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${(g.batterIndex%9)+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b><button class="btn small" style="margin-top:6px" onclick="adjustOuts()">✎ アウト修正</button></div></div></div>
- <div class="card"><div class="title">打席結果を選択</div><div class="hint" style="margin-bottom:8px">打席結果を入力する前に、上の「走者・グランド」「走者プレー」もそのまま操作できます。</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="pa('${t}')">${t}</button>`).join('')}</div></div>
+ let labels=PA_RESULT_OPTIONS;
+ return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">${g.inning}回${g.half}・自チーム攻撃</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${(g.batterIndex%9)+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b><button class="btn small" style="margin-top:6px" onclick="adjustOuts()">✎ アウト修正</button></div></div><button class="btn small" style="margin-top:8px" onclick="undoGame()">↩ 直前の操作を戻す</button></div>
+ <div class="card"><div class="title">打席結果を選択</div><div class="hint" style="margin-bottom:8px">打席結果は現場の操作方法を変えず、結果名だけ細分化しています。</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="pa('${t}')">${t}</button>`).join('')}</div></div>
  <div class="card"><div class="row between"><div class="title" style="margin:0">選手交代</div><button class="btn small" onclick="openInGameSub()">交代</button></div><div class="muted">${(g.subs||[]).slice(-2).map(x=>`${x.type}：${x.from?.name||''} → ${x.to?.name||''}`).join('<br>')||'交代なし'}</div></div>
- <div class="card"><div class="row between"><div class="title" style="margin:0">走者・グランド</div><button class="btn small" onclick="openRunnerCorrection()">✎ 走者修正</button></div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div><div class="corrNote" style="margin-top:8px">ヒット・四死球後の打者も現在の塁に表示。盗塁は「走者→アウト/セーフ→進塁先」。その他は「走者→進塁先」。ボークは全走者を自動で1つ進めます。</div></div>
- <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→アウト/セーフ→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div><div class="stealGrid" style="margin-top:10px"><button class="runnerActionBtn" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}>🏃 盗塁</button><button class="runnerActionBtn" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}>⚾ 捕逸(パスボール)</button><button class="runnerActionBtn" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}>🥎 暴投(ワイルドピッチ)</button><button class="runnerActionBtn" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}>🚨 ボーク</button></div></div>
+ <div class="card"><div class="row between"><div class="title" style="margin:0">走者・グランド</div><button class="btn small" onclick="openRunnerCorrection()">✎ 走者修正</button></div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div><div class="corrNote" style="margin-top:8px">ヒット・四死球後の打者も現在の塁に表示。盗塁は「走者→進塁・盗塁死→進塁先」。その他は「走者→進塁先」。ボークは全走者を自動で1つ進めます。</div></div>
+ <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→進塁・盗塁死→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div><div class="stealGrid" style="margin-top:10px"><button class="runnerActionBtn" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}>🏃 盗塁</button><button class="runnerActionBtn" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}>⚾ 捕逸(パスボール)</button><button class="runnerActionBtn" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}>🥎 暴投(ワイルドピッチ)</button><button class="runnerActionBtn" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}>🚨 ボーク</button></div></div>
  <div class="card"><div class="row between"><div class="title" style="margin:0">今日の試合経過</div><button class="btn small" onclick="finishGame()">試合終了</button></div><div class="history">${g.pa.slice(-8).reverse().map((x,i)=>{const isLast=i===0;return `<div class="hist"><div class="row between"><div><b>${x.inning}回${x.half}</b>　${esc(x.batter)} <span class="muted">→</span> ${esc(x.result)}${x.runs?` <span class="badge">${x.runs}点</span>`:''}</div>${`<button class="editBtn" onclick="restartFromPA(${g.pa.length-1-i})">✎ この打席から修正</button>`}</div></div>`}).join('')||`<div class="empty">まだ記録がありません</div>`}</div></div>`;
 }
 function lateBatterView(g){
@@ -716,7 +725,7 @@ function lateBatterView(g){
  const selected=g.lineup?.[slot]?.name||'';
  const used=new Set((g.lineup||[]).filter(Boolean).map(p=>p?.name));
  const opts=db.team.players.filter(p=>p.role!=='manager'&&(!used.has(p.name)||p.name===selected)).map(p=>`<option value="${esc(p.name)}" ${p.name===selected?'selected':''}>${esc(p.name)}${p.num?' #'+p.num:''}</option>`).join('');
- const labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['バント','good'],['相手エラー','good'],['四球','walk'],['死球','walk'],['三振','out'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out']];
+   const labels=PA_RESULT_OPTIONS;
  return gameHeader()+`<div class="card current"><div class="title">途中開始：${slot+1}番打者を確認</div><p class="muted">「打順確認中」です。${slot+1}番打者を選択して、打席結果を入力してください。入力後、進塁先・アウト・得点を確認してから次の打者へ進みます。</p><select id="lateBatterSelect" class="select"><option value="">${slot+1}番の選手を選択</option>${opts}</select><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveLateBatter()">${slot+1}番を確定して打席結果へ</button></div>
  <div class="card"><div class="title">現在の打順確認</div>${Array.from({length:9},(_,i)=>`<div class="row between" style="padding:8px 0;border-bottom:1px solid #243248"><span>${i+1}番</span><b>${esc(g.lineup[i]?.name||'未登録')}</b></div>`).join('')}</div>`;
 }
@@ -740,7 +749,7 @@ function opponentView(){
  let g=db.current;
  let x=g.innings[g.inning-1]||{us:0,opp:0};
  return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">現在：${g.inning}回${g.half}・相手チーム攻撃</div><div style="font-size:26px;font-weight:900;margin:8px 0">相手は何点入りましたか？</div><div class="hint">得点を選ぶと、その回の相手攻撃を終了して自チームの攻撃へ切り替わります。${g.startedLate?'途中開始では、このあと前の打席でアウトになった次の打者から確認します。':''}</div><div class="grid2"><button class="btn" onclick="setOppRuns(-1)">−</button><div class="input" style="text-align:center;font-weight:900;font-size:24px">${x.opp||0} 点</div></div><div class="row" style="flex-wrap:wrap;margin-top:10px">${[0,1,2,3,4,5,6,7,8,9].map(n=>`<button class="btn ${x.opp===n?'primary':''}" onclick="setOppRuns(${n})">${n}</button>`).join('')}</div><div class="title" style="margin-top:16px">相手のアウト</div><div class="row"><button class="btn" onclick="oppOut()">アウト＋1</button><span class="badge">${g.outs} / 3</span><button class="btn small" onclick="adjustOuts()">✎ アウト修正</button></div><div class="hint" style="margin-top:8px">3アウトになると自動で次の攻撃へ切り替わります。</div><div class="card" style="margin-top:10px;margin-bottom:0;background:#0b1422"><div class="row between"><div><div class="title" style="margin:0">投手</div><div class="muted">${esc(g.pitching?.current?.name||g.pitcher?.name||'未登録')}　投球回 ${pitcherInningsText(g.pitching?.current||{})}</div></div><button class="btn small primary" onclick="changePitcher()">投手交代</button></div></div><button class="btn" style="width:100%;margin-top:10px" onclick="openDefensiveSub()">🧤 自チームの守備交代</button></div>
- <div class="card"><div class="title">イニングスコア</div>${scoreTable(g)}</div>`;
+ `;
 }
 function setOppRuns(n){
  const g=db.current;if(!g)return;
@@ -769,10 +778,10 @@ function advanceRunners(g,result,batterName){
   let before=cloneRunners(g.runners), names=cloneRunnerNames(g.runnerNames), after=[0,0,0], afterNames=[null,null,null], scored=0,rbi=0;
   const score=(n,credited=true)=>{scored+=n;if(credited)rbi+=n};
   const keep=(from,to)=>{if(before[from]){after[to]=1;afterNames[to]=names[from]||'走者'}};
-  if(result==='本塁打'){score(before.filter(Boolean).length+1);syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:`走者${before.filter(Boolean).length}人＋打者が生還`};}
+  if(['本塁打'].includes(result)){score(before.filter(Boolean).length+1);syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:`走者${before.filter(Boolean).length}人＋打者が生還`};}
   if(result==='三塁打'){score(before.filter(Boolean).length);after[2]=1;afterNames[2]=batterName;syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:`走者${before.filter(Boolean).length}人が生還`};}
   if(result==='二塁打'){if(before[2])score(1);if(before[1])score(1);keep(0,2);after[1]=1;afterNames[1]=batterName;syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:`二塁打で走者を進塁`};}
-  if(result==='単打'){if(before[2])score(1);keep(1,2);keep(0,1);after[0]=1;afterNames[0]=batterName;syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:`単打で走者を進塁`};}
+  if(['単打','中前安打','左前安打','右前安打'].includes(result)){if(before[2])score(1);keep(1,2);keep(0,1);after[0]=1;afterNames[0]=batterName;syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:`単打で走者を進塁`};}
   if(result==='四球'||result==='死球'){
     if(before[0]&&before[1]&&before[2])score(1);
     if(before[0]&&before[1]){after[2]=1;afterNames[2]=names[1]||'走者'}else if(before[2]){after[2]=1;afterNames[2]=names[2]||'走者'}
@@ -781,7 +790,7 @@ function advanceRunners(g,result,batterName){
   }
   if(result==='犠飛'){if(before[2])score(1);keep(0,0);keep(1,1);syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:scored?'犠飛で三塁走者生還':''};}
   if(result==='バント'||result==='犠打'){if(before[2])score(1);else if(before[1])keep(1,2);keep(0,1);syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:'バントで走者を進塁'};}
-  if(result==='相手エラー'){
+  if(result==='相手エラー'||result==='エラー'){
     // 相手の守備エラー：打者は1塁へ進み、既存走者は1つずつ進塁。3塁走者は生還。
     if(before[2])score(1,false);
     if(before[1]){after[2]=1;afterNames[2]=names[1]||'走者';}
@@ -811,9 +820,9 @@ function selectRunnerToMove(i){
  const g=db.current;if(!g?.runners[i])return;
  runnerMoveFrom=i;runnerMoveJudged=false;
  const name=g.runnerNames?.[i]||'走者';
- document.getElementById('moveTarget').textContent=`${runnerMoveMode}：${i+1}塁 ${name} の${runnerMoveMode==='盗塁'?'判定':'進塁先'}`;
+ document.getElementById('moveTarget').textContent=`${runnerMoveMode}：${i+1}塁 ${name} の${runnerMoveMode==='盗塁'?'進塁・盗塁死':'進塁先'}`;
  if(runnerMoveMode==='盗塁'){
-   document.getElementById('moveDest').className='runnerScore runnerMoveDest'; document.getElementById('moveDest').innerHTML='<div class="hint">まず盗塁の判定を選択してください。</div><div class="runnerActions"><button class="btn red" style="min-height:62px;font-size:17px" onclick="judgeSteal(\'アウト\')">アウト</button><button class="btn primary" style="min-height:62px;font-size:17px" onclick="judgeSteal(\'セーフ\')">セーフ</button></div>';
+   document.getElementById('moveDest').className='runnerScore runnerMoveDest'; document.getElementById('moveDest').innerHTML='<div class="hint">まず「進塁」または「盗塁死」を選択してください。</div><div class="runnerActions"><button class="btn red" style="min-height:62px;font-size:17px" onclick="judgeSteal(\'盗塁死\')">盗塁死</button><button class="btn primary" style="min-height:62px;font-size:17px" onclick="judgeSteal(\'進塁\')">進塁</button></div>';
  }else{renderRunnerDestinations();}
 }
 function renderRunnerDestinations(){
@@ -825,25 +834,25 @@ function judgeSteal(judgement){
  const g=db.current;if(runnerMoveFrom==null||!g?.runners[runnerMoveFrom])return closeRunnerMove();
  const from=runnerMoveFrom,before=cloneRunners(g.runners),beforeNames=cloneRunnerNames(g.runnerNames),name=beforeNames[from]||'走者';
  pushGameHistory();
- if(judgement==='アウト'){
+ if(judgement==='盗塁死'){
    g.runners[from]=0;g.runnerNames[from]=null;g.outs=Math.min(3,(Number(g.outs)||0)+1);
-   g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:'盗塁',judgement:'アウト',inning:g.inning,half:g.half,from,dest:null,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(g.runners),afterNames:cloneRunnerNames(g.runnerNames),runs:0});
+   g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:'盗塁',judgement:'盗塁死',inning:g.inning,half:g.half,from,dest:null,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(g.runners),afterNames:cloneRunnerNames(g.runnerNames),runs:0});
    const outNow=endHalfOnThreeOuts(g);
-   save();closeRunnerMove();render();toast(`盗塁：${name} → アウト${outNow?'・3アウト':''}`);return;
+   save();closeRunnerMove();render();toast(`盗塁：${name} → 盗塁死${outNow?'・3アウト':''}`);return;
  }
  runnerMoveJudged=true;
- document.getElementById('moveTarget').textContent=`盗塁：${name} → セーフ。進塁先を選択`;
+ document.getElementById('moveTarget').textContent=`盗塁：${name} → 進塁。進塁先を選択`;
  renderRunnerDestinations();
 }
 function closeRunnerMove(){document.getElementById('runnerMoveModal').style.display='none';runnerMoveMode=null;runnerMoveFrom=null;runnerMoveJudged=false}
 function applyRunnerMove(dest){
  const g=db.current;if(runnerMoveFrom==null||!g?.runners[runnerMoveFrom])return closeRunnerMove();
- if(runnerMoveMode==='盗塁'&&!runnerMoveJudged)return toast('先にアウト・セーフを選択してください');
+ if(runnerMoveMode==='盗塁'&&!runnerMoveJudged)return toast('先に進塁・盗塁死を選択してください');
  const from=runnerMoveFrom,before=cloneRunners(g.runners),beforeNames=cloneRunnerNames(g.runnerNames),name=beforeNames[from]||'走者';
  pushGameHistory();
  g.runners[from]=0;g.runnerNames[from]=null;let scored=0;
  if(dest===4){scored=1;g.scoreUs=(Number(g.scoreUs)||0)+1}else{g.runners[dest-1]=1;g.runnerNames[dest-1]=name}
- g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:runnerMoveMode,judgement:runnerMoveMode==='盗塁'?'セーフ':null,inning:g.inning,half:g.half,from,dest,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(g.runners),afterNames:cloneRunnerNames(g.runnerNames),runs:scored});
+ g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:runnerMoveMode,judgement:runnerMoveMode==='盗塁'?'進塁':null,inning:g.inning,half:g.half,from,dest,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(g.runners),afterNames:cloneRunnerNames(g.runnerNames),runs:scored});
  updateInningScore(g);save();closeRunnerMove();render();toast(`${runnerMoveMode}：${name} → ${dest===4?'本塁・得点':dest+'塁'}`);
 }
 function applyBalk(){
@@ -866,7 +875,7 @@ function updateInningScore(g){
   const x=g.innings[g.inning-1]||{us:0,opp:0}; x.us=Math.max(0,(Number(g.scoreUs)||0)-prev); g.innings[g.inning-1]=x;
 }
 function manualConfirmResult(result){
- return ['単打','二塁打','三塁打','バント','ゴロ','フライ','ライナー'].includes(result);
+ return ['中前安打','左前安打','右前安打','二塁打','三塁打','犠打','犠飛','内野ゴロ','内野フライ','外野フライ','ライナー'].includes(result);
 }
 function defaultManualRunnerDest(before,beforeNames,after,afterNames,idx){
  if(!before[idx])return null;
@@ -881,12 +890,12 @@ function defaultManualRunnerDest(before,beforeNames,after,afterNames,idx){
 }
 function manualConfirmDefault(g,b,result){
  const temp={...g,runners:cloneRunners(g.runners),runnerNames:cloneRunnerNames(g.runnerNames),scoreUs:Number(g.scoreUs)||0};
- const mv=advanceRunners(temp,result,b.name);
+ const mv=advanceRunners(temp,canonicalPAResult(result),b.name);
  const runnerDest=[0,1,2].map(i=>defaultManualRunnerDest(g.runners,g.runnerNames,mv.runners,mv.names,i));
  const batterFound=(mv.names||[]).findIndex(n=>n===b.name);
  const batterDest=batterFound>=0?String(batterFound+1):'out';
  const beforeOuts=Number(g.outs)||0;
- const defaultOuts=Math.min(3,beforeOuts+(['ゴロ','フライ','ライナー','バント'].includes(result)?1:0));
+ const defaultOuts=Math.min(3,beforeOuts+(['内野ゴロ','内野フライ','外野フライ','ライナー','犠打','犠飛'].includes(result)?1:0));
  return {batterDest,runnerDest,outs:defaultOuts,runs:Math.min(3,Number(mv.scored)||0)};
 }
 function pa(result){
@@ -899,8 +908,9 @@ function pa(result){
  }
  pushGameHistory();
  const before=cloneRunners(g.runners),beforeNames=cloneRunnerNames(g.runnerNames);
- let out=0; if(['三振','グランドルール'].includes(result)) out=1;
- const mv=advanceRunners(g,result,b.name);
+ const normalized=canonicalPAResult(result);
+ let out=0; if(['三振','グランドルール'].includes(normalized)) out=1;
+ const mv=advanceRunners(g,normalized,b.name);
  g.runners=mv.runners; g.runnerNames=cloneRunnerNames(mv.names); g.scoreUs=(Number(g.scoreUs)||0)+mv.scored;
  g.outs+=out;
  g.eventSeq=(Number(g.eventSeq)||0)+1;
@@ -1016,7 +1026,7 @@ function restartFromPA(index){
 この打席以降の記録をいったん削除して、そこから再入力します。`))return;
  pushGameHistory(); g.scoreUs=Number(p.beforeScoreUsSnapshot ?? p.beforeScoreUs ?? 0);g.inning=p.beforeInning;g.half=p.beforeHalf;g.outs=p.beforeOuts;g.runners=cloneRunners(p.beforeRunners);g.runnerNames=cloneRunnerNames(p.beforeRunnerNames);g.batterIndex=p.beforeBatterIndex;g.pa=g.pa.slice(0,index);g.steals=(g.steals||[]).filter(x=>x.inning<p.inning || (x.inning===p.inning && x.half!==p.half));g.runnerMoves=(g.runnerMoves||[]).filter(x=>x.inning<p.inning || (x.inning===p.inning && x.half!==p.half));updateInningScore(g);save();render();toast('この打席から再入力できます');
 }
-const PA_RESULTS=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['バント','good'],['相手エラー','good'],['四球','walk'],['死球','walk'],['三振','out'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out']];
+const PA_RESULTS=PA_RESULT_OPTIONS;
 function openPACorrection(){
  ensureGame(); const g=db.current;
  if(!g||!g.pa.length)return toast('まず打席を1つ記録してください');
@@ -1042,8 +1052,9 @@ function applyPACorrection(){
  g.runners=cloneRunners(p.beforeRunners);
  g.runnerNames=cloneRunnerNames(p.beforeRunnerNames);
  const b=g.lineup[g.batterIndex%9]||{name:p.batter};
- const out=['バント','犠打','三振','ゴロ','ライナー','フライ','グランドルール'].includes(result)?1:0;
- const mv=advanceRunners(g,result,b.name);
+ const normalized=canonicalPAResult(result);
+ const out=['バント','犠打','犠飛','三振','ゴロ','ライナー','フライ','グランドルール'].includes(normalized)?1:0;
+ const mv=advanceRunners(g,normalized,b.name);
  g.runners=mv.runners; g.runnerNames=cloneRunnerNames(mv.names); g.scoreUs+=mv.scored; g.outs+=out;
  p.result=result; p.rbi=mv.rbi; p.runs=mv.scored; p.afterRunners=cloneRunners(g.runners); p.outsAfter=g.outs;
  p.beforeScoreUs=Number(g.scoreUs)-mv.scored; // before value is preserved below
@@ -1168,112 +1179,6 @@ function finishGame(){
  setTimeout(()=>viewGameResult(saved.id),80);
 }
 function loadGame(id){viewGameResult(id)}
-
-function qrBase64Encode(obj){const bytes=new TextEncoder().encode(JSON.stringify(obj));let bin='';for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
-function qrBase64Decode(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const bin=atob(s),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return JSON.parse(new TextDecoder().decode(bytes))}
-function bytesToBase44(bytes){
- const alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-$*+./:";
- let out="";
- for(let i=0;i<bytes.length;i+=2){
-   const a=bytes[i], b=i+1<bytes.length?bytes[i+1]:0, hasB=i+1<bytes.length;
-   let n=a*256+b;
-   let d0=n%44; n=Math.floor(n/44);
-   let d1=n%44; n=Math.floor(n/44);
-   let d2=n;
-   out+=alphabet[d0]+alphabet[d1];
-   if(hasB) out+=alphabet[d2];
- }
- return out;
-}
-function base44ToBytes(str){
- const alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-$*+./:", rev=new Map([...alphabet].map((c,i)=>[c,i]));
- const out=[];
- for(let i=0;i<str.length;){
-   const d0=rev.get(str[i++]), d1=rev.get(str[i++]);
-   if(d0==null||d1==null) throw new Error('QR文字列が不正です');
-   const hasD2=i<str.length;
-   const d2=hasD2?rev.get(str[i++]):0;
-   if(d2==null) throw new Error('QR文字列が不正です');
-   const n=d0+d1*44+d2*44*44;
-   if(n>65535) throw new Error('QR文字列が不正です');
-   out.push((n>>8)&255); if(hasD2) out.push(n&255);
- }
- return new Uint8Array(out);
-}
-async function gzipEncode(obj){
- if(!('CompressionStream'in window))return null;
- const raw=new TextEncoder().encode(JSON.stringify(obj)),cs=new CompressionStream('gzip'),w=cs.writable.getWriter();w.write(raw);w.close();
- const bytes=new Uint8Array(await new Response(cs.readable).arrayBuffer());
- return bytesToBase44(bytes);
-}
-async function gzipDecode(s){
- if(!('DecompressionStream'in window))return null;
- const bytes=base44ToBytes(s),ds=new DecompressionStream('gzip'),w=ds.writable.getWriter();w.write(bytes);w.close();
- return JSON.parse(await new Response(ds.readable).text());
-}
-async function gzipEncodeUrlSafe(obj){
- if(!('CompressionStream'in window))return null;
- const raw=new TextEncoder().encode(JSON.stringify(obj)),cs=new CompressionStream('gzip'),w=cs.writable.getWriter();w.write(raw);w.close();
- const bytes=new Uint8Array(await new Response(cs.readable).arrayBuffer());
- let bin='';for(let i=0;i<bytes.length;i++)bin+=String.fromCharCode(bytes[i]);
- return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-}
-async function gzipDecodeUrlSafe(s){
- if(!('DecompressionStream'in window))return null;
- const b64=String(s||'').replace(/-/g,'+').replace(/_/g,'/');
- const pad='='.repeat((4-b64.length%4)%4);
- const bin=atob(b64+pad),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
- const ds=new DecompressionStream('gzip'),w=ds.writable.getWriter();w.write(bytes);w.close();
- return JSON.parse(await new Response(ds.readable).text());
-}
-function makeShareId(g){
- const seed=[g.date||'',g.opponent||'',g.scoreUs||0,g.scoreOpp||0,(g.pa||[]).length,(g.runnerMoves||[]).length,(g.pitching?.history||[]).length].join('|');
- let h=2166136261;for(let i=0;i<seed.length;i++){h^=seed.charCodeAt(i);h=Math.imul(h,16777619)}
- g.shareId='bm69-'+(h>>>0).toString(36);return g.shareId;
-}
-function compactMatchForQR(g){
- const dict=[],map=new Map();
- const S=v=>{v=String(v??'');if(!v)return 0;let n=map.get(v);if(n)return n;n=dict.length+1;dict.push(v);map.set(v,n);return n};
- const H=v=>v==='裏'?1:0;
- const P=(x)=>[Number(x?.seq)||0,Number(x?.inning)||0,H(x?.half),S(x?.batter),S(x?.result),Number(x?.rbi)||0,Number(x?.runs)||0];
- const R=(x)=>[Number(x?.seq)||0,S(x?.type),S(x?.judgement),Number(x?.inning)||0,H(x?.half),S(x?.name),x?.dest==null?0:Number(x.dest)||0,Number(x?.runs)||0];
- const T=(x)=>[S(x?.name),Number(x?.enteredInning)||0,H(x?.enteredHalf),Number(x?.outs)||0,x?.started?1:0,Number(x?.seq)||0];
- return {v:3,s:makeShareId(g),t:S(db.team.name),h:[g.date||'',g.tournament||'',g.stadium||'',g.opponent||'相手校',Number(g.scoreUs)||0,Number(g.scoreOpp)||0,g.order==='後攻'?1:0],d:dict,i:(g.innings||[]).map(x=>[Number(x?.us)||0,Number(x?.opp)||0]),p:(g.pa||[]).map(P),r:(g.runnerMoves||[]).map(R),y:(g.pitching?.history||[]).map(T)};
-}
-function expandMatchFromQR(q){
- const D=Array.isArray(q.d)?q.d:[];const S=n=>n?D[n-1]||'':'';const H=n=>n?'裏':'表';const h=q.h||[];
- return {date:h[0]||'',tournament:h[1]||'',stadium:h[2]||'',opponent:h[3]||'相手校',scoreUs:Number(h[4])||0,scoreOpp:Number(h[5])||0,order:h[6]?'後攻':'先攻',finished:true,shareId:q.s||'',innings:(q.i||[]).map(x=>({us:Number(x?.[0])||0,opp:Number(x?.[1])||0})),pa:(q.p||[]).map(x=>({seq:Number(x?.[0])||0,inning:Number(x?.[1])||0,half:H(x?.[2]),batter:S(x?.[3]),result:S(x?.[4]),rbi:Number(x?.[5])||0,runs:Number(x?.[6])||0})),runnerMoves:(q.r||[]).map(x=>({seq:Number(x?.[0])||0,type:S(x?.[1]),judgement:S(x?.[2])||null,inning:Number(x?.[3])||0,half:H(x?.[4]),name:S(x?.[5]),dest:Number(x?.[6])||0,runs:Number(x?.[7])||0})),pitching:{history:(q.y||[]).map(x=>({name:S(x?.[0]),enteredInning:Number(x?.[1])||0,enteredHalf:H(x?.[2]),outs:Number(x?.[3])||0,started:!!x?.[4],seq:Number(x?.[5])||0}))}};
-}
-async function buildMatchShareUrl(g){
- const compact=compactMatchForQR(g),payload={v:4,s:compact.s,t:compact.t,g:compact},enc=await gzipEncodeUrlSafe(payload);
- if(!enc)throw new Error('共有リンク圧縮機能が使えません');
- return {url:location.origin+location.pathname+'?m4='+enc,bytes:enc.length,payload};
-}
-async function createMatchQR(id){
- const g=db.games.find(x=>x.id===id);if(!g)return toast('試合結果が見つかりません');
- try{
-   makeShareId(g);save();const built=await buildMatchShareUrl(g),panel=document.getElementById('matchQRPanel'),box=document.getElementById('matchQR');
-   if(!panel||!box)throw new Error('共有リンク表示領域なし');
-   box.innerHTML=`<div class="shareLinkBox"><div class="shareLinkLabel">このリンクを送れば、受け取った人は試合データへ直行します。</div><input id="matchShareUrl" class="shareUrlInput" readonly value="${built.url.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"><button class="btn primary" style="width:100%;margin-top:8px" onclick="copyMatchShareUrl()">🔗 共有リンクをコピー</button></div>`;
-   panel.dataset.shareUrl=built.url;panel.dataset.gameId=String(id);panel.classList.remove('hidden');toast(`試合データへ直行する共有リンクを作成しました（${built.bytes}文字）`);
- }catch(e){console.error(e);toast('共有リンクの作成に失敗しました。もう一度お試しください')}
-}
-async function copyMatchShareUrl(){
- const url=document.getElementById('matchShareUrl')?.value; if(!url)return;
- try{await navigator.clipboard.writeText(url);toast('共有リンクをコピーしました。LINEなどに貼り付けて送れます');}
- catch(e){const el=document.getElementById('matchShareUrl');el?.select();document.execCommand('copy');toast('共有リンクをコピーしました');}
-}
-async function shareMatchQR(id){
- const panel=document.getElementById('matchQRPanel'),g=db.games.find(x=>x.id===id),url=panel?.dataset.shareUrl;
- if(!g||!url)return toast('先に共有リンクを作成してください');
- try{
-   const data={title:'野球メモ 試合結果',text:`${g.date||''} ${db.team.name||'野球メモ'} 試合結果\n${url}`};
-   if(navigator.share){await navigator.share(data);toast('試合結果の共有画面を開きました');return;}
-   await navigator.clipboard.writeText(url);toast('共有リンクをコピーしました。LINEなどに貼り付けて送れます');
- }catch(e){if(e?.name!=='AbortError'){console.error('shareMatchLink',e);toast('共有に失敗しました。もう一度お試しください')}}
-}
-function saveSharedMatch(){if(!sharedGame)return;const sid=sharedGame.shareId||makeShareId(sharedGame),idx=db.games.findIndex(x=>x.shareId===sid||x.id===sharedGame.id),copy=JSON.parse(JSON.stringify(sharedGame));delete copy.sharedTeamName;if(idx>=0){toast('この試合はすでに保存されています');resultGameId=db.games[idx].id;sharedGame=null;history.replaceState(null,'',location.pathname);tab='data';render();setTimeout(()=>viewGameResult(resultGameId),50);return}copy.shareId=sid;copy.id=Date.now()+Math.floor(Math.random()*1000);copy.finished=true;db.games.push(copy);save();sharedGame=null;history.replaceState(null,'',location.pathname);resultGameId=copy.id;tab='data';render();setTimeout(()=>viewGameResult(copy.id),50);toast('試合結果をマイアプリに保存しました')}
-async function loadSharedMatchFromHash(){const m4=new URLSearchParams(location.search).get('m4');const m3=new URLSearchParams(location.search).get('m3');const hm=location.hash.match(/^#(?:m3|M3)\.([0-9A-Z\-\$\*\+\.\/:]+)$/);try{if(m4){const payload=await gzipDecodeUrlSafe(m4);if(!payload?.g)return false;const g=expandMatchFromQR(payload.g);g.shareId=payload.s||g.shareId;g.sharedTeamName=payload.t?String((Array.isArray(payload.g.d)?payload.g.d[payload.t-1]:'')||'共有元チーム'):'共有元チーム';sharedGame=g;sharedSourceUrl=location.href;tab='data';resultGameId=null;render();return true}const encoded=m3||hm?.[1];if(!encoded)return false;const payload=await gzipDecode(encoded);if(!payload?.g)return false;const g=expandMatchFromQR(payload.g);g.shareId=payload.s||g.shareId;g.sharedTeamName=payload.t?String((Array.isArray(payload.g.d)?payload.g.d[payload.t-1]:'')||'共有元チーム'):'共有元チーム';sharedGame=g;sharedSourceUrl=location.href;tab='data';resultGameId=null;render();return true}catch(e){console.error(e);toast('共有された試合を読み込めませんでした');return false}}
 function viewGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return toast('試合結果が見つかりません');resultGameId=id;tab='data';render();setTimeout(()=>{const el=document.getElementById('gameResultView');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},0)}
 function battingStats(g){
  const stats={};
@@ -1294,10 +1199,10 @@ function battingStats(g){
      case '犠打': s.sh++; break;
      case '犠飛': s.sf++; break;
      default:
-       if(result==='単打') s.h++;
+       if(['単打','中前安打','左前安打','右前安打'].includes(result)) s.h++;
        else if(result==='二塁打'){s.h++;s.d2++;}
        else if(result==='三塁打'){s.h++;s.d3++;}
-       else if(result==='本塁打'){s.h++;s.hr++;}
+       else if(['本塁打'].includes(result)){s.h++;s.hr++;}
        else if(result==='三振') s.so++;
        break;
    }
@@ -1305,7 +1210,7 @@ function battingStats(g){
  return Object.values(stats);
 }
 function resultEvents(g){
- const events=[...(g.pa||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.batter} → ${x.result}${x.runs?`・${x.runs}点`:''}`,kind:'打席'})),...(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.type}${x.judgement?`・${x.judgement}`:''}：${x.name||'走者'}${x.dest===4?' → 本塁・得点':x.dest?` → ${x.dest}塁`:''}${x.runs?`・${x.runs}点`:''}`,kind:'走者'})),...((g.pitching?.history||[]).filter((x,i)=>i>0).map(x=>({seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`選手交代：投手 ${x.name}`,kind:'交代'})))];
+ const events=[...(g.pa||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.batter} → ${x.result}${x.runs?`・${x.runs}点`:''}`,kind:'打席'})),...(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.type}${x.judgement?`・${x.judgement==='セーフ'?'進塁':x.judgement==='アウト'?'盗塁死':x.judgement}`:''}：${x.name||'走者'}${x.dest===4?' → 本塁・得点':x.dest?` → ${x.dest}塁`:''}${x.runs?`・${x.runs}点`:''}`,kind:'走者'})),...((g.pitching?.history||[]).filter((x,i)=>i>0).map(x=>({seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`選手交代：投手 ${x.name}`,kind:'交代'})))];
  // 写真/SNS用の全記録は自チーム側の記録だけ。エラー表記は除外し、選手交代は残す。
  return events.filter(e=>!String(e.text||'').includes('エラー') && e.kind!=='エラー')
    .sort((a,b)=>a.seq-b.seq || a.inning-b.inning || (a.half==='表'?0:1)-(b.half==='表'?0:1));
@@ -1315,14 +1220,13 @@ function resultInningRows(g){
  let rows='';for(let i=1;i<=max;i++){const x=g.innings?.[i-1]||{us:0,opp:0};rows+=`<tr><td>${i}</td><td>${Number(x.us)||0}</td><td>${Number(x.opp)||0}</td><td>${i===max&&g.finished?'—':''}</td></tr>`}return rows;
 }
 function renderGameResult(g){
- const myTeamName=g.sharedTeamName||db.team.name;
  const win=g.scoreUs>g.scoreOpp?'勝利':g.scoreUs<g.scoreOpp?'敗戦':'引き分け';
  const stats=battingStats(g),events=resultEvents(g);
  const batting=stats.length?`<div class="resultStatsWrap"><table class="resultStatsTable"><thead><tr><th>選手</th><th>打席</th><th>打数</th><th>安打</th><th>二塁打</th><th>三塁打</th><th>本塁打</th><th>打点</th><th>四球</th><th>死球</th><th>三振</th><th>バント</th><th>犠飛</th><th>打率</th></tr></thead><tbody>${stats.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.pa}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.d2}</td><td>${s.d3}</td><td>${s.hr}</td><td>${s.rbi}</td><td>${s.bb}</td><td>${s.hbp}</td><td>${s.so}</td><td>${s.sh}</td><td>${s.sf}</td><td class="avg">${s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">打席記録はありません</div>`;
  const pitchingHtml=(g.pitching?.history||[]).length?`<div class="resultStatsWrap"><table class="resultStatsTable"><thead><tr><th>投手</th><th>登板</th><th>投球回</th><th>登板開始</th></tr></thead><tbody>${(g.pitching.history||[]).map((p,i)=>`<tr><td>${esc(p.name)}</td><td>${i===0?'先発':'途中登板'}</td><td>${pitcherInningsText(p)}</td><td>${p.enteredInning}回${p.enteredHalf}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">投手記録はありません</div>`; const max=Math.max(1,g.innings?.length||0);
  const firstIsOwn=g.order!=='後攻';
- const firstName=firstIsOwn?myTeamName:(g.opponent||'相手');
- const secondName=firstIsOwn?(g.opponent||'相手'):myTeamName;
+ const firstName=firstIsOwn?db.team.name:(g.opponent||'相手');
+ const secondName=firstIsOwn?(g.opponent||'相手'):db.team.name;
  const resultRow=(name,key,total)=>`<tr><th>${esc(name)}</th>${Array.from({length:max},(_,i)=>{const n=Number(g.innings?.[i]?.[key])||0;return `<td class="${n===0?'zero':''}">${n}</td>`}).join('')}<td class="total">${Number(total)||0}</td></tr>`;
  const board=`<div class="stadiumBoard"><table><thead><tr><th>チーム</th>${Array.from({length:max},(_,i)=>`<th>${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody>${resultRow(firstName,firstIsOwn?'us':'opp',firstIsOwn?g.scoreUs:g.scoreOpp)}${resultRow(secondName,firstIsOwn?'opp':'us',firstIsOwn?g.scoreOpp:g.scoreUs)}</tbody></table></div>`;
  let eventHtml='';
@@ -1336,15 +1240,13 @@ function renderGameResult(g){
  const resultClass=win==='勝利'?'':win==='敗戦'?'loss':'tie';
  const sportsRow=(name,key,total)=>`<tr><th>${esc(name)}</th>${Array.from({length:maxInning},(_,i)=>`<td>${Number(g.innings?.[i]?.[key])||0}</td>`).join('')}<td class="total">${Number(total)||0}</td></tr>`;
  const sportsBoard=`<div class="sportsBoard"><table><thead><tr><th>チーム</th>${Array.from({length:maxInning},(_,i)=>`<th>${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody>${sportsRow(firstName,firstIsOwn?'us':'opp',firstIsOwn?g.scoreUs:g.scoreOpp)}${sportsRow(secondName,firstIsOwn?'opp':'us',firstIsOwn?g.scoreOpp:g.scoreUs)}</tbody></table></div>`;
- return `<div id="gameResultView"><div class="resultHero sportsResultHero"><div class="sportsHeroTop"><span>試合結果</span><span>${esc(g.date||'')}　${esc(g.tournament||'')}</span></div><div class="sportsMatch"><div class="sportsTeam"><img class="sportsTeamLogo nishiharuUniform" src="nishiharu-uniform.png" alt="西春高校ユニフォーム"><div class="sportsTeamName">${esc(myTeamName)}</div><div class="sportsTeamLabel">自チーム</div></div><div class="sportsCenter"><div class="sportsStatus">FINAL</div><div class="sportsMainScore">${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}</div><span class="sportsResultBadge ${resultClass}">${win}</span><div class="sportsMiniInfo"><span>${g.innings?.length||1}回制</span><span>得点 ${Number(g.scoreUs)||0}</span><span>打撃記録 ${stats.length}人</span></div></div><div class="sportsTeam"><div class="sportsHomePlate" aria-label="相手チーム ホームベース"></div><div class="sportsTeamName">${esc(g.opponent||'相手校')}</div><div class="sportsTeamLabel">相手</div></div></div>${sportsBoard}<div class="sportsFooter"><span>${esc(g.stadium||'')}</span><span>${g.finishedAt?new Date(g.finishedAt).toLocaleString('ja-JP'):''}</span></div></div>
- ${g.sharedTeamName?`<div class="sharedBanner"><b>📱 共有された試合</b><span class="muted">共有された試合結果をそのまま見ています。気に入ったらマイアプリに保存できます。</span><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveSharedMatch()">試合結果をマイアプリに保存</button></div>`:''}
- ${!g.sharedTeamName?`<div class="card qrShareCard special"><div class="title">今日の試合結果、リンクでシェアしよう！</div><p class="muted">QR画像は使わず、共有リンクそのものをLINE・SNSなどへ送ります。受け取った人はリンクを開くだけで、この試合の「試合データ」に直行します。</p><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="createMatchQR(${g.id})">⚾ 試合結果リンクを作る</button><div id="matchQRPanel" class="hidden"><div id="matchQR"></div><button class="btn qrShareBtn" onclick="shareMatchQR(${g.id})">📤 LINE・SNSへ送る</button></div></div>`:''}
+ return `<div id="gameResultView"><div class="resultHero sportsResultHero"><div class="sportsHeroTop"><span>試合結果</span><span>${esc(g.date||'')}　${esc(g.tournament||'')}</span></div><div class="sportsMatch"><div class="sportsTeam"><img class="sportsTeamLogo nishiharuUniform" src="nishiharu-uniform.png" alt="西春高校ユニフォーム"><div class="sportsTeamName">${esc(db.team.name)}</div><div class="sportsTeamLabel">自チーム</div></div><div class="sportsCenter"><div class="sportsStatus">FINAL</div><div class="sportsMainScore">${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}</div><span class="sportsResultBadge ${resultClass}">${win}</span><div class="sportsMiniInfo"><span>${g.innings?.length||1}回制</span><span>得点 ${Number(g.scoreUs)||0}</span><span>打撃記録 ${stats.length}人</span></div></div><div class="sportsTeam"><div class="sportsHomePlate" aria-label="相手チーム ホームベース"></div><div class="sportsTeamName">${esc(g.opponent||'相手校')}</div><div class="sportsTeamLabel">相手</div></div></div>${sportsBoard}<div class="sportsFooter"><span>${esc(g.stadium||'')}</span><span>${g.finishedAt?new Date(g.finishedAt).toLocaleString('ja-JP'):''}</span></div></div>
+ <div class="card"><div class="title">結果を保存・共有</div><div class="resultTools"><button class="resultTool primary" onclick="saveResultImage(${g.id})">📷 写真として保存</button><button class="resultTool" onclick="shareGameResult(${g.id})">📤 SNS・共有</button></div><p class="shareNote">保存・SNS共有画像は、試合結果を上部いっぱいに見せ、下部の投手記録・打撃成績・全記録をスクロール感覚で追える縦長レイアウトです。全記録の本文は見やすくコンパクトにし、打席結果は安打方向まで記録します。相手チームの投手・打撃・全記録・エラー表示は省き、選手交代は残します。</p><div class="shareVisual"><div class="shareStep"><span class="shareIcon">①📷</span><b>写真として保存</b><span>結果画像をスマホに保存</span></div><div class="shareStep"><span class="shareIcon">②📤</span><b>共有ボタン</b><span>「SNS・共有」をタップ</span></div><div class="shareStep"><span class="shareIcon">③📱</span><b>送信先を選択</b><span>LINE・SNSなど</span></div></div></div>
  <div class="card"><div class="title">投手記録・登板履歴</div>${pitchingHtml}</div><div class="card"><div class="title">打撃成績</div>${batting}</div>
  <div class="card"><div class="title">試合経過・全記録</div><div class="eventList">${eventHtml}</div></div>
  <button class="btn resultBack" onclick="resultGameId=null;render()">← 試合データへ戻る</button></div>`;
 }
 function dataView(){
- if(sharedGame)return `<div class="content">${renderGameResult(sharedGame)}</div>`;
  let games=db.games.slice().reverse();
  if(resultGameId){const g=db.games.find(x=>x.id===resultGameId);if(g)return `<div class="content">${renderGameResult(g)}</div>`;resultGameId=null;}
  return `<div class="card"><div class="title">試合データ</div><div class="statgrid"><div class="stat"><b>${games.length}</b><span class="muted">試合</span></div><div class="stat"><b>${games.filter(g=>g.scoreUs>g.scoreOpp).length}</b><span class="muted">勝利</span></div><div class="stat"><b>${games.reduce((a,g)=>a+g.scoreUs,0)}</b><span class="muted">総得点</span></div><div class="stat"><b>${db.team.players.length}</b><span class="muted">登録選手</span></div></div></div>
@@ -1550,12 +1452,8 @@ function render(){
  document.getElementById("app").innerHTML=tab==="record"?recordView():tab==="team"?teamView():tab==="lineup"?lineupView():dataView();
 }
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});
-if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js?v=2.70",{updateViaCache:"none"}));
-(async function bootApp(){
-  const sharedLoaded = await loadSharedMatchFromHash();
-  if(sharedLoaded){ hideLaunchScreen(); return; }
-  render();
-})();
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js?v=2.68",{updateViaCache:"none"}));
+render();
 
 let inGameSubType='代打',inGameSubSlot=null;
 function openInGameSub(){let g=db.current;if(!g||!g.lineup.length)return;inGameSubSlot=g.batterIndex%9;let cur=g.lineup[inGameSubSlot];document.getElementById('subTargetLabel').textContent=`${inGameSubSlot+1}番 ${cur?.name||''} を交代`;setSubType('代打');document.getElementById('inGameSubModal').style.display='flex';}
@@ -1694,7 +1592,6 @@ window.addEventListener('appinstalled', ()=>{
 
 document.addEventListener('DOMContentLoaded', ()=>{
   setTimeout(()=>{
-    if(sharedGame || new URLSearchParams(location.search).has('m3') || /^#(?:m3|M3)\./.test(location.hash)){ hideLaunchScreen(); return; }
     showLaunchScreen();
     const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     const btn=document.getElementById('homeInstallBtn');
