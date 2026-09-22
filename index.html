@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>西春野球ノート</title>
-<meta name="app-version" content="v2.68">
+<meta name="app-version" content="v2.71">
 <style>
 :root{--bg:#f7f7f5;--panel:#ffffff;--panel2:#f1f1ee;--line:#d9d9d4;--text:#111111;--muted:#444444;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--yellow:#d97706;color-scheme:light}
 *{box-sizing:border-box}body{margin:0;background:#f7f7f5;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
@@ -418,6 +418,50 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 .subPanel,.runnerModal{background:rgba(0,0,0,.35)!important}
 .toast{background:#222!important;color:#fff!important}
 .tab{background:#fff!important;color:#555!important}.tab.active{color:#111!important}
+
+/* v2.71 display-only refinements: input flow/click handlers remain unchanged */
+.result.hit{border:2px solid #2563eb!important;background:#f7fbff!important;color:#174ea6!important}
+.result.homeRun{border:2px solid #ec4899!important;background:#fff5fb!important;color:#be185d!important}
+.result.walk{border:2px solid #eab308!important;background:#fffdf0!important;color:#8a5a00!important}
+.result.good{border:2px solid #16a34a!important;background:#f4fff7!important;color:#166534!important}
+.result.out{border:2px solid #dc2626!important;background:#fff7f7!important;color:#b91c1c!important}
+.result.error{border:2px solid #8b5a2b!important;background:#fff9f2!important;color:#704214!important}
+.result{font-weight:900;min-height:56px}
+/* 試合速報の自チーム・相手チーム表示：内容と構造は変更せず、視認性だけ向上 */
+.sportsMatch{padding-top:18px!important;padding-bottom:15px!important}
+.sportsTeamName{font-size:18px!important;font-weight:950!important;line-height:1.25!important;text-shadow:0 1px 0 #fff}
+.sportsTeamLabel{font-size:11px!important;font-weight:800!important}
+.sportsTeamLogo,.sportsHomePlate{filter:drop-shadow(0 3px 6px rgba(31,70,45,.12))}
+.sportsMainScore{font-size:52px!important;font-weight:950!important}
+.sportsCenter .sportsStatus{font-size:11px!important;font-weight:950!important}
+.sportsInning{font-size:11px!important;font-weight:950!important;padding:6px 12px!important}
+.sportsMiniInfo span{font-size:11px!important;font-weight:900!important;padding:5px 8px!important}
+/* 芝生のきれいなアニメ調グラウンド。操作要素は従来の走者・塁ボタンをそのまま使用 */
+.runnerBases.animeField{width:330px!important;height:310px!important;margin:10px auto 14px!important;border-radius:26px!important;overflow:hidden!important;position:relative!important;border:3px solid #d7eee0!important;box-shadow:0 12px 26px rgba(20,80,40,.18)!important;background:
+ radial-gradient(circle at 18% 18%,rgba(255,255,255,.22) 0 2px,transparent 3px),
+ radial-gradient(circle at 72% 32%,rgba(255,255,255,.16) 0 2px,transparent 3px),
+ radial-gradient(circle at 42% 74%,rgba(255,255,255,.18) 0 2px,transparent 3px),
+ repeating-linear-gradient(18deg,rgba(255,255,255,.08) 0 7px,rgba(0,110,45,.06) 7px 14px),
+ linear-gradient(135deg,#65bf52,#2e9b45 52%,#76ca5d)!important}
+.runnerBases.animeField:before{content:"";position:absolute;inset:18px 22px 20px;background:linear-gradient(135deg,#c98b52,#e0a768);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);opacity:.98;box-shadow:inset 0 0 0 3px rgba(255,255,255,.25)}
+.runnerBases.animeField:after{content:"";position:absolute;left:50%;bottom:30px;width:68px;height:42px;transform:translateX(-50%);background:#b97643;clip-path:polygon(0 0,100% 0,76% 100%,24% 100%);border:3px solid #fff;filter:drop-shadow(0 2px 2px rgba(0,0,0,.12))}
+.runnerBases.animeField .diamond{display:none!important}
+.runnerBases.animeField .fieldDirt{position:absolute;left:50%;top:46%;width:92px;height:92px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 40% 35%,#dba06c,#b97846);box-shadow:inset 0 3px 6px rgba(120,65,30,.22),0 2px 3px rgba(0,0,0,.08);z-index:1}
+.runnerBases.animeField .fieldMound{position:absolute;left:50%;top:46%;width:25px;height:12px;transform:translate(-50%,-50%);border-radius:50%;background:#f4e6c9;border:2px solid #fff;z-index:3}
+.runnerBases.animeField .runnerBase{width:46px!important;height:46px!important;border:3px solid #fff!important;background:#f7f1df!important;box-shadow:0 3px 7px rgba(0,0,0,.18)!important;border-radius:7px!important;z-index:4!important}
+.runnerBases.animeField .runnerBase span{font-size:11px!important;color:#24613b!important;font-weight:950!important}
+.runnerBases.animeField .runnerBase.on{background:#fff!important;border-color:#fff!important;box-shadow:0 0 0 4px rgba(22,163,74,.35),0 4px 8px rgba(0,0,0,.2)!important}
+.runnerBases.animeField .rb1{right:38px!important;top:134px!important}.runnerBases.animeField .rb2{left:142px!important;top:49px!important}.runnerBases.animeField .rb3{left:38px!important;top:134px!important}
+.runnerBases.animeField .homeName{left:50%!important;top:auto!important;bottom:7px!important;color:#fff!important;font-size:12px!important;text-shadow:0 2px 4px #195b2d!important;z-index:6!important}
+.runnerBases.animeField .runnerName{z-index:8!important;min-width:86px!important;max-width:118px!important;padding:6px 8px!important;border-radius:999px!important;background:rgba(255,255,255,.96)!important;color:#173b28!important;border:2px solid #8ed4a4!important;box-shadow:0 3px 8px rgba(20,70,40,.18)!important;line-height:1.08!important;text-shadow:none!important}
+.runnerBases.animeField .runnerName b{display:block!important;font-size:13px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.runnerBases.animeField .runnerName span{display:block!important;font-size:10px!important;color:#4b6353!important;margin-top:2px!important}
+.runnerBases.animeField .bn1{left:82%!important;top:45%!important}.runnerBases.animeField .bn2{left:50%!important;top:14%!important}.runnerBases.animeField .bn3{left:18%!important;top:45%!important}
+@media(max-width:480px){
+ .sportsTeamName{font-size:15px!important}.sportsMainScore{font-size:44px!important}.sportsTeamLabel{font-size:10px!important}
+ .runnerBases.animeField{width:310px!important;height:300px!important}.runnerBases.animeField .rb1{right:30px!important}.runnerBases.animeField .rb3{left:30px!important}
+ .runnerBases.animeField .bn1{left:84%!important}.runnerBases.animeField .bn3{left:16%!important}
+}
 </style>
 <!-- v2.69: 試合経過・全記録は32px。9回まで確実に表示し、10回以降は記録量に応じて自動延長。 -->
 </head>
@@ -680,11 +724,10 @@ function changePitcher(){
 }
 function applyPitcherChange(){const g=db.current,name=document.getElementById('pitcherQuickSelect')?.value;if(!g||!name)return;ensurePitching(g);const from=g.pitching.current?.name||g.pitcher?.name||'';if(from===name)return toast('同じ投手です');pushGameHistory();registerPitcher(g,name,'投手交代',from);save();document.getElementById('pitcherQuickModal')?.remove();render();toast(`投手交代：${from||'未登録'} → ${name}`);}
 const PA_RESULT_OPTIONS=[
- ['中前安打','hit'],['左前安打','hit'],['右前安打','hit'],
- ['二塁打','hit'],['三塁打','hit'],['本塁打','good'],
+ ['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','homeRun'],
  ['四球','walk'],['死球','walk'],['犠打','good'],['犠飛','good'],
  ['三振','out'],['内野ゴロ','out'],['内野フライ','out'],['外野フライ','out'],
- ['ライナー','out'],['グランドルール','out'],['エラー','good']
+ ['ライナー','out'],['グランドルール','out'],['エラー','error']
 ];
 function canonicalPAResult(result){
  if(['中前安打','左前安打','右前安打'].includes(result))return '単打';
@@ -803,8 +846,9 @@ function advanceRunners(g,result,batterName){
   after=before;afterNames=names;syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored:0,rbi:0,detail:''};
 }
 function renderBaseDiamond(g){
- const names=cloneRunnerNames(g.runnerNames); const lab=(i,base)=>g.runners[i]?`<div class="baseName ${['bn1','bn2','bn3'][i]}">${esc(names[i]||'走者')}<br><span class="muted">${base}</span></div>`:'';
- return `<div class="runnerBases" style="height:250px"><div class="diamond" style="width:125px;height:125px;left:62px;top:62px"></div><div class="runnerBase rb1 ${g.runners[0]?'on':''}"><span>1塁</span></div><div class="runnerBase rb2 ${g.runners[1]?'on':''}"><span>2塁</span></div><div class="runnerBase rb3 ${g.runners[2]?'on':''}"><span>3塁</span></div><div class="baseName" style="left:50%;top:94%">本塁</div>${lab(0,'1塁')}${lab(1,'2塁')}${lab(2,'3塁')}</div>`;
+ const names=cloneRunnerNames(g.runnerNames);
+ const lab=(i,base)=>g.runners[i]?`<div class="baseName runnerName ${['bn1','bn2','bn3'][i]}"><b>${esc(names[i]||'走者')}</b><span>${base}</span></div>`:'';
+ return `<div class="runnerBases animeField" style="height:310px"><div class="diamond" style="width:150px;height:150px;left:90px;top:72px"></div><div class="fieldDirt"></div><div class="fieldMound"></div><div class="runnerBase rb1 ${g.runners[0]?'on':''}"><span>1塁</span></div><div class="runnerBase rb2 ${g.runners[1]?'on':''}"><span>2塁</span></div><div class="runnerBase rb3 ${g.runners[2]?'on':''}"><span>3塁</span></div><div class="baseName homeName">本塁</div>${lab(0,'1塁')}${lab(1,'2塁')}${lab(2,'3塁')}</div>`;
 }
 let runnerMoveMode=null,runnerMoveFrom=null,runnerMoveJudged=false;
 function openRunnerMove(mode){
