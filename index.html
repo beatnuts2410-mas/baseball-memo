@@ -468,6 +468,28 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 .resultgrid .result.out{border-color:#111827!important;background:#fff!important;color:#111827!important}
 .resultgrid .result.error{border-color:#8b5a2b!important;background:#fff9f2!important;color:#704214!important}
 
+/* v2.73: 打席結果は白ベース＋色枠。アイコンで結果を直感的に判別。操作方法は変更しない。 */
+.resultgrid .result{background:#fff!important;color:#111!important;border-width:3px!important;border-style:solid!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;line-height:1.1!important;padding:8px 6px!important;}
+.resultgrid .resultIcon{font-size:22px!important;line-height:1!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;}
+.resultgrid .result.hit{border-color:#2563eb!important;}
+.resultgrid .result.homeRun{border-color:#ec4899!important;}
+.resultgrid .result.walk{border-color:#9ca3af!important;}
+.resultgrid .result.good{border-color:#16a34a!important;}
+.resultgrid .result.out{border-color:#111827!important;}
+.resultgrid .result.error{border-color:#8b5a2b!important;}
+@media(max-width:480px){
+ .resultgrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ .resultgrid .result{min-height:58px!important;font-size:15px!important;gap:6px!important}
+ .resultgrid .resultIcon{font-size:20px!important}
+}
+@media(max-width:360px){
+ .content{padding-left:9px!important;padding-right:9px!important}
+ .card{padding:12px!important}
+ .resultgrid{gap:6px!important}
+ .resultgrid .result{min-height:54px!important;font-size:14px!important}
+ .resultgrid .resultIcon{font-size:18px!important}
+}
+
 .realisticField{width:min(100%,360px)!important;height:300px!important;margin:12px auto 14px!important;position:relative!important;overflow:hidden!important;border-radius:24px!important;border:3px solid #d8e8dc!important;box-shadow:0 12px 28px rgba(20,50,25,.20),inset 0 0 0 1px rgba(255,255,255,.45)!important;background:
  radial-gradient(circle at 50% 38%,rgba(255,255,255,.10),transparent 34%),
  repeating-linear-gradient(17deg,rgba(255,255,255,.055) 0 8px,rgba(0,75,25,.045) 8px 16px),
@@ -767,6 +789,18 @@ function canonicalPAResult(result){
  if(result==='エラー')return '相手エラー';
  return result;
 }
+function resultIcon(t){
+ const icons={
+  '単打':'⚾','二塁打':'◆','三塁打':'◇','本塁打':'🏆',
+  '四球':'◯','死球':'✋','犠打':'⚾','犠飛':'🪽',
+  '三振':'✕','内野ゴロ':'↘','内野フライ':'↗','外野フライ':'⤴',
+  'ライナー':'➜','グランドルール':'◆','エラー':'⚠'
+ };
+ return icons[t]||'•';
+}
+function resultButton(t,c,handler){
+ return `<button class="result ${c}" onclick="${handler}('${t}')"><span class="resultIcon" aria-hidden="true">${resultIcon(t)}</span><span>${t}</span></button>`;
+}
 function recordView(){
  if(!db.current)return setupView();
  let g=db.current;
@@ -778,7 +812,7 @@ function recordView(){
    if(!g.lineup?.[slot]?.name)return lateBatterView(g);
    const b=g.lineup[slot];
    const labels=PA_RESULT_OPTIONS;
-   return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">途中開始・打順確認中</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${slot+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b></div></div></div><div class="card runnerGroundCard"><div class="title">走者・グランド</div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div></div><div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">走者がいる時に選択</span></div><div class="stealGrid" style="margin-top:10px"><button class="runnerActionBtn" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}>🏃 盗塁</button><button class="runnerActionBtn" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}>⚾ 捕逸(パスボール)</button><button class="runnerActionBtn" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}>🥎 暴投(ワイルドピッチ)</button><button class="runnerActionBtn" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}>🚨 ボーク</button></div></div><div class="card"><div class="title">${slot+1}番の打席結果を選択</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="latePA('${t}')">${t}</button>`).join('')}</div></div>`;
+   return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">途中開始・打順確認中</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${slot+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b></div></div></div><div class="card runnerGroundCard"><div class="title">走者・グランド</div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div></div><div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">走者がいる時に選択</span></div><div class="stealGrid" style="margin-top:10px"><button class="runnerActionBtn" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}>🏃 盗塁</button><button class="runnerActionBtn" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}>⚾ 捕逸(パスボール)</button><button class="runnerActionBtn" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}>🥎 暴投(ワイルドピッチ)</button><button class="runnerActionBtn" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}>🚨 ボーク</button></div></div><div class="card"><div class="title">${slot+1}番の打席結果を選択</div><div class="resultgrid">${labels.map(([t,c])=>resultButton(t,c,'latePA')).join('')}</div></div>`;
  }
  // 攻撃中の判定はオーダー未確定でも優先。後攻スタートなら1回表の相手得点を先に入力できる。
  if(g.half!==ownHalf(g)) return opponentView();
@@ -788,7 +822,7 @@ function recordView(){
  let b=g.lineup[g.batterIndex%9]||{name:"打者"};
  let labels=PA_RESULT_OPTIONS;
  return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">${g.inning}回${g.half}・自チーム攻撃</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${(g.batterIndex%9)+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b><button class="btn small" style="margin-top:6px" onclick="adjustOuts()">✎ アウト修正</button></div></div><button class="btn small" style="margin-top:8px" onclick="undoGame()">↩ 直前の操作を戻す</button></div>
- <div class="card"><div class="title">打席結果を選択</div><div class="hint" style="margin-bottom:8px">打席結果は現場の操作方法を変えず、結果名だけ細分化しています。</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="pa('${t}')">${t}</button>`).join('')}</div></div>
+ <div class="card"><div class="title">打席結果を選択</div><div class="hint" style="margin-bottom:8px">打席結果は現場の操作方法を変えず、結果名だけ細分化しています。</div><div class="resultgrid">${labels.map(([t,c])=>resultButton(t,c,'pa')).join('')}</div></div>
  <div class="card"><div class="row between"><div class="title" style="margin:0">選手交代</div><button class="btn small" onclick="openInGameSub()">交代</button></div><div class="muted">${(g.subs||[]).slice(-2).map(x=>`${x.type}：${x.from?.name||''} → ${x.to?.name||''}`).join('<br>')||'交代なし'}</div></div>
  <div class="card"><div class="row between"><div class="title" style="margin:0">走者・グランド</div><button class="btn small" onclick="openRunnerCorrection()">✎ 走者修正</button></div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div><div class="corrNote" style="margin-top:8px">ヒット・四死球後の打者も現在の塁に表示。盗塁は「走者→進塁・盗塁死→進塁先」。その他は「走者→進塁先」。ボークは全走者を自動で1つ進めます。</div></div>
  <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→進塁・盗塁死→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div><div class="stealGrid" style="margin-top:10px"><button class="runnerActionBtn" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}>🏃 盗塁</button><button class="runnerActionBtn" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}>⚾ 捕逸(パスボール)</button><button class="runnerActionBtn" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}>🥎 暴投(ワイルドピッチ)</button><button class="runnerActionBtn" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}>🚨 ボーク</button></div></div>
