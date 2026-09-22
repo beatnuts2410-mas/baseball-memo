@@ -130,7 +130,20 @@ body{font-size:16px}
 .eventList .eventRow{font-size:11px;padding:6px 8px;line-height:1.25;min-height:38px;word-break:break-word;overflow-wrap:anywhere}
 .eventList .eventTop{align-items:center;gap:6px}
 .eventList .eventTag{font-size:8px;white-space:nowrap;line-height:1.1;flex:0 0 auto;max-width:16%;text-align:right}
-@media(max-width:430px){.eventList .eventRow{font-size:10px;padding:5px 7px;line-height:1.2;min-height:34px}.eventList .eventGroupTitle{font-size:22px;min-height:42px;padding:10px 8px 8px}.eventList .eventGroupTitle span{font-size:13px}.eventList .eventTag{font-size:7px;max-width:16%}}.qrShareCard{border:1px solid #315fa9;background:linear-gradient(180deg,#10223a,#0d1725)}.qrShareGrid{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.qrBox{background:#fff;border-radius:12px;padding:10px;min-width:190px;min-height:190px;display:flex;align-items:center;justify-content:center}.qrBox canvas,.qrBox img{max-width:190px;height:auto}.qrUrl{font-size:11px;word-break:break-all;background:#0a1220;border:1px solid #2b3b52;border-radius:8px;padding:8px;color:#aebdd0}.sharedBanner{border:1px solid #2563eb;background:#102b55;border-radius:12px;padding:12px;margin-bottom:12px}.sharedBanner b{display:block;margin-bottom:4px} .specialQrWrap{display:flex;justify-content:center;align-items:center;gap:22px;padding:18px;background:linear-gradient(145deg,#f8fbf9,#eaf4ed);border:1px solid #c7dccd;border-radius:18px;margin-top:12px}.specialQrCanvas{width:min(560px,92vw);height:auto;display:block;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(21,128,61,.14)}.qrAutoNote{text-align:center;font-size:12px;color:#4c6254;line-height:1.55;margin-top:10px}.qrShareBtn{width:100%;margin-top:12px;font-size:16px;padding:13px;background:#166534;border-color:#1f7a3e}.qrShareCard.special{border:1px solid #8dbba0;background:linear-gradient(180deg,#fff,#f3faf5)}@media(max-width:520px){.qrShareGrid{grid-template-columns:1fr}.qrBox{width:210px;margin:auto}.qrBox canvas,.qrBox img{max-width:190px}.specialQrWrap{flex-direction:column;gap:10px}.specialQrCanvas{width:min(560px,94vw)}}</style>
+@media(max-width:430px){.eventList .eventRow{font-size:10px;padding:5px 7px;line-height:1.2;min-height:34px}.eventList .eventGroupTitle{font-size:22px;min-height:42px;padding:10px 8px 8px}.eventList .eventGroupTitle span{font-size:13px}.eventList .eventTag{font-size:7px;max-width:16%}}.qrShareCard{border:1px solid #315fa9;background:linear-gradient(180deg,#10223a,#0d1725)}.qrShareGrid{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.qrBox{background:#fff;border-radius:12px;padding:10px;min-width:190px;min-height:190px;display:flex;align-items:center;justify-content:center}.qrBox canvas,.qrBox img{max-width:190px;height:auto}.qrUrl{font-size:11px;word-break:break-all;background:#0a1220;border:1px solid #2b3b52;border-radius:8px;padding:8px;color:#aebdd0}.sharedBanner{border:1px solid #2563eb;background:#102b55;border-radius:12px;padding:12px;margin-bottom:12px}.sharedBanner b{display:block;margin-bottom:4px} .specialQrWrap{display:flex;justify-content:center;align-items:center;gap:22px;padding:18px;background:linear-gradient(145deg,#f8fbf9,#eaf4ed);border:1px solid #c7dccd;border-radius:18px;margin-top:12px}.specialQrCanvas{width:min(560px,92vw);height:auto;display:block;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(21,128,61,.14)}.qrAutoNote{text-align:center;font-size:12px;color:#4c6254;line-height:1.55;margin-top:10px}.qrShareBtn{width:100%;margin-top:12px;font-size:16px;padding:13px;background:#166534;border-color:#1f7a3e}.qrShareCard.special{border:1px solid #8dbba0;background:linear-gradient(180deg,#fff,#f3faf5)}@media(max-width:520px){.qrShareGrid{grid-template-columns:1fr}.qrBox{width:210px;margin:auto}.qrBox canvas,.qrBox img{max-width:190px}.specialQrWrap{flex-direction:column;gap:10px}.specialQrCanvas{width:min(560px,94vw)}}
+/* v2.77: 進塁先3枠を確実に横3列化。走者名は各◇の中心に一行表示。 */
+.runnerMoveDest{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;width:100%!important}
+.runnerMoveDest > .hint{grid-column:1/-1!important;width:100%!important;text-align:center!important}
+.runnerMoveDest > .runnerActions{display:contents!important}
+.runnerMoveDest > .runnerActions button{grid-column:auto!important;min-width:0!important;width:100%!important;box-sizing:border-box!important}
+.runnerMoveDest > .runnerHomeAction{display:contents!important}
+.runnerMoveDest > .runnerHomeAction button{grid-column:1/-1!important;width:100%!important}
+.runnerGroundCard .baseName{left:auto!important;top:auto!important;width:max-content!important;max-width:120px!important;min-width:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;line-height:1!important;text-align:center!important;transform:translate(-50%,-50%)!important}
+.runnerGroundCard .bn1{left:72%!important;top:50%!important}
+.runnerGroundCard .bn2{left:50%!important;top:28%!important}
+.runnerGroundCard .bn3{left:28%!important;top:50%!important}
+@media(max-width:480px){.runnerGroundCard .baseName{font-size:15px!important;max-width:110px!important;padding:2px 4px!important}}
+</style>
 </style>
 <style>
 /* v2.55 green accent / readability */
@@ -562,11 +575,13 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 .runnerGroundCard .bl2{left:50%!important;top:39%!important}
 .runnerGroundCard .bl3{left:28%!important;top:61%!important}
 .runnerGroundCard .baseName{
-  font-size:18px!important;line-height:1.15!important;font-weight:950!important;
-  max-width:150px!important;min-width:72px!important;padding:5px 7px!important;
-  border-radius:9px!important;background:rgba(0,0,0,.72)!important;
+  font-size:16px!important;line-height:1!important;font-weight:950!important;
+  width:max-content!important;max-width:120px!important;min-width:0!important;padding:3px 5px!important;
+  border-radius:7px!important;background:rgba(0,0,0,.72)!important;
   color:#fff!important;text-shadow:none!important;
   white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  text-align:center!important;
+  pointer-events:none!important;
 }
 .runnerGroundCard .bn1{left:72%!important;top:50%!important}
 .runnerGroundCard .bn2{left:50%!important;top:28%!important}
@@ -580,6 +595,7 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 /* v2.75: 塁表示をグラウンドから廃止。進塁先は打席結果と同じ3列で表示。選択枠を太く。 */
 .runnerGroundCard .baseLabel{display:none!important}
 .runnerMoveDest{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+.runnerMoveDest > .hint{grid-column:1/-1!important;text-align:center!important}
 .runnerMoveDest .runnerActions{display:contents!important}
 .runnerMoveDest .runnerActions button{min-height:54px!important;padding:7px 4px!important;border-radius:12px!important;font-size:14px!important;font-weight:900!important;border:4px solid #111!important;background:#fff!important;color:#111!important}
 .runnerMoveDest .runnerActions button:disabled{opacity:.35!important;cursor:not-allowed!important}
