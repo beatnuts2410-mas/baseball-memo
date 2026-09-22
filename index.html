@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>西春野球ノート</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<meta name="app-version" content="v2.68">
+<meta name="app-version" content="v2.73">
 <style>
 :root{--bg:#f7f7f5;--panel:#ffffff;--panel2:#f1f1ee;--line:#d9d9d4;--text:#111111;--muted:#444444;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--yellow:#d97706;color-scheme:light}
 *{box-sizing:border-box}body{margin:0;background:#f7f7f5;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
@@ -457,6 +457,75 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
  .batter{font-size:29px!important}
 }
 </style>
+
+<style id="v273-field-result">
+/* v2.73: 走者・グランドを実球場に近い表示へ。操作部品の挙動は変更しない。 */
+.runnerGroundCard .runnerBases{
+  position:relative;width:min(100%,330px);aspect-ratio:1/1;height:auto!important;
+  margin:12px auto 8px;overflow:hidden;border-radius:18px;
+  background:#55a83f;
+  border:2px solid #2f7d2d;
+  box-shadow:inset 0 0 0 5px rgba(255,255,255,.12), inset 0 -18px 30px rgba(20,80,20,.12);
+}
+.runnerGroundCard .runnerBases::before{
+  content:"";position:absolute;left:18%;top:18%;width:64%;height:64%;
+  background:#caa06b;transform:rotate(45deg);border:2px solid rgba(120,78,38,.45);
+  border-radius:5%;z-index:1;
+}
+.runnerGroundCard .runnerBases::after{
+  content:"";position:absolute;left:3%;bottom:7%;width:94%;height:2px;
+  background:rgba(255,255,255,.9);transform:rotate(-22deg);transform-origin:left center;
+  box-shadow:0 -1px 0 rgba(255,255,255,.25);z-index:3;
+}
+.runnerGroundCard .fieldMound{
+  position:absolute;left:50%;top:46%;width:13%;height:13%;transform:translate(-50%,-50%);
+  border-radius:50%;background:#bd8f5e;border:2px solid #8f673f;z-index:3;
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.2);
+}
+.runnerGroundCard .foulLineLeft,.runnerGroundCard .foulLineRight{
+  position:absolute;bottom:7%;width:94%;height:2px;background:rgba(255,255,255,.9);z-index:3;
+}
+.runnerGroundCard .foulLineLeft{left:3%;transform:rotate(-22deg);transform-origin:left center}
+.runnerGroundCard .foulLineRight{right:3%;transform:rotate(22deg);transform-origin:right center}
+.runnerGroundCard .runnerBase{
+  z-index:5;width:8%;height:8%;min-width:20px;min-height:20px;
+  transform:translate(-50%,-50%) rotate(45deg);border:2px solid #fff;background:#fff;
+  border-radius:2px;display:block;padding:0;color:transparent;
+}
+.runnerGroundCard .runnerBase span{display:none}
+.runnerGroundCard .runnerBase.on{background:#22c55e;border-color:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.18)}
+.runnerGroundCard .rb1{left:70%;top:50%}
+.runnerGroundCard .rb2{left:50%;top:30%}
+.runnerGroundCard .rb3{left:30%;top:50%}
+.runnerGroundCard .homePlateShape{
+  position:absolute;left:50%;top:70%;width:8%;height:9%;transform:translate(-50%,-50%);
+  background:#fff;clip-path:polygon(0 0,100% 0,100% 48%,50% 100%,0 48%);
+  border:0;z-index:5;box-shadow:0 0 0 1px rgba(0,0,0,.12);
+}
+.runnerGroundCard .baseName{
+  z-index:7!important;transform:translate(-50%,-50%)!important;
+  font-size:14px!important;font-weight:900!important;line-height:1.15!important;
+  color:#fff!important;text-shadow:0 1px 3px rgba(0,0,0,.8)!important;
+  max-width:100px!important;white-space:normal;
+}
+.runnerGroundCard .bn1{left:70%;top:42%}
+.runnerGroundCard .bn2{left:50%;top:22%}
+.runnerGroundCard .bn3{left:30%;top:42%}
+.runnerGroundCard .baseName .muted{display:none!important}
+@media(max-width:480px){
+ .runnerGroundCard .runnerBases{width:min(100%,300px)}
+ .runnerGroundCard .baseName{font-size:13px!important;max-width:84px!important}
+}
+/* 打席結果：指定色へ統一 */
+.resultgrid .result.hit{border:2px solid #2563eb!important;color:#111!important;background:#fff!important}
+.resultgrid .result.hr{border:2px solid #ec4899!important;color:#111!important;background:#fff!important}
+.resultgrid .result.walk{border:2px solid #9ca3af!important;color:#111!important;background:#fff!important}
+.resultgrid .result.good{border:2px solid #16a34a!important;color:#111!important;background:#fff!important}
+.resultgrid .result.out{border:2px solid #111!important;color:#111!important;background:#fff!important}
+.resultgrid .result.error{border:2px solid #8b5a2b!important;color:#111!important;background:#fff!important}
+.resultgrid .result.selected{outline:2px solid #111!important;box-shadow:0 0 0 2px rgba(0,0,0,.12) inset!important}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -732,7 +801,7 @@ function recordView(){
    const slot=Math.min(8,Number(g.batterIndex)||0);
    if(!g.lineup?.[slot]?.name)return lateBatterView(g);
    const b=g.lineup[slot];
-   const labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['バント','good'],['相手エラー','good'],['四球','walk'],['死球','walk'],['三振','out'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out']];
+   const labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','hr'],['バント','good'],['相手エラー','error'],['四球','walk'],['死球','walk'],['三振','out'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out']];
    return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">途中開始・打順確認中</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${slot+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b></div></div></div><div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">走者がいる時に選択</span></div><div class="stealGrid" style="margin-top:10px"><button class="runnerActionBtn" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}>🏃 盗塁</button><button class="runnerActionBtn" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}>⚾ 捕逸(パスボール)</button><button class="runnerActionBtn" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}>🥎 暴投(ワイルドピッチ)</button><button class="runnerActionBtn" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}>🚨 ボーク</button></div></div><div class="card runnerGroundCard"><div class="title">走者・グランド</div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div></div><div class="card"><div class="title">${slot+1}番の打席結果を選択</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="latePA('${t}')">${t}</button>`).join('')}</div></div>`;
  }
  // 攻撃中の判定はオーダー未確定でも優先。後攻スタートなら1回表の相手得点を先に入力できる。
@@ -741,7 +810,7 @@ function recordView(){
    return `<div class="card"><div class="title">まずオーダーを作成</div><p class="muted">チーム登録済みの選手から1〜9番を選びます。</p><button class="btn primary" onclick="tab='lineup';render()">オーダー作成へ</button></div>`;
  }
  let b=g.lineup[g.batterIndex%9]||{name:"打者"};
- let labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['四球','walk'],['死球','walk'],['三振','out'],['バント','good'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out'],['相手エラー','good']];
+ let labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','hr'],['四球','walk'],['死球','walk'],['三振','out'],['バント','good'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out'],['相手エラー','error']];
  return gameHeader()+ruleEndAlert(g)+`<div class="card current"><div class="muted">${g.inning}回${g.half}・自チーム攻撃</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${(g.batterIndex%9)+1}番</span></div><div style="text-align:right"><div class="muted">アウト</div><b style="font-size:25px">${g.outs}</b><button class="btn small" style="margin-top:6px" onclick="adjustOuts()">✎ アウト修正</button></div></div></div>
  <div class="card"><div class="title">打席結果を選択</div><div class="hint" style="margin-bottom:8px">打席結果を入力する前に、上の「走者・グランド」「走者プレー」もそのまま操作できます。</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="pa('${t}')">${t}</button>`).join('')}</div></div>
  <div class="card"><div class="row between"><div class="title" style="margin:0">選手交代</div><button class="btn small" onclick="openInGameSub()">交代</button></div><div class="muted">${(g.subs||[]).slice(-2).map(x=>`${x.type}：${x.from?.name||''} → ${x.to?.name||''}`).join('<br>')||'交代なし'}</div></div>
@@ -754,7 +823,7 @@ function lateBatterView(g){
  const selected=g.lineup?.[slot]?.name||'';
  const used=new Set((g.lineup||[]).filter(Boolean).map(p=>p?.name));
  const opts=db.team.players.filter(p=>p.role!=='manager'&&(!used.has(p.name)||p.name===selected)).map(p=>`<option value="${esc(p.name)}" ${p.name===selected?'selected':''}>${esc(p.name)}${p.num?' #'+p.num:''}</option>`).join('');
- const labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['バント','good'],['相手エラー','good'],['四球','walk'],['死球','walk'],['三振','out'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out']];
+ const labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','hr'],['バント','good'],['相手エラー','error'],['四球','walk'],['死球','walk'],['三振','out'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out']];
  return gameHeader()+`<div class="card current"><div class="title">途中開始：${slot+1}番打者を確認</div><p class="muted">「打順確認中」です。${slot+1}番打者を選択して、打席結果を入力してください。入力後、進塁先・アウト・得点を確認してから次の打者へ進みます。</p><select id="lateBatterSelect" class="select"><option value="">${slot+1}番の選手を選択</option>${opts}</select><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveLateBatter()">${slot+1}番を確定して打席結果へ</button></div>
  <div class="card"><div class="title">現在の打順確認</div>${Array.from({length:9},(_,i)=>`<div class="row between" style="padding:8px 0;border-bottom:1px solid #243248"><span>${i+1}番</span><b>${esc(g.lineup[i]?.name||'未登録')}</b></div>`).join('')}</div>`;
 }
@@ -833,8 +902,9 @@ function advanceRunners(g,result,batterName){
   after=before;afterNames=names;syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored:0,rbi:0,detail:''};
 }
 function renderBaseDiamond(g){
- const names=cloneRunnerNames(g.runnerNames); const lab=(i,base)=>g.runners[i]?`<div class="baseName ${['bn1','bn2','bn3'][i]}">${esc(names[i]||'走者')}<br><span class="muted">${base}</span></div>`:'';
- return `<div class="runnerBases" style="height:250px"><div class="diamond" style="width:125px;height:125px;left:62px;top:62px"></div><div class="runnerBase rb1 ${g.runners[0]?'on':''}"><span>1塁</span></div><div class="runnerBase rb2 ${g.runners[1]?'on':''}"><span>2塁</span></div><div class="runnerBase rb3 ${g.runners[2]?'on':''}"><span>3塁</span></div><div class="baseName" style="left:50%;top:94%">本塁</div>${lab(0,'1塁')}${lab(1,'2塁')}${lab(2,'3塁')}</div>`;
+ const names=cloneRunnerNames(g.runnerNames);
+ const lab=(i)=>g.runners[i]?`<div class="baseName ${['bn1','bn2','bn3'][i]}">${esc(names[i]||'走者')}</div>`:'';
+ return `<div class="runnerBases" aria-label="野球場・走者位置"><div class="fieldDirt"></div><div class="fieldMound"></div><div class="foulLineLeft"></div><div class="foulLineRight"></div><div class="runnerBase rb1 ${g.runners[0]?'on':''}" aria-label="一塁"></div><div class="runnerBase rb2 ${g.runners[1]?'on':''}" aria-label="二塁"></div><div class="runnerBase rb3 ${g.runners[2]?'on':''}" aria-label="三塁"></div><div class="homePlateShape" aria-label="本塁"></div>${lab(0)}${lab(1)}${lab(2)}</div>`;
 }
 let runnerMoveMode=null,runnerMoveFrom=null,runnerMoveJudged=false;
 function openRunnerMove(mode){
@@ -1055,7 +1125,7 @@ function restartFromPA(index){
 この打席以降の記録をいったん削除して、そこから再入力します。`))return;
  pushGameHistory(); g.scoreUs=Number(p.beforeScoreUsSnapshot ?? p.beforeScoreUs ?? 0);g.inning=p.beforeInning;g.half=p.beforeHalf;g.outs=p.beforeOuts;g.runners=cloneRunners(p.beforeRunners);g.runnerNames=cloneRunnerNames(p.beforeRunnerNames);g.batterIndex=p.beforeBatterIndex;g.pa=g.pa.slice(0,index);g.steals=(g.steals||[]).filter(x=>x.inning<p.inning || (x.inning===p.inning && x.half!==p.half));g.runnerMoves=(g.runnerMoves||[]).filter(x=>x.inning<p.inning || (x.inning===p.inning && x.half!==p.half));updateInningScore(g);save();render();toast('この打席から再入力できます');
 }
-const PA_RESULTS=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','good'],['バント','good'],['相手エラー','good'],['四球','walk'],['死球','walk'],['三振','out'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out']];
+const PA_RESULTS=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','hr'],['バント','good'],['相手エラー','error'],['四球','walk'],['死球','walk'],['三振','out'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out']];
 function openPACorrection(){
  ensureGame(); const g=db.current;
  if(!g||!g.pa.length)return toast('まず打席を1つ記録してください');
