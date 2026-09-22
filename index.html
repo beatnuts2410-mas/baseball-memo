@@ -462,6 +462,37 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
  .runnerBases.animeField{width:310px!important;height:300px!important}.runnerBases.animeField .rb1{right:30px!important}.runnerBases.animeField .rb3{left:30px!important}
  .runnerBases.animeField .bn1{left:84%!important}.runnerBases.animeField .bn3{left:16%!important}
 }
+
+/* v2.72: 走者・グランド表示の視認性/リアルさを強化。入力操作は変更しない */
+.resultgrid .result.walk{border-color:#9ca3af!important;background:#f8fafc!important;color:#374151!important}
+.resultgrid .result.out{border-color:#111827!important;background:#fff!important;color:#111827!important}
+.resultgrid .result.error{border-color:#8b5a2b!important;background:#fff9f2!important;color:#704214!important}
+
+.realisticField{width:min(100%,360px)!important;height:300px!important;margin:12px auto 14px!important;position:relative!important;overflow:hidden!important;border-radius:24px!important;border:3px solid #d8e8dc!important;box-shadow:0 12px 28px rgba(20,50,25,.20),inset 0 0 0 1px rgba(255,255,255,.45)!important;background:
+ radial-gradient(circle at 50% 38%,rgba(255,255,255,.10),transparent 34%),
+ repeating-linear-gradient(17deg,rgba(255,255,255,.055) 0 8px,rgba(0,75,25,.045) 8px 16px),
+ linear-gradient(180deg,#3eaa4e 0%,#2e9543 52%,#237f39 100%)!important}
+.realisticField:before{content:"";position:absolute;left:50%;top:40%;width:210px;height:210px;transform:translate(-50%,-50%);background:linear-gradient(135deg,#d6a06b,#b87845);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);box-shadow:0 0 0 3px rgba(255,255,255,.20);opacity:.98}
+.realisticField:after{content:"";position:absolute;left:50%;top:43%;width:88px;height:88px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 35% 30%,#e0a978,#bc7b48 70%);box-shadow:inset 0 5px 9px rgba(104,55,25,.22)}
+.realisticField .infieldCut{position:absolute;left:50%;top:40%;width:154px;height:154px;transform:translate(-50%,-50%) rotate(45deg);border:2px solid rgba(255,255,255,.78);border-radius:4px;z-index:2;pointer-events:none}
+.realisticField .basePath{position:absolute;left:50%;top:40%;width:198px;height:198px;transform:translate(-50%,-50%) rotate(45deg);border:2px solid rgba(255,255,255,.38);border-radius:6px;z-index:2;pointer-events:none}
+.realisticField .pitcherMound{position:absolute;left:50%;top:40%;width:34px;height:18px;transform:translate(-50%,-50%);border-radius:50%;background:#d9a16e;border:2px solid rgba(255,255,255,.8);z-index:4;box-shadow:0 2px 5px rgba(70,35,15,.22)}
+.realisticField .pitcherMound span{display:block;width:15px;height:3px;margin:5px auto 0;background:#f7ead8;border-radius:3px}
+.realisticField .fieldBase{position:absolute;width:21px;height:21px;background:#fffdf4;border:2px solid #d6d1c5;transform:rotate(45deg);z-index:5;border-radius:2px;box-shadow:0 2px 4px rgba(0,0,0,.16)}
+.realisticField .fieldBase.on{background:#eafff0;border-color:#159447;box-shadow:0 0 0 4px rgba(22,163,74,.24),0 3px 6px rgba(0,0,0,.20)}
+.realisticField .rb1{left:calc(50% + 93px);top:40%}
+.realisticField .rb2{left:50%;top:calc(40% - 105px)}
+.realisticField .rb3{left:calc(50% - 93px);top:40%}
+.realisticField .homePlate{position:absolute;left:50%;bottom:18px;width:34px;height:30px;transform:translateX(-50%);background:#fffdf4;clip-path:polygon(0 0,100% 0,100% 62%,50% 100%,0 62%);border:2px solid #d6d1c5;z-index:6;filter:drop-shadow(0 2px 3px rgba(0,0,0,.22))}
+.realisticField .foulLine{position:absolute;height:2px;width:150px;background:rgba(255,255,255,.80);bottom:42px;z-index:2;transform-origin:left center}
+.realisticField .foulLeft{left:50%;transform:rotate(204deg)}
+.realisticField .foulRight{left:50%;transform:rotate(-24deg)}
+.realisticField .runnerName{position:absolute;z-index:8;transform:translate(-50%,-50%);min-width:92px;max-width:145px;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.96);color:#173b28;border:2px solid #70bd8a;box-shadow:0 4px 9px rgba(0,0,0,.18);line-height:1.1;text-align:center;text-shadow:none}
+.realisticField .runnerName b{display:block;font-size:13px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.realisticField .bn1{left:calc(50% + 93px);top:calc(40% + 45px)}
+.realisticField .bn2{left:50%;top:calc(40% - 72px)}
+.realisticField .bn3{left:calc(50% - 93px);top:calc(40% + 45px)}
+@media(max-width:390px){.realisticField{height:275px!important}.realisticField .rb1{left:calc(50% + 78px)}.realisticField .rb3{left:calc(50% - 78px)}.realisticField .bn1{left:calc(50% + 78px)}.realisticField .bn3{left:calc(50% - 78px)}.realisticField .basePath{width:176px;height:176px}.realisticField .infieldCut{width:136px;height:136px}}
 </style>
 <!-- v2.69: 試合経過・全記録は32px。9回まで確実に表示し、10回以降は記録量に応じて自動延長。 -->
 </head>
@@ -847,8 +878,8 @@ function advanceRunners(g,result,batterName){
 }
 function renderBaseDiamond(g){
  const names=cloneRunnerNames(g.runnerNames);
- const lab=(i,base)=>g.runners[i]?`<div class="baseName runnerName ${['bn1','bn2','bn3'][i]}"><b>${esc(names[i]||'走者')}</b><span>${base}</span></div>`:'';
- return `<div class="runnerBases animeField" style="height:310px"><div class="diamond" style="width:150px;height:150px;left:90px;top:72px"></div><div class="fieldDirt"></div><div class="fieldMound"></div><div class="runnerBase rb1 ${g.runners[0]?'on':''}"><span>1塁</span></div><div class="runnerBase rb2 ${g.runners[1]?'on':''}"><span>2塁</span></div><div class="runnerBase rb3 ${g.runners[2]?'on':''}"><span>3塁</span></div><div class="baseName homeName">本塁</div>${lab(0,'1塁')}${lab(1,'2塁')}${lab(2,'3塁')}</div>`;
+ const lab=(i)=>g.runners[i]?`<div class="runnerName ${['bn1','bn2','bn3'][i]}"><b>${esc(names[i]||'走者')}</b></div>`:'';
+ return `<div class="runnerBases realisticField" aria-label="走者・グランド"><div class="outfieldGlow"></div><div class="infieldCut"></div><div class="basePath"></div><div class="pitcherMound"><span></span></div><div class="fieldBase rb1 ${g.runners[0]?'on':''}"></div><div class="fieldBase rb2 ${g.runners[1]?'on':''}"></div><div class="fieldBase rb3 ${g.runners[2]?'on':''}"></div><div class="homePlate"></div><div class="foulLine foulLeft"></div><div class="foulLine foulRight"></div>${lab(0)}${lab(1)}${lab(2)}</div>`;
 }
 let runnerMoveMode=null,runnerMoveFrom=null,runnerMoveJudged=false;
 function openRunnerMove(mode){
