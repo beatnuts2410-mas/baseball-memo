@@ -627,6 +627,19 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 .manualConfirmGrid button{border-width:4px!important}
 </style>
 
+
+<style id="v278-runner-controls">
+/* v2.78: 進塁先3ボタンを常に3列の枠として明確に表示。押すボタンは太枠。 */
+.runnerMoveDest{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;width:100%!important;align-items:stretch!important}
+.runnerMoveDest>.hint{grid-column:1/-1!important;width:100%!important;text-align:center!important}
+.runnerMoveDest>.runnerDestButtons{display:contents!important}
+.runnerMoveDest>.runnerDestButtons button{display:block!important;width:100%!important;min-width:0!important;min-height:58px!important;padding:8px 4px!important;border:4px solid #111!important;border-radius:12px!important;background:#fff!important;color:#111!important;font-size:16px!important;font-weight:900!important;box-sizing:border-box!important}
+.runnerMoveDest>.runnerDestButtons button:disabled{opacity:.38!important;background:#f2f2f2!important;color:#777!important;border-color:#555!important}
+.runnerMoveDest>.runnerHomeAction{grid-column:1/-1!important;display:block!important;margin-top:0!important}
+.runnerMoveDest>.runnerHomeAction button{width:100%!important;min-height:58px!important;border:4px solid #8b5a2b!important;border-radius:12px!important;font-weight:900!important}
+.runnerMovePick button,.runnerActions button,.manualConfirmGrid button,.resultgrid .result{border-width:4px!important;border-style:solid!important}
+@media(max-width:480px){.runnerMoveDest>.runnerDestButtons button{min-height:54px!important;font-size:15px!important}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1029,7 +1042,7 @@ function selectRunnerToMove(i){
 function renderRunnerDestinations(){
  const g=db.current;if(runnerMoveFrom==null||!g)return;
  const i=runnerMoveFrom;
- document.getElementById('moveDest').className='runnerScore runnerMoveDest'; document.getElementById('moveDest').innerHTML=`<div class="hint">進塁先を選択してください。</div><div class="runnerActions">${[1,2,3].map(d=>{const valid=d>i+1&&!g.runners[d-1];return `<button class="btn" ${valid?'':'disabled'} onclick="${valid?`applyRunnerMove(${d})`:''}">${d}塁へ</button>`}).join('')}</div><div class="runnerActions runnerHomeAction"><button class="btn red" onclick="applyRunnerMove(4)">本塁・得点</button></div>`;
+ document.getElementById('moveDest').className='runnerScore runnerMoveDest'; document.getElementById('moveDest').innerHTML=`<div class="hint">進塁先を選択してください。</div><div class="runnerActions runnerDestButtons">${[1,2,3].map(d=>{const valid=d>i+1&&!g.runners[d-1];return `<button type="button" class="btn" ${valid?'':'disabled'} onclick="${valid?`applyRunnerMove(${d})`:''}">${d}塁</button>`}).join('')}</div><div class="runnerActions runnerHomeAction"><button type="button" class="btn red" onclick="applyRunnerMove(4)">本塁・得点</button></div>`;
 }
 function judgeSteal(judgement){
  const g=db.current;if(runnerMoveFrom==null||!g?.runners[runnerMoveFrom])return closeRunnerMove();
