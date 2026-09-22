@@ -12,7 +12,6 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>西春野球ノート</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <meta name="app-version" content="v2.68">
 <style>
 :root{--bg:#f7f7f5;--panel:#ffffff;--panel2:#f1f1ee;--line:#d9d9d4;--text:#111111;--muted:#444444;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--yellow:#d97706;color-scheme:light}
@@ -50,7 +49,7 @@ button,input,select{font:inherit}button{border:0;color:inherit;cursor:pointer}.a
 
 .homeInstallBtn{width:100%;padding:14px 16px;margin-top:0;border-radius:14px;font-size:16px;background:#17345d;border-color:#477fc9}
 .installGuide{margin-top:10px;color:#91a2bb;font-size:12px;line-height:1.55}
-.runnerModal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:flex-end;justify-content:center;z-index:60;padding:8px 0 env(safe-area-inset-bottom)}.runnerCard{width:min(560px,100%);max-height:calc(100dvh - 16px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:#0f1725;border:1px solid #26344b;border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.45)}.runnerBases{position:relative;width:250px;height:210px;margin:10px auto}.runnerBase{position:absolute;width:70px;height:70px;transform:rotate(45deg);border:2px solid #52647e;background:#111c2c;border-radius:8px;display:flex;align-items:center;justify-content:center}.runnerBase span{transform:rotate(-45deg);font-weight:900;font-size:14px}.runnerBase.on{background:#12652f;border-color:#39c96b}.rb1{right:25px;top:70px}.rb2{left:90px;top:0}.rb3{left:25px;top:70px}.runnerScore{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.runnerScore button{padding:11px 5px}.runnerMovePick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.runnerMovePick button{min-height:76px;padding:18px 12px;border-radius:16px;font-size:18px;font-weight:900;width:100%}.runnerMovePick .hint{padding:12px 6px}.runnerMoveDest{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.runnerMoveDest button{min-height:76px;padding:18px 12px;border-radius:16px;font-size:18px;font-weight:900;width:100%}.runnerMoveDest .hint{grid-column:1/-1;padding:12px 6px}.runnerActions{display:flex;gap:8px;margin-top:12px}
+.runnerModal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:flex-end;justify-content:center;z-index:60;padding:8px 0 env(safe-area-inset-bottom)}.runnerCard{width:min(560px,100%);max-height:calc(100dvh - 16px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:#0f1725;border:1px solid #26344b;border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.45)}.runnerBases{position:relative;width:min(100%,454px);aspect-ratio:454/340;height:auto;margin:10px auto;background:url("ground-bg.jpg") center/100% 100% no-repeat;border-radius:10px;overflow:hidden}.runnerBases .runnerBase{position:absolute;width:23%;height:23%;transform:none;border:2px solid transparent;background:transparent;border-radius:10px;display:flex;align-items:center;justify-content:center;z-index:2}.runnerBases .runnerBase span{transform:none;font-weight:900;font-size:14px;color:transparent}.runnerBases .runnerBase.on{background:rgba(22,163,74,.18);border:3px solid #16a34a;box-shadow:0 0 0 2px rgba(255,255,255,.9) inset}.runnerBases .rb1{right:19%;top:56%}.runnerBases .rb2{left:38.5%;top:18%}.runnerBases .rb3{left:19%;top:56%}.runnerBases .baseName{font-size:14px;max-width:28%;text-shadow:0 1px 3px rgba(0,0,0,.9);line-height:1.15;color:#fff!important}.runnerBases .bn1{left:81%;top:57%}.runnerBases .bn2{left:50%;top:20%}.runnerBases .bn3{left:19%;top:57%}.runnerBases > .baseName[style*="top:94%"]{left:50%!important;top:84%!important}.runnerScore{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.runnerScore button{padding:11px 5px}.runnerMovePick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.runnerMovePick button{min-height:76px;padding:18px 12px;border-radius:16px;font-size:18px;font-weight:900;width:100%}.runnerMovePick .hint{padding:12px 6px}.runnerMoveDest{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.runnerMoveDest button{min-height:76px;padding:18px 12px;border-radius:16px;font-size:18px;font-weight:900;width:100%}.runnerMoveDest .hint{grid-column:1/-1;padding:12px 6px}.runnerActions{display:flex;gap:8px;margin-top:12px}
 .runnerConfirmSummary{display:grid;gap:8px;margin-top:12px}.runnerConfirmRow{padding:12px;border:1px solid #33435e;background:#172235;border-radius:14px;font-weight:800}.runnerConfirmBtns{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}.runnerConfirmBtns button{min-height:58px;font-size:17px}.runnerActions button{flex:1}.corrNote{font-size:12px;color:#91a2bb;line-height:1.5}.manualConfirmSection{margin-top:12px;padding:12px;border:1px solid #2d405c;background:#0b1422;border-radius:14px}.manualConfirmLabel{font-size:12px;color:#9fb0c8;font-weight:900;margin-bottom:7px}.manualConfirmGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.manualConfirmGrid button{min-height:50px;border-radius:11px;background:#172235;border:1px solid #33435e;font-weight:900}.manualConfirmGrid button.active{background:#1d5fbe;border-color:#66a3ff;box-shadow:0 0 0 2px #3b82f644 inset}.manualRunnerRow{display:grid;grid-template-columns:78px 1fr;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #23334a}.manualRunnerRow:last-child{border-bottom:0}.manualRunnerName{font-weight:900;font-size:13px}.manualRunnerSelect{width:100%;background:#111d2d;border:1px solid #33445d;border-radius:10px;color:#fff;padding:11px 10px;min-height:48px}.manualConfirmPreview{margin-top:12px}.manualConfirmPreview .runnerConfirmRow{font-size:13px}.manualConfirmHint{font-size:11px;color:#91a2bb;line-height:1.45;margin-top:8px}
 
 .rosterImportGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.rosterBox{background:#0b1422;border:1px solid #26364d;border-radius:12px;padding:12px}.rosterBoxTitle{font-weight:900;font-size:13px;margin-bottom:7px}.rosterTextarea{width:100%;min-height:150px;resize:vertical;background:#08111d;color:#fff;border:1px solid #33445d;border-radius:10px;padding:10px;line-height:1.6;outline:none}.rosterTextarea:focus{border-color:#3b82f6}.fileBtn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:1px dashed #4b6383;background:#101b2b;border-radius:11px;font-weight:900;text-align:center}.fileInput{display:none}.importHelp{font-size:11px;color:#91a2bb;line-height:1.55;margin-top:7px}.rosterPreview{margin-top:9px;font-size:12px;color:#b8c7da}.rosterPreview b{color:#fff}@media(max-width:500px){.rosterImportGrid{grid-template-columns:1fr}}
@@ -130,10 +129,10 @@ body{font-size:16px}
 .eventList .eventRow{font-size:11px;padding:6px 8px;line-height:1.25;min-height:38px;word-break:break-word;overflow-wrap:anywhere}
 .eventList .eventTop{align-items:center;gap:6px}
 .eventList .eventTag{font-size:8px;white-space:nowrap;line-height:1.1;flex:0 0 auto;max-width:16%;text-align:right}
-@media(max-width:430px){.eventList .eventRow{font-size:10px;padding:5px 7px;line-height:1.2;min-height:34px}.eventList .eventGroupTitle{font-size:22px;min-height:42px;padding:10px 8px 8px}.eventList .eventGroupTitle span{font-size:13px}.eventList .eventTag{font-size:7px;max-width:16%}}.qrShareCard{border:1px solid #315fa9;background:linear-gradient(180deg,#10223a,#0d1725)}.qrShareGrid{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.qrBox{background:#fff;border-radius:12px;padding:10px;min-width:190px;min-height:190px;display:flex;align-items:center;justify-content:center}.qrBox canvas,.qrBox img{max-width:190px;height:auto}.qrUrl{font-size:11px;word-break:break-all;background:#0a1220;border:1px solid #2b3b52;border-radius:8px;padding:8px;color:#aebdd0}.sharedBanner{border:1px solid #2563eb;background:#102b55;border-radius:12px;padding:12px;margin-bottom:12px}.sharedBanner b{display:block;margin-bottom:4px} .specialQrWrap{display:flex;justify-content:center;align-items:center;gap:22px;padding:18px;background:linear-gradient(145deg,#f8fbf9,#eaf4ed);border:1px solid #c7dccd;border-radius:18px;margin-top:12px}.specialQrCanvas{width:min(560px,92vw);height:auto;display:block;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(21,128,61,.14)}.qrAutoNote{text-align:center;font-size:12px;color:#4c6254;line-height:1.55;margin-top:10px}.qrShareBtn{width:100%;margin-top:12px;font-size:16px;padding:13px;background:#166534;border-color:#1f7a3e}.qrShareCard.special{border:1px solid #8dbba0;background:linear-gradient(180deg,#fff,#f3faf5)}@media(max-width:520px){.qrShareGrid{grid-template-columns:1fr}.qrBox{width:210px;margin:auto}.qrBox canvas,.qrBox img{max-width:190px}.specialQrWrap{flex-direction:column;gap:10px}.specialQrCanvas{width:min(560px,94vw)}}</style>
-</style>
+@media(max-width:430px){.eventList .eventRow{font-size:10px;padding:5px 7px;line-height:1.2;min-height:34px}.eventList .eventGroupTitle{font-size:22px;min-height:42px;padding:10px 8px 8px}.eventList .eventGroupTitle span{font-size:13px}.eventList .eventTag{font-size:7px;max-width:16%}}</style>
 <style>
 /* v2.55 green accent / readability */
+.shareLinkCard{border:1px solid #a8c9ad!important;background:linear-gradient(180deg,#ffffff,#f4faf5)!important}.shareLinkBox{margin-top:10px}.shareLinkLabel{font-size:13px;font-weight:800;line-height:1.5;margin-bottom:8px}.shareUrlInput{width:100%;padding:11px 12px;border:1px solid #bdbdb7;border-radius:10px;background:#fff;color:#111;word-break:break-all}.shareLinkBtn{width:100%;margin-top:10px;font-size:16px;padding:13px;background:#16a34a!important;color:#fff!important;border-color:#16a34a!important}
 :root{
   --bg:#f4f8f5;--panel:#ffffff;--panel2:#edf7f0;--line:#cddbd1;--text:#17231c;--muted:#5f7065;
   --blue:#15803d;--green:#15803d;--red:#b91c1c;--yellow:#a16207;
@@ -1180,48 +1179,6 @@ function finishGame(){
 }
 function loadGame(id){viewGameResult(id)}
 
-function qrBase64Encode(obj){const bytes=new TextEncoder().encode(JSON.stringify(obj));let bin='';for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
-function qrBase64Decode(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const bin=atob(s),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return JSON.parse(new TextDecoder().decode(bytes))}
-function bytesToBase44(bytes){
- const alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-$*+./:";
- let out="";
- for(let i=0;i<bytes.length;i+=2){
-   const a=bytes[i], b=i+1<bytes.length?bytes[i+1]:0, hasB=i+1<bytes.length;
-   let n=a*256+b;
-   let d0=n%44; n=Math.floor(n/44);
-   let d1=n%44; n=Math.floor(n/44);
-   let d2=n;
-   out+=alphabet[d0]+alphabet[d1];
-   if(hasB) out+=alphabet[d2];
- }
- return out;
-}
-function base44ToBytes(str){
- const alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-$*+./:", rev=new Map([...alphabet].map((c,i)=>[c,i]));
- const out=[];
- for(let i=0;i<str.length;){
-   const d0=rev.get(str[i++]), d1=rev.get(str[i++]);
-   if(d0==null||d1==null) throw new Error('QR文字列が不正です');
-   const hasD2=i<str.length;
-   const d2=hasD2?rev.get(str[i++]):0;
-   if(d2==null) throw new Error('QR文字列が不正です');
-   const n=d0+d1*44+d2*44*44;
-   if(n>65535) throw new Error('QR文字列が不正です');
-   out.push((n>>8)&255); if(hasD2) out.push(n&255);
- }
- return new Uint8Array(out);
-}
-async function gzipEncode(obj){
- if(!('CompressionStream'in window))return null;
- const raw=new TextEncoder().encode(JSON.stringify(obj)),cs=new CompressionStream('gzip'),w=cs.writable.getWriter();w.write(raw);w.close();
- const bytes=new Uint8Array(await new Response(cs.readable).arrayBuffer());
- return bytesToBase44(bytes);
-}
-async function gzipDecode(s){
- if(!('DecompressionStream'in window))return null;
- const bytes=base44ToBytes(s),ds=new DecompressionStream('gzip'),w=ds.writable.getWriter();w.write(bytes);w.close();
- return JSON.parse(await new Response(ds.readable).text());
-}
 async function gzipEncodeUrlSafe(obj){
  if(!('CompressionStream'in window))return null;
  const raw=new TextEncoder().encode(JSON.stringify(obj)),cs=new CompressionStream('gzip'),w=cs.writable.getWriter();w.write(raw);w.close();
@@ -1242,7 +1199,7 @@ function makeShareId(g){
  let h=2166136261;for(let i=0;i<seed.length;i++){h^=seed.charCodeAt(i);h=Math.imul(h,16777619)}
  g.shareId='bm69-'+(h>>>0).toString(36);return g.shareId;
 }
-function compactMatchForQR(g){
+function compactMatchPayload(g){
  const dict=[],map=new Map();
  const S=v=>{v=String(v??'');if(!v)return 0;let n=map.get(v);if(n)return n;n=dict.length+1;dict.push(v);map.set(v,n);return n};
  const H=v=>v==='裏'?1:0;
@@ -1251,19 +1208,19 @@ function compactMatchForQR(g){
  const T=(x)=>[S(x?.name),Number(x?.enteredInning)||0,H(x?.enteredHalf),Number(x?.outs)||0,x?.started?1:0,Number(x?.seq)||0];
  return {v:3,s:makeShareId(g),t:S(db.team.name),h:[g.date||'',g.tournament||'',g.stadium||'',g.opponent||'相手校',Number(g.scoreUs)||0,Number(g.scoreOpp)||0,g.order==='後攻'?1:0],d:dict,i:(g.innings||[]).map(x=>[Number(x?.us)||0,Number(x?.opp)||0]),p:(g.pa||[]).map(P),r:(g.runnerMoves||[]).map(R),y:(g.pitching?.history||[]).map(T)};
 }
-function expandMatchFromQR(q){
+function expandMatchPayload(q){
  const D=Array.isArray(q.d)?q.d:[];const S=n=>n?D[n-1]||'':'';const H=n=>n?'裏':'表';const h=q.h||[];
  return {date:h[0]||'',tournament:h[1]||'',stadium:h[2]||'',opponent:h[3]||'相手校',scoreUs:Number(h[4])||0,scoreOpp:Number(h[5])||0,order:h[6]?'後攻':'先攻',finished:true,shareId:q.s||'',innings:(q.i||[]).map(x=>({us:Number(x?.[0])||0,opp:Number(x?.[1])||0})),pa:(q.p||[]).map(x=>({seq:Number(x?.[0])||0,inning:Number(x?.[1])||0,half:H(x?.[2]),batter:S(x?.[3]),result:S(x?.[4]),rbi:Number(x?.[5])||0,runs:Number(x?.[6])||0})),runnerMoves:(q.r||[]).map(x=>({seq:Number(x?.[0])||0,type:S(x?.[1]),judgement:S(x?.[2])||null,inning:Number(x?.[3])||0,half:H(x?.[4]),name:S(x?.[5]),dest:Number(x?.[6])||0,runs:Number(x?.[7])||0})),pitching:{history:(q.y||[]).map(x=>({name:S(x?.[0]),enteredInning:Number(x?.[1])||0,enteredHalf:H(x?.[2]),outs:Number(x?.[3])||0,started:!!x?.[4],seq:Number(x?.[5])||0}))}};
 }
 async function buildMatchShareUrl(g){
- const compact=compactMatchForQR(g),payload={v:4,s:compact.s,t:compact.t,g:compact},enc=await gzipEncodeUrlSafe(payload);
+ const compact=compactMatchPayload(g),payload={v:4,s:compact.s,t:compact.t,g:compact},enc=await gzipEncodeUrlSafe(payload);
  if(!enc)throw new Error('共有リンク圧縮機能が使えません');
  return {url:location.origin+location.pathname+'?m4='+enc,bytes:enc.length,payload};
 }
-async function createMatchQR(id){
+async function createMatchShareLink(id){
  const g=db.games.find(x=>x.id===id);if(!g)return toast('試合結果が見つかりません');
  try{
-   makeShareId(g);save();const built=await buildMatchShareUrl(g),panel=document.getElementById('matchQRPanel'),box=document.getElementById('matchQR');
+   makeShareId(g);save();const built=await buildMatchShareUrl(g),panel=document.getElementById('matchSharePanel'),box=document.getElementById('matchShare');
    if(!panel||!box)throw new Error('共有リンク表示領域なし');
    box.innerHTML=`<div class="shareLinkBox"><div class="shareLinkLabel">このリンクを送れば、受け取った人は試合データへ直行します。</div><input id="matchShareUrl" class="shareUrlInput" readonly value="${built.url.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"><button class="btn primary" style="width:100%;margin-top:8px" onclick="copyMatchShareUrl()">🔗 共有リンクをコピー</button></div>`;
    panel.dataset.shareUrl=built.url;panel.dataset.gameId=String(id);panel.classList.remove('hidden');toast(`試合データへ直行する共有リンクを作成しました（${built.bytes}文字）`);
@@ -1274,8 +1231,8 @@ async function copyMatchShareUrl(){
  try{await navigator.clipboard.writeText(url);toast('共有リンクをコピーしました。LINEなどに貼り付けて送れます');}
  catch(e){const el=document.getElementById('matchShareUrl');el?.select();document.execCommand('copy');toast('共有リンクをコピーしました');}
 }
-async function shareMatchQR(id){
- const panel=document.getElementById('matchQRPanel'),g=db.games.find(x=>x.id===id),url=panel?.dataset.shareUrl;
+async function shareMatchLink(id){
+ const panel=document.getElementById('matchSharePanel'),g=db.games.find(x=>x.id===id),url=panel?.dataset.shareUrl;
  if(!g||!url)return toast('先に共有リンクを作成してください');
  try{
    const data={title:'野球メモ 試合結果',text:`${g.date||''} ${db.team.name||'野球メモ'} 試合結果\n${url}`};
@@ -1284,7 +1241,7 @@ async function shareMatchQR(id){
  }catch(e){if(e?.name!=='AbortError'){console.error('shareMatchLink',e);toast('共有に失敗しました。もう一度お試しください')}}
 }
 function saveSharedMatch(){if(!sharedGame)return;const sid=sharedGame.shareId||makeShareId(sharedGame),idx=db.games.findIndex(x=>x.shareId===sid||x.id===sharedGame.id),copy=JSON.parse(JSON.stringify(sharedGame));delete copy.sharedTeamName;if(idx>=0){toast('この試合はすでに保存されています');resultGameId=db.games[idx].id;sharedGame=null;history.replaceState(null,'',location.pathname);tab='data';render();setTimeout(()=>viewGameResult(resultGameId),50);return}copy.shareId=sid;copy.id=Date.now()+Math.floor(Math.random()*1000);copy.finished=true;db.games.push(copy);save();sharedGame=null;history.replaceState(null,'',location.pathname);resultGameId=copy.id;tab='data';render();setTimeout(()=>viewGameResult(copy.id),50);toast('試合結果をマイアプリに保存しました')}
-async function loadSharedMatchFromHash(){const m4=new URLSearchParams(location.search).get('m4');const m3=new URLSearchParams(location.search).get('m3');const hm=location.hash.match(/^#(?:m3|M3)\.([0-9A-Z\-\$\*\+\.\/:]+)$/);try{if(m4){const payload=await gzipDecodeUrlSafe(m4);if(!payload?.g)return false;const g=expandMatchFromQR(payload.g);g.shareId=payload.s||g.shareId;g.sharedTeamName=payload.t?String((Array.isArray(payload.g.d)?payload.g.d[payload.t-1]:'')||'共有元チーム'):'共有元チーム';sharedGame=g;sharedSourceUrl=location.href;tab='data';resultGameId=null;render();return true}const encoded=m3||hm?.[1];if(!encoded)return false;const payload=await gzipDecode(encoded);if(!payload?.g)return false;const g=expandMatchFromQR(payload.g);g.shareId=payload.s||g.shareId;g.sharedTeamName=payload.t?String((Array.isArray(payload.g.d)?payload.g.d[payload.t-1]:'')||'共有元チーム'):'共有元チーム';sharedGame=g;sharedSourceUrl=location.href;tab='data';resultGameId=null;render();return true}catch(e){console.error(e);toast('共有された試合を読み込めませんでした');return false}}
+async function loadSharedMatchFromHash(){const m4=new URLSearchParams(location.search).get('m4');try{if(!m4)return false;const payload=await gzipDecodeUrlSafe(m4);if(!payload?.g)return false;const g=expandMatchPayload(payload.g);g.shareId=payload.s||g.shareId;g.sharedTeamName=payload.t?String((Array.isArray(payload.g.d)?payload.g.d[payload.t-1]:'')||'共有元チーム'):'共有元チーム';sharedGame=g;sharedSourceUrl=location.href;tab='data';resultGameId=null;render();return true}catch(e){console.error(e);toast('共有された試合を読み込めませんでした');return false}}
 function viewGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return toast('試合結果が見つかりません');resultGameId=id;tab='data';render();setTimeout(()=>{const el=document.getElementById('gameResultView');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},0)}
 function battingStats(g){
  const stats={};
@@ -1349,7 +1306,7 @@ function renderGameResult(g){
  const sportsBoard=`<div class="sportsBoard"><table><thead><tr><th>チーム</th>${Array.from({length:maxInning},(_,i)=>`<th>${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody>${sportsRow(firstName,firstIsOwn?'us':'opp',firstIsOwn?g.scoreUs:g.scoreOpp)}${sportsRow(secondName,firstIsOwn?'opp':'us',firstIsOwn?g.scoreOpp:g.scoreUs)}</tbody></table></div>`;
  return `<div id="gameResultView"><div class="resultHero sportsResultHero"><div class="sportsHeroTop"><span>試合結果</span><span>${esc(g.date||'')}　${esc(g.tournament||'')}</span></div><div class="sportsMatch"><div class="sportsTeam"><img class="sportsTeamLogo nishiharuUniform" src="nishiharu-uniform.png" alt="西春高校ユニフォーム"><div class="sportsTeamName">${esc(myTeamName)}</div><div class="sportsTeamLabel">自チーム</div></div><div class="sportsCenter"><div class="sportsStatus">FINAL</div><div class="sportsMainScore">${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}</div><span class="sportsResultBadge ${resultClass}">${win}</span><div class="sportsMiniInfo"><span>${g.innings?.length||1}回制</span><span>得点 ${Number(g.scoreUs)||0}</span><span>打撃記録 ${stats.length}人</span></div></div><div class="sportsTeam"><div class="sportsHomePlate" aria-label="相手チーム ホームベース"></div><div class="sportsTeamName">${esc(g.opponent||'相手校')}</div><div class="sportsTeamLabel">相手</div></div></div>${sportsBoard}<div class="sportsFooter"><span>${esc(g.stadium||'')}</span><span>${g.finishedAt?new Date(g.finishedAt).toLocaleString('ja-JP'):''}</span></div></div>
  ${g.sharedTeamName?`<div class="sharedBanner"><b>📱 共有された試合</b><span class="muted">共有された試合結果をそのまま見ています。気に入ったらマイアプリに保存できます。</span><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveSharedMatch()">試合結果をマイアプリに保存</button></div>`:''}
- ${!g.sharedTeamName?`<div class="card qrShareCard special"><div class="title">今日の試合結果、リンクでシェアしよう！</div><p class="muted">QR画像は使わず、共有リンクそのものをLINE・SNSなどへ送ります。受け取った人はリンクを開くだけで、この試合の「試合データ」に直行します。</p><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="createMatchQR(${g.id})">⚾ 試合結果リンクを作る</button><div id="matchQRPanel" class="hidden"><div id="matchQR"></div><button class="btn qrShareBtn" onclick="shareMatchQR(${g.id})">📤 LINE・SNSへ送る</button></div></div>`:''}
+ ${!g.sharedTeamName?`<div class="card shareLinkCard"><div class="title">今日の試合結果をリンクでシェアしよう！</div><p class="muted">共有リンクをLINE・SNSなどへ送ります。受け取った人はリンクを開くだけで、この試合の「試合データ」に直行します。</p><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="createMatchShareLink(${g.id})">⚾ 試合結果リンクを作る</button><div id="matchSharePanel" class="hidden"><div id="matchShare"></div><button class="btn shareLinkBtn" onclick="shareMatchLink(${g.id})">📤 LINE・SNSへ送る</button></div></div>`:''}
  <div class="card"><div class="title">投手記録・登板履歴</div>${pitchingHtml}</div><div class="card"><div class="title">打撃成績</div>${batting}</div>
  <div class="card"><div class="title">試合経過・全記録</div><div class="eventList">${eventHtml}</div></div>
  <button class="btn resultBack" onclick="resultGameId=null;render()">← 試合データへ戻る</button></div>`;
@@ -1705,7 +1662,7 @@ window.addEventListener('appinstalled', ()=>{
 
 document.addEventListener('DOMContentLoaded', ()=>{
   setTimeout(()=>{
-    if(sharedGame || new URLSearchParams(location.search).has('m3') || /^#(?:m3|M3)\./.test(location.hash)){ hideLaunchScreen(); return; }
+    if(sharedGame || new URLSearchParams(location.search).has('m4')){ hideLaunchScreen(); return; }
     showLaunchScreen();
     const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     const btn=document.getElementById('homeInstallBtn');
