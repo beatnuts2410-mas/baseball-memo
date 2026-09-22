@@ -138,11 +138,11 @@ body{font-size:16px}
 .runnerMoveDest > .runnerActions button{grid-column:auto!important;min-width:0!important;width:100%!important;box-sizing:border-box!important}
 .runnerMoveDest > .runnerHomeAction{display:contents!important}
 .runnerMoveDest > .runnerHomeAction button{grid-column:1/-1!important;width:100%!important}
-.runnerGroundCard .baseName{left:auto!important;top:auto!important;width:max-content!important;max-width:120px!important;min-width:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;line-height:1!important;text-align:center!important;transform:translate(-50%,-50%)!important}
+.runnerGroundCard .baseName{left:auto!important;top:auto!important;width:max-content!important;max-width:92%!important;min-width:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;line-height:1!important;text-align:center!important;transform:translate(-50%,-50%)!important}
 .runnerGroundCard .bn1{left:72%!important;top:50%!important}
 .runnerGroundCard .bn2{left:50%!important;top:28%!important}
 .runnerGroundCard .bn3{left:28%!important;top:50%!important}
-@media(max-width:480px){.runnerGroundCard .baseName{font-size:15px!important;max-width:110px!important;padding:2px 4px!important}}
+@media(max-width:480px){.runnerGroundCard .baseName{font-size:24px!important;max-width:92%!important;padding:2px 4px!important}}
 </style>
 </style>
 <style>
@@ -474,7 +474,7 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 <style id="v273-field-result">
 /* v2.73: 走者・グランドを実球場に近い表示へ。操作部品の挙動は変更しない。 */
 .runnerGroundCard .runnerBases{
-  position:relative;width:min(100%,330px);aspect-ratio:1/1;height:auto!important;
+  position:relative;width:min(100%,380px);aspect-ratio:1/1;height:auto!important;
   margin:12px auto 8px;overflow:hidden;border-radius:18px;
   background:#55a83f;
   border:2px solid #2f7d2d;
@@ -517,7 +517,7 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 }
 .runnerGroundCard .baseName{
   z-index:7!important;transform:translate(-50%,-50%)!important;
-  font-size:14px!important;font-weight:900!important;line-height:1.15!important;
+  font-size:28px!important;font-weight:900!important;line-height:1!important;white-space:nowrap!important;
   color:#fff!important;text-shadow:0 1px 3px rgba(0,0,0,.8)!important;
   max-width:100px!important;white-space:normal;
 }
@@ -642,7 +642,7 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 </style>
 
 <style id="v279-unified-real-field">
-/* v2.79: 初めから／途中からで同一の走者・グランド表示を強制。旧四角表示を上書き。 */
+/* v2.80: 初めから／途中からで同一の走者・グランド表示を強制。旧四角表示を上書き。 */
 .runnerGroundCard .realBaseField{
  position:relative!important;width:min(100%,460px)!important;max-width:460px!important;aspect-ratio:1/1!important;height:auto!important;
  margin:14px auto 10px!important;overflow:hidden!important;border-radius:22px!important;
@@ -944,7 +944,7 @@ function recordView(){
  // 攻撃中の判定はオーダー未確定でも優先。後攻スタートなら1回表の相手得点を先に入力できる。
  if(g.half!==ownHalf(g)) return opponentView();
  if(g.lineup.length<9){
-   return `<div class="card"><div class="title">まずオーダーを作成</div><p class="muted">チーム登録済みの選手から1〜9番を選びます。</p><button class="btn primary" onclick="tab='lineup';render()">オーダー作成へ</button></div>`;
+   return `${gameHeader()}${renderRunnerGroundCard(g)}<div class="card"><div class="title">まずオーダーを作成</div><p class="muted">チーム登録済みの選手から1〜9番を選びます。</p><button class="btn primary" onclick="tab='lineup';render()">オーダー作成へ</button></div>`;
  }
  let b=g.lineup[g.batterIndex%9]||{name:"打者"};
  let labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','hr'],['四球','walk'],['死球','walk'],['三振','out'],['バント','good'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out'],['相手エラー','error']];
@@ -961,7 +961,7 @@ function lateBatterView(g){
  const used=new Set((g.lineup||[]).filter(Boolean).map(p=>p?.name));
  const opts=db.team.players.filter(p=>p.role!=='manager'&&(!used.has(p.name)||p.name===selected)).map(p=>`<option value="${esc(p.name)}" ${p.name===selected?'selected':''}>${esc(p.name)}${p.num?' #'+p.num:''}</option>`).join('');
  const labels=[['単打','hit'],['二塁打','hit'],['三塁打','hit'],['本塁打','hr'],['バント','good'],['相手エラー','error'],['四球','walk'],['死球','walk'],['三振','out'],['ゴロ','out'],['ライナー','out'],['フライ','out'],['グランドルール','out']];
- return gameHeader()+`<div class="card current"><div class="title">途中開始：${slot+1}番打者を確認</div><p class="muted">「打順確認中」です。${slot+1}番打者を選択して、打席結果を入力してください。入力後、進塁先・アウト・得点を確認してから次の打者へ進みます。</p><select id="lateBatterSelect" class="select"><option value="">${slot+1}番の選手を選択</option>${opts}</select><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveLateBatter()">${slot+1}番を確定して打席結果へ</button></div>
+ return gameHeader()+renderRunnerGroundCard(g)+`<div class="card current"><div class="title">途中開始：${slot+1}番打者を確認</div><p class="muted">「打順確認中」です。${slot+1}番打者を選択して、打席結果を入力してください。入力後、進塁先・アウト・得点を確認してから次の打者へ進みます。</p><select id="lateBatterSelect" class="select"><option value="">${slot+1}番の選手を選択</option>${opts}</select><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveLateBatter()">${slot+1}番を確定して打席結果へ</button></div>
  <div class="card"><div class="title">現在の打順確認</div>${Array.from({length:9},(_,i)=>`<div class="row between" style="padding:8px 0;border-bottom:1px solid #243248"><span>${i+1}番</span><b>${esc(g.lineup[i]?.name||'未登録')}</b></div>`).join('')}</div>`;
 }
 function saveLateBatter(){
@@ -1048,6 +1048,10 @@ function renderBaseDiamond(g){
    <div class="runnerBase rb3 ${g.runners[2]?'on':''}" aria-label="三塁"></div>
    <div class="homePlateShape" aria-label="本塁"></div>${lab(0)}${lab(1)}${lab(2)}
  </div>`;
+}
+
+function renderRunnerGroundCard(g){
+  return `<div class="card runnerGroundCard"><div class="row between"><div class="title" style="margin:0">走者・グランド</div><button class="btn small" onclick="openRunnerCorrection()">✎ 走者修正</button></div>${renderBaseDiamond(g)}<div class="corrNote" style="margin-top:8px">グラウンドの状況と違う場合は「走者修正」で手動修正できます。</div></div>`;
 }
 
 let runnerMoveMode=null,runnerMoveFrom=null,runnerMoveJudged=false;
@@ -1975,7 +1979,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
  <div class="runnerCard">
   <h3 style="margin:0">走者修正</h3>
   <div id="corrTarget" class="muted" style="margin-top:6px"></div>
-  <div class="corrNote" style="margin-top:8px">この打席が終わった直後の状態に合わせて、塁上の走者と得点を修正します。</div>
+  <div class="corrNote" style="margin-top:8px">グラウンドの状況と違う場合は、塁上の走者と得点を手動修正します。</div>
   <div class="runnerBases">
    <button id="corrB2" class="runnerBase rb2" onclick="toggleCorrectionBase(1)"><span>2塁</span></button>
    <button id="corrB3" class="runnerBase rb3" onclick="toggleCorrectionBase(2)"><span>3塁</span></button>
