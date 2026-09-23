@@ -2216,4 +2216,50 @@ document.addEventListener('DOMContentLoaded', ()=>{
   </div>
 </div>
 </body>
-</html>
+</html><style id="v2750-mobile-fit">
+/* v2.75.0: スマホ実画面での見切れ防止・オーダー守備表示・データ結果中央配置 */
+*{box-sizing:border-box!important}
+.content{width:100%!important;max-width:680px!important;margin:0 auto!important;min-width:0!important;overflow-x:hidden!important}
+.grid2,.playerrow,.lineup,.card{min-width:0!important;max-width:100%!important}
+#date,#opp,#tour,#stad{min-width:0!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important}
+input[type="date"]{min-width:0!important;overflow:hidden!important}
+
+/* オーダー：守備位置選択が読める幅を確保 */
+.playerrow{grid-template-columns:32px minmax(0,1fr) minmax(128px,145px) 38px!important;gap:6px!important;padding:7px!important}
+.playerrow .select{min-width:0!important;width:100%!important;font-size:13px!important;line-height:1.25!important;padding:9px 7px!important;white-space:nowrap!important}
+.playerrow [data-pos]{font-size:13px!important;font-weight:700!important}
+@media(max-width:480px){
+  .playerrow{grid-template-columns:28px minmax(0,1fr) 126px 34px!important;gap:5px!important;padding:6px!important}
+  .playerrow .select{font-size:12px!important;padding:9px 5px!important}
+}
+
+/* 守備イメージ：走者・グランドと同じ写真を必ず背景画像として表示 */
+.lineupDefenseGround{
+  display:block!important;position:relative!important;width:min(100%,454px)!important;max-width:454px!important;
+  aspect-ratio:454/340!important;height:auto!important;margin:12px auto!important;
+  background-image:url("ground-bg.jpg")!important;background-repeat:no-repeat!important;
+  background-position:center center!important;background-size:100% 100%!important;
+  background-color:transparent!important;border-radius:10px!important;overflow:hidden!important;
+}
+.lineupDefenseGround::before{content:"";position:absolute;inset:0;background-image:url("ground-bg.jpg");background-repeat:no-repeat;background-position:center;background-size:100% 100%;z-index:0;pointer-events:none}
+.lineupDefenseGround .defPos,.lineupDefenseGround .defDh{z-index:2!important}
+
+/* チーム：直接入力・貼り付け文字を登録メンバーと同じ見やすい大きさへ */
+.rosterTextarea{font-size:13px!important;line-height:1.55!important;min-height:220px!important}
+.rosterBoxTitle{font-size:13px!important;font-weight:800!important}
+
+/* データ：試合終了結果を中央に固定。左右へのはみ出しを防止 */
+#gameResultView{width:100%!important;max-width:680px!important;margin:0 auto!important;min-width:0!important;box-sizing:border-box!important;overflow:visible!important}
+.content>.content{width:100%!important;max-width:680px!important;margin:0 auto!important;padding:0!important;min-width:0!important;box-sizing:border-box!important}
+#gameResultView>.card,#gameResultView>.sportsHero,#gameResultView>.sharedBanner{width:100%!important;max-width:100%!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box!important}
+#gameResultView .sportsHero{overflow:hidden!important}
+#gameResultView .resultStatsWrap,#gameResultView .stadiumBoard,#gameResultView .sportsBoard{width:100%!important;max-width:100%!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box!important}
+#gameResultView .resultStatsWrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch!important}
+#gameResultView .resultStatsTable{width:max-content!important;min-width:760px!important;max-width:none!important}
+@media(max-width:480px){
+  #gameResultView{padding:0!important}
+  #gameResultView>.card{padding:11px!important}
+  #gameResultView .title{font-size:15px!important}
+  #gameResultView .sportsHero{border-radius:14px!important}
+}
+</style>
