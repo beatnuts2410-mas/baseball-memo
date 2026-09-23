@@ -807,6 +807,46 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 .sportsBoard thead th:first-child{ text-align:left!important; }
 .sportsBoard thead th:not(:first-child){ text-align:center!important; }
 </style>
+<style id="v2749-shared-sports-and-lineup">
+/* v2.74.9: 試合速報と試合結果は同一コンポーネントを共有。画面端で切れないことを最優先。 */
+.sportsHero{width:100%!important;max-width:100%!important;overflow:visible!important;box-sizing:border-box!important}
+.sportsMatch{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;grid-template-columns:minmax(0,var(--team-col,116px)) minmax(120px,1fr) minmax(0,var(--team-col,116px))!important}
+.sportsTeam{min-width:0!important;width:100%!important;overflow:visible!important}
+.sportsTeamName{width:100%!important;max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:break-word!important;line-height:1.2!important;font-size:clamp(11px,3.4vw,16px)!important}
+.sportsTeamLogo{max-width:68px!important;max-height:68px!important;object-fit:contain!important}
+.sportsBoard{width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important}
+.sportsBoard table{width:max-content!important;min-width:100%!important;table-layout:auto!important}
+.sportsBoard th:first-child,.sportsBoard td:first-child{width:var(--team-col,116px)!important;min-width:var(--team-col,116px)!important;max-width:var(--team-col,280px)!important;white-space:normal!important;overflow-wrap:anywhere!important}
+.sportsBoard th:not(:first-child),.sportsBoard td:not(:first-child){text-align:center!important}
+/* オーダー守備イメージ：走者・グランドと同じ写真を背景にする */
+.lineupDefenseGround{position:relative;width:min(100%,454px);aspect-ratio:454/340;height:auto;margin:10px auto;background:url("ground-bg.jpg") center/100% 100% no-repeat;border-radius:10px;overflow:hidden}
+.lineupDefenseGround .defPos{position:absolute;transform:translate(-50%,-50%);min-width:34px;padding:4px 8px;border:2px solid #1683e8;border-radius:9px;background:rgba(255,255,255,.94);box-shadow:0 2px 7px rgba(0,0,0,.25);font-size:15px;font-weight:900;text-align:center;color:#12355d!important;line-height:1.1}
+.lineupDefenseGround .defPos{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:62px;padding:5px 6px;font-size:12px;}
+.lineupDefenseGround .defPosName{font-size:12px;font-weight:950;white-space:nowrap;}
+.lineupDefenseGround .defPlayer{font-size:11px;font-weight:800;max-width:105px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lineupDefenseGround .dpPitch{left:50%;top:51%}.lineupDefenseGround .dpCatch{left:50%;top:82%}
+.lineupDefenseGround .dpFirst{left:75%;top:49%}.lineupDefenseGround .dpSecond{left:64%;top:35%}.lineupDefenseGround .dpThird{left:25%;top:49%}.lineupDefenseGround .dpShort{left:36%;top:35%}
+.lineupDefenseGround .dpLeft{left:20%;top:17%}.lineupDefenseGround .dpCenter{left:50%;top:9%}.lineupDefenseGround .dpRight{left:80%;top:17%}
+.lineupDefenseGround .defDh{position:absolute;right:4%;bottom:4%;display:flex;flex-direction:column;gap:2px;align-items:center;padding:4px 7px;border:2px solid #16a34a;border-radius:9px;background:rgba(255,255,255,.95);font-size:11px;font-weight:900;color:#12355d!important;max-width:34%;}
+.lineupDefenseGround .defDh b{font-size:11px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+@media(max-width:480px){.lineupDefenseGround .defPos{min-width:50px;padding:4px 4px}.lineupDefenseGround .defPosName{font-size:10px}.lineupDefenseGround .defPlayer{font-size:9px;max-width:72px}.lineupDefenseGround .defDh{font-size:10px;right:2%;bottom:2%;}}
+</style>
+<style id="v2749-sports-exact-and-fit">
+/* v2.74.9: 試合速報と試合結果は同一の表示本体を共有し、画面内で見切れない */
+.sportsHero{width:100%!important;max-width:100%!important;box-sizing:border-box!important;overflow:hidden!important}
+.sportsHeroTop,.sportsMatch,.sportsBoard,.sportsFooter{width:100%!important;max-width:100%!important;box-sizing:border-box!important}
+.sportsMatch{grid-template-columns:minmax(0,1fr) minmax(118px,1.15fr) minmax(0,1fr)!important;gap:6px!important}
+.sportsTeam{min-width:0!important;overflow:hidden!important}
+.sportsTeamName{font-size:clamp(10px,3vw,15px)!important;line-height:1.18!important;overflow-wrap:anywhere!important;word-break:break-all!important;min-height:2.36em!important}
+.sportsTeamLogo{width:62px!important;height:62px!important;max-width:62px!important;max-height:62px!important}
+.sportsCenter{min-width:0!important;overflow:hidden!important}
+.sportsMainScore{font-size:clamp(30px,8vw,46px)!important;white-space:nowrap!important}
+.sportsBoard{overflow-x:auto!important;overflow-y:hidden!important}
+.sportsBoard table{min-width:100%!important;width:max-content!important;table-layout:auto!important}
+.sportsBoard th:first-child,.sportsBoard td:first-child{max-width:36vw!important;white-space:normal!important;overflow-wrap:anywhere!important}
+.sportsBoard th:not(:first-child),.sportsBoard td:not(:first-child){text-align:center!important;white-space:nowrap!important}
+@media(max-width:480px){.sportsMatch{grid-template-columns:minmax(0,.9fr) minmax(108px,1.2fr) minmax(0,.9fr)!important}.sportsTeamLogo{width:56px!important;height:56px!important}.sportsTeamName{font-size:11px!important}.sportsMiniInfo{grid-template-columns:1fr!important}.sportsMiniInfo span{font-size:9px!important;padding:3px!important}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -883,25 +923,25 @@ function createConfiguredGame(){
  newGame(setupState.order,{opponent:document.getElementById('setupOpponent')?.value||'相手校',inning,half,outs:late?setupState.outs:0,scoreUs,scoreOpp,batterIndex:0,startedLate:late,initialInnings:innings});toast(late?`${inning}回${half}から記録を開始`:'試合を開始');
 }
 
-function gameHeader(){
- let g=db.current;if(!g)return `<div class="card"><div class="title">試合を始める</div><p class="muted">先攻・後攻を選んでから試合を開始します。</p><div class="orderGrid"><button class="orderBtn active" onclick="startNewGame('先攻')">先攻</button><button class="orderBtn" onclick="startNewGame('後攻')">後攻</button></div><p class="hint">先攻なら1回表から、後攻なら相手チームの1回表（得点入力）→自チームの1回裏から記録します。</p></div>`;
+function renderSportsScoreCard(g){
  const max=Math.max(9,g.innings?.length||0);
- const own=ownHalf(g), opp=opponentHalf(g);
- const firstIsOwn=g.order!=='後攻';
+ const own=ownHalf(g), firstIsOwn=g.order!=='後攻';
  const firstName=firstIsOwn?db.team.name:(g.opponent||'相手校');
  const secondName=firstIsOwn?(g.opponent||'相手校'):db.team.name;
- const firstScoreKey=firstIsOwn?'us':'opp';
- const secondScoreKey=firstIsOwn?'opp':'us';
- const firstTotal=firstIsOwn?g.scoreUs:g.scoreOpp;
- const secondTotal=firstIsOwn?g.scoreOpp:g.scoreUs;
- const boardRow=(name,key,total)=>`<tr><th>${esc(name)}</th>${Array.from({length:max},(_,i)=>{const n=Number(g.innings?.[i]?.[key])||0;return `<td class="${i===g.inning-1?'activeInning ':''}${n===0?'zero':''}">${n}</td>`}).join('')}<td class="total">${Number(total)||0}</td></tr>`;
- const boardRows=boardRow(firstName,firstScoreKey,firstTotal)+boardRow(secondName,secondScoreKey,secondTotal);
+ const firstScoreKey=firstIsOwn?'us':'opp', secondScoreKey=firstIsOwn?'opp':'us';
+ const firstTotal=firstIsOwn?g.scoreUs:g.scoreOpp, secondTotal=firstIsOwn?g.scoreOpp:g.scoreUs;
  const teamCol=teamNameColWidth(firstName,secondName);
  const result=g.scoreUs>g.scoreOpp?'リード':g.scoreUs<g.scoreOpp?'ビハインド':'同点';
  const runnerCount=(g.runners||[]).filter(Boolean).length;
  const attack=own===g.half?'自チーム攻撃':'相手攻撃';
  const outText=`${Math.min(3,Number(g.outs)||0)}アウト`;
- return `<div class="sportsHero"><div class="sportsHeroTop"><span class="sportsLive"><i></i> ${g.finished?'試合終了':'試合速報'}</span><span>${esc(g.date||'')}　${esc(g.tournament||'')}</span></div><div class="sportsMatch" style="--team-col:${teamCol}px"><div class="sportsTeam"><img class="sportsTeamLogo nishiharuUniform" src="nishiharu-uniform.png" alt="西春高校ユニフォーム"><div class="sportsTeamName">${esc(db.team.name)}</div><div class="sportsTeamLabel">自チーム</div></div><div class="sportsCenter"><div class="sportsStatus">${esc(result)}</div><div class="sportsMainScore">${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}</div><span class="sportsInning">${g.inning}回${g.half}　${esc(g.order||'先攻')}</span><div class="sportsMiniInfo"><span>${attack}</span><span>${outText}</span><span>走者 ${runnerCount}人</span></div></div><div class="sportsTeam"><img class="sportsTeamLogo opponent" src="opponent-uniform.png" alt="相手チームユニフォーム"><div class="sportsTeamName">${esc(g.opponent||'相手校')}</div><div class="sportsTeamLabel">相手</div></div></div><div class="sportsBoard" style="--team-col:${teamCol}px"><table><thead><tr><th>チーム</th>${Array.from({length:max},(_,i)=>`<th class="${i===g.inning-1?'activeInning':''}">${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody>${boardRows}</tbody></table></div><div class="sportsFooter"><span>${esc(g.stadium||'')}　<strong>${attack}</strong></span><span>${esc(g.finished?'試合終了':'試合記録中')}</span></div></div>`;
+ const boardRow=(name,key,total)=>`<tr><th>${esc(name)}</th>${Array.from({length:max},(_,i)=>{const n=Number(g.innings?.[i]?.[key])||0;return `<td class="${i===g.inning-1?'activeInning ':''}${n===0?'zero':''}">${n}</td>`}).join('')}<td class="total">${Number(total)||0}</td></tr>`;
+ return `<div class="sportsHero" data-sports-shared="true"><div class="sportsHeroTop"><span class="sportsLive"><i></i> ${g.finished?'試合終了':'試合速報'}</span><span>${esc(g.date||'')}　${esc(g.tournament||'')}</span></div><div class="sportsMatch" style="--team-col:${teamCol}px"><div class="sportsTeam"><img class="sportsTeamLogo nishiharuUniform" src="nishiharu-uniform.png" alt="西春高校ユニフォーム"><div class="sportsTeamName">${esc(db.team.name)}</div><div class="sportsTeamLabel">自チーム</div></div><div class="sportsCenter"><div class="sportsStatus">${esc(result)}</div><div class="sportsMainScore">${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}</div><span class="sportsInning">${g.inning}回${g.half}　${esc(g.order||'先攻')}</span><div class="sportsMiniInfo"><span>${attack}</span><span>${outText}</span><span>走者 ${runnerCount}人</span></div></div><div class="sportsTeam"><img class="sportsTeamLogo opponent" src="opponent-uniform.png" alt="相手チームユニフォーム"><div class="sportsTeamName">${esc(g.opponent||'相手校')}</div><div class="sportsTeamLabel">相手</div></div></div><div class="sportsBoard" style="--team-col:${teamCol}px"><table><thead><tr><th>チーム</th>${Array.from({length:max},(_,i)=>`<th class="${i===g.inning-1?'activeInning':''}">${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody>${boardRow(firstName,firstScoreKey,firstTotal)}${boardRow(secondName,secondScoreKey,secondTotal)}</tbody></table></div><div class="sportsFooter"><span>${esc(g.stadium||'')}　<strong>${attack}</strong></span><span>${esc(g.finished?'試合終了':'試合記録中')}</span></div></div>`;
+}
+
+function gameHeader(){
+ let g=db.current;if(!g)return `<div class="card"><div class="title">試合を始める</div><p class="muted">先攻・後攻を選んでから試合を開始します。</p><div class="orderGrid"><button class="orderBtn active" onclick="startNewGame('先攻')">先攻</button><button class="orderBtn" onclick="startNewGame('後攻')">後攻</button></div><p class="hint">先攻なら1回表から、後攻なら相手チームの1回表（得点入力）→自チームの1回裏から記録します。</p></div>`;
+ return renderSportsScoreCard(g);
 }
 
 function ensureInning(g,index){
@@ -1552,6 +1592,23 @@ async function importRosterFile(input){
 }
 function addPlayer(){let name=prompt("名前を入力");if(!name)return;let role=confirm("マネージャーとして登録しますか？\nOK＝マネージャー / キャンセル＝選手")?"manager":"player";let num=role==="player"?(prompt("背番号（任意）")||""):"";db.team.players.push({name:name.trim(),num:num.trim(),role});save();render()}
 function delPlayer(i){if(!confirm("この選手を名簿から削除しますか？"))return;db.team.players.splice(i,1);save();render()}
+const DEF_POSITIONS=[
+ ['投手','投手'],['捕手','捕手'],['一塁手','一塁手'],['二塁手','二塁手'],['三塁手','三塁手'],['遊撃手','遊撃手'],['左翼手','左翼手'],['中堅手','中堅手'],['右翼手','右翼手'],['指名打者','指名打者']
+];
+const DEF_POS_LEGACY={投:'投手',捕:'捕手',一:'一塁手',二:'二塁手',三:'三塁手',遊:'遊撃手',左:'左翼手',中:'中堅手',右:'右翼手',DH:'指名打者'};
+function normalizeDefPos(pos){return DEF_POS_LEGACY[pos]||pos||'';}
+
+function renderLineupDefenseGround(g){
+ const slots=[
+  ['投手','dpPitch'],['捕手','dpCatch'],['一塁手','dpFirst'],['二塁手','dpSecond'],['三塁手','dpThird'],
+  ['遊撃手','dpShort'],['左翼手','dpLeft'],['中堅手','dpCenter'],['右翼手','dpRight']
+ ];
+ const assigned={};
+ (g.lineup||[]).forEach(p=>{const pos=normalizeDefPos(p?.pos);if(pos)assigned[pos]=p?.name||'';});
+ const marks=slots.map(([pos,cls])=>`<div class="defPos ${cls}" title="${esc(pos)}"><span class="defPosName">${esc(pos)}</span>${assigned[pos]?`<span class="defPlayer">${esc(assigned[pos])}</span>`:''}</div>`).join('');
+ const dh=assigned['指名打者']||g.dh?.name||'';
+ return `<div class="lineupDefenseGround" aria-label="守備配置イメージ">${marks}${dh?`<div class="defDh"><span>指名打者</span><b>${esc(dh)}</b></div>`:''}</div>`;
+}
 function lineupView(){
  ensureGame();let g=db.current;
  const activePlayers=db.team.players.filter(p=>p.role!=='manager'); if(activePlayers.length<9)return `<div class="card"><div class="title">選手を9人以上登録してください</div><button class="btn" onclick="tab='team';render()">チーム登録へ</button></div>`;
@@ -1560,19 +1617,20 @@ function lineupView(){
  for(let i=0;i<9;i++){
    let v=g.lineup[i]?.name||db.lastLineup[i]?.name||db.team.players[i]?.name||'';
    let pos=g.lineup[i]?.pos||'';
-   rows+=`<div class="playerrow"><div class="num">${i+1}</div><select class="select" data-li="${i}"><option value="">選手を選択</option>${opts}</select><select class="select" data-pos="${i}"><option value="">守備</option><option value="投">投</option><option value="捕">捕</option><option value="一">一</option><option value="二">二</option><option value="三">三</option><option value="遊">遊</option><option value="左">左</option><option value="中">中</option><option value="右">右</option><option value="DH">DH</option></select><button class="btn small" onclick="moveLine(${i},-1)">↑</button></div>`
+   rows+=`<div class="playerrow"><div class="num">${i+1}</div><select class="select" data-li="${i}"><option value="">選手を選択</option>${opts}</select><select class="select" data-pos="${i}"><option value="">守備位置を選択</option>${DEF_POSITIONS.map(([v,l])=>`<option value="${v}" ${normalizeDefPos(pos)===v?'selected':''}>${l}</option>`).join('')}</select><button class="btn small" onclick="moveLine(${i},-1)">↑</button></div>`
  }
  return gameHeader()+`<div class="card"><div class="row between"><div class="title">試合情報</div><button class="btn small" onclick="copyPrev()">前回オーダー</button></div><div class="grid2"><input id="date" class="input" type="date" value="${g.date}"><input id="opp" class="input" value="${esc(g.opponent)}" placeholder="相手校"></div><div style="height:8px"></div><div class="grid2"><input id="tour" class="input" value="${esc(g.tournament)}" placeholder="大会名・回戦"><input id="stad" class="input" value="${esc(g.stadium)}" placeholder="球場"></div></div>
  <div class="card"><div class="title">打順・守備</div><div class="lineup">${rows}</div>
  <div style="height:10px"></div><div class="grid2"><div><div class="muted">投手</div><select id="pitcher" class="select"><option value="">選手を選択</option>${opts}</select></div><div><div class="muted">DH</div><select id="dh" class="select"><option value="">DHなし</option>${opts}</select></div></div>
  <button class="btn primary" style="width:100%;margin-top:10px" onclick="saveLineup()">オーダーを確定</button></div>
- <div class="card"><div class="title">守備イメージ</div><div class="field"><div class="diamond"></div><div class="base b1"></div><div class="base b2"></div><div class="base b3"></div><div class="base home"></div>${['投','捕','一','二','三','遊','左','中','右'].map((x,i)=>`<div class="pos p${i+1}">${x}</div>`).join('')}<div class="pos" style="left:82%;top:88%">DH</div></div></div>`;
+ <div class="card"><div class="title">守備イメージ</div>${renderLineupDefenseGround(g)}<div class="hint" style="text-align:center">走者・グランドと同じグラウンド画像を使用。正式な守備位置と配置選手を表示しています。</div></div>`;
 }
 function copyPrev(){if(!db.lastLineup.length)return toast("前回オーダーがありません");document.querySelectorAll("[data-li]").forEach((s,i)=>s.value=db.lastLineup[i]?.name||"");toast("前回オーダーを読み込みました")}
 function saveLineup(){
  let g=db.current;g.date=document.getElementById('date').value;g.opponent=document.getElementById('opp').value.trim()||'相手校';g.tournament=document.getElementById('tour').value.trim();g.stadium=document.getElementById('stad').value.trim();
- let sels=[...document.querySelectorAll('[data-li]')];let arr=sels.map(s=>s.value);let poss=[...document.querySelectorAll('[data-pos]')].map(s=>s.value);
+ let sels=[...document.querySelectorAll('[data-li]')];let arr=sels.map(s=>s.value);let poss=[...document.querySelectorAll('[data-pos]')].map(s=>normalizeDefPos(s.value));
  if(arr.some(x=>!x)||new Set(arr).size!==9)return toast('1〜9番を9人、重複なしで選択してください');
+ const filledPos=poss.filter(Boolean); if(new Set(filledPos).size!==filledPos.length)return toast('守備位置は重複しないように選択してください');
  let pitcher=document.getElementById('pitcher').value;let dh=document.getElementById('dh').value;
  if(dh && arr.includes(dh)===false)return toast('DHは1〜9番の打順に入れてください');
  if(dh && pitcher===dh)return toast('DHと投手は別の選手にしてください');
@@ -1719,11 +1777,7 @@ function renderGameResult(g){
    events.forEach(e=>{const key=Number(e.inning)||1;if(key!==lastInning){groups.push({inning:key,items:[]});lastInning=key;}groups[groups.length-1].items.push(e);});
    eventHtml=groups.map(gr=>{const halves=[...new Set(gr.items.map(e=>e.half).filter(Boolean))];const halfText=halves.length>1?'表・裏':(halves[0]||'');return `<div class="eventGroup"><div class="eventGroupTitle">${gr.inning}回${halfText?`（${halfText}）`:''}<span>試合経過</span></div>${gr.items.map(e=>`<div class="eventRow"><div class="eventTop"><b>${esc(e.text)}</b><span class="eventTag">${e.kind}</span></div></div>`).join('')}</div>`}).join('');
  }else eventHtml='<div class="empty">記録がありません</div>';
- const maxInning=Math.max(9,g.innings?.length||0);
- const resultClass=win==='勝利'?'':win==='敗戦'?'loss':'tie';
- const sportsRow=(name,key,total)=>`<tr><th>${esc(boardName(name))}</th>${Array.from({length:maxInning},(_,i)=>`<td>${Number(g.innings?.[i]?.[key])||0}</td>`).join('')}<td class="total">${Number(total)||0}</td></tr>`;
- const sportsBoard=`<div class="sportsBoard" style="--team-col:${teamCol}px"><table><thead><tr><th>チーム</th>${Array.from({length:maxInning},(_,i)=>`<th>${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody>${sportsRow(firstName,firstIsOwn?'us':'opp',firstIsOwn?g.scoreUs:g.scoreOpp)}${sportsRow(secondName,firstIsOwn?'opp':'us',firstIsOwn?g.scoreOpp:g.scoreUs)}</tbody></table></div>`;
- return `<div id="gameResultView"><div class="resultHero sportsResultHero"><div class="sportsHeroTop"><span>試合結果</span><span>${esc(g.date||'')}　${esc(g.tournament||'')}</span></div><div class="sportsMatch"><div class="sportsTeam"><img class="sportsTeamLogo nishiharuUniform" src="nishiharu-uniform.png" alt="西春高校ユニフォーム"><div class="sportsTeamName">${esc(myTeamName)}</div><div class="sportsTeamLabel">自チーム</div></div><div class="sportsCenter"><div class="sportsStatus">FINAL</div><div class="sportsMainScore">${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}</div><span class="sportsResultBadge ${resultClass}">${win}</span><div class="sportsMiniInfo"><span>${g.innings?.length||1}回制</span><span>得点 ${Number(g.scoreUs)||0}</span><span>打撃記録 ${stats.length}人</span></div></div><div class="sportsTeam"><img class="sportsTeamLogo opponent" src="opponent-uniform.png" alt="相手チームユニフォーム"><div class="sportsTeamName">${esc(g.opponent||'相手校')}</div><div class="sportsTeamLabel">相手</div></div></div>${sportsBoard}<div class="sportsFooter"><span>${esc(g.stadium||'')}</span><span>${g.finishedAt?new Date(g.finishedAt).toLocaleString('ja-JP'):''}</span></div></div>
+ return `<div id="gameResultView">${renderSportsScoreCard(g)}
  ${g.sharedTeamName?`<div class="sharedBanner"><b>📱 共有された試合</b><span class="muted">共有された試合結果をそのまま見ています。気に入ったらマイアプリに保存できます。</span><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveSharedMatch()">試合結果をマイアプリに保存</button></div>`:''}
  ${!g.sharedTeamName?`<div class="card shareLinkCard"><div class="title">試合結果をリンクでシェアしよう！</div><p class="muted">共有リンクをLINE・SNSなどへ送ります。受け取った人はリンクを開くだけで、この試合の「試合データ」に直行します。</p><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="createMatchShareLink(${g.id})">⚾ 試合結果リンクを作る</button><div id="matchSharePanel" class="hidden"><div id="matchShare"></div><button class="btn shareLinkBtn" onclick="shareMatchLink(${g.id})">📤 LINE・SNSへ送る</button></div></div>`:''}
  <div class="card"><div class="title">投手記録・登板履歴</div>${pitchingHtml}</div><div class="card"><div class="title">打撃成績</div>${batting}</div>
