@@ -1605,6 +1605,10 @@ function renderLineupDefenseGround(g){
  ];
  const assigned={};
  (g.lineup||[]).forEach(p=>{const pos=normalizeDefPos(p?.pos);if(pos)assigned[pos]=p?.name||'';});
+ // 投手は「打順・守備」の9人とは別に投手欄で選択するため、
+ // 守備位置表示では現在の投手を必ず投手枠へ反映する。
+ const currentPitcher=g.pitching?.current?.name||g.pitcher?.name||'';
+ if(currentPitcher) assigned['投手']=currentPitcher;
  const marks=slots.map(([pos,cls])=>`<div class="defPos ${cls}" title="${esc(pos)}"><span class="defPosName">${esc(pos)}</span>${assigned[pos]?`<span class="defPlayer">${esc(assigned[pos])}</span>`:''}</div>`).join('');
  const dh=assigned['指名打者']||'';
  return `<div class="lineupDefenseGround" aria-label="守備配置イメージ">${marks}${dh?`<div class="defDh"><span>指名打者</span><b>${esc(dh)}</b></div>`:''}</div>`;
