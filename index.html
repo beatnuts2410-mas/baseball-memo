@@ -529,17 +529,16 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 #gameResultView .resultStatsTable th:first-child,#gameResultView .resultStatsTable td:first-child{width:20%!important;position:static!important}
 </style>
 
-<style id="v2740-result-unify">
-/* v2.74.0: 打席成績を投手成績と同サイズに統一 */
+<style id="v2741-result-size">
+/* v2.74.1: 打席成績は元のサイズへ戻し、投手成績も同じ文字サイズに統一 */
 #gameResultView .resultStatsTable{font-size:12px!important;line-height:1.25!important;}
 #gameResultView .resultStatsTable th,#gameResultView .resultStatsTable td{font-size:12px!important;line-height:1.25!important;padding:7px 3px!important;}
-#gameResultView .resultStatsTable td:first-child{font-size:14px!important;font-weight:900!important;}
-#gameResultView .pitchingRecordName{font-size:14px!important;font-weight:900!important;}
+#gameResultView .resultStatsTable td:first-child{font-size:12px!important;font-weight:900!important;}
+#gameResultView .pitchingRecordName{font-size:12px!important;font-weight:900!important;}
 #gameResultView .pitchingStatCell .psLabel{font-size:9px!important;}
 #gameResultView .pitchingStatCell .psValue{font-size:12px!important;}
 /* 試合経過：選手名 → 内容を明確に分離 */
-#gameResultView .eventTop b{font-size:12px!important;line-height:1.4!important;letter-spacing:.01em!important;}
-#gameResultView .eventTop b{word-spacing:.18em;}
+#gameResultView .eventTop b{font-size:12px!important;line-height:1.4!important;letter-spacing:.01em!important;word-spacing:.18em;}
 #gameResultView .eventTop{column-gap:12px!important;}
 </style>
 </head>
@@ -658,12 +657,32 @@ function autoFinishGame(g,result){
  toast(result||'試合終了');
  return true;
 }
+function checkColdGame(g,mode='during'){
+ if(!g||g.finished)return false;
+ const inning=Math.max(1,Number(g.inning)||1);
+ const diff=Math.abs((Number(g.scoreUs)||0)-(Number(g.scoreOpp)||0));
+ const own=ownHalf(g), opp=opponentHalf(g);
+ // 5回：10点差。7回：7点差。
+ const threshold=inning===5?10:(inning===7?7:0);
+ if(!threshold||diff<threshold)return false;
+ // 後攻のリード側が攻撃中に規定点差へ到達した場合は、その時点で即終了。
+ if(mode==='during' && own==='裏' && g.half==='裏' && Number(g.scoreUs)>Number(g.scoreOpp)){
+   return autoFinishGame(g,`${inning}回裏・${threshold}点差コールド`);
+ }
+ return false;
+}
 function checkGameEndAfterHalf(g,endedHalf){
  if(!g||g.finished)return true;
  const inning=Math.max(1,Number(g.inning)||1);
+ const us=Number(g.scoreUs)||0, os=Number(g.scoreOpp)||0;
+ const diff=Math.abs(us-os);
+ // 5回終了時10点差、7回終了時7点差ならゲームセット。
+ if((inning===5&&diff>=10)||(inning===7&&diff>=7)){
+   const threshold=inning===5?10:7;
+   return autoFinishGame(g,`${inning}回終了・${threshold}点差コールド`);
+ }
  if(inning<9)return false;
  const own=ownHalf(g),opp=opponentHalf(g);
- const us=Number(g.scoreUs)||0, os=Number(g.scoreOpp)||0;
  if(inning===9){
    // 後攻チーム：9回表（相手攻撃）終了時にリードしていれば、その時点でゲームセット。
    if(own==='裏' && endedHalf===opp && us>os)return autoFinishGame(g,'9回表終了・自チーム勝利');
@@ -969,7 +988,7 @@ function applyRunnerMove(dest){
  g.runners[from]=0;g.runnerNames[from]=null;let scored=0;
  if(dest===4){scored=1;g.scoreUs=(Number(g.scoreUs)||0)+1}else{g.runners[dest-1]=1;g.runnerNames[dest-1]=name}
  g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:runnerMoveMode,judgement:runnerMoveMode==='盗塁'?'セーフ':null,inning:g.inning,half:g.half,from,dest,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(g.runners),afterNames:cloneRunnerNames(g.runnerNames),runs:scored});
- updateInningScore(g);save();closeRunnerMove();render();toast(`${runnerMoveMode}：${name} → ${dest===4?'本塁・得点':dest+'塁'}`);
+ updateInningScore(g);if(checkColdGame(g,'during')){closeRunnerMove();return;}save();closeRunnerMove();render();toast(`${runnerMoveMode}：${name} → ${dest===4?'本塁・得点':dest+'塁'}`);
 }
 function applyBalk(){
  const g=db.current;if(!g||!g.runners.some(Boolean))return toast('走者がいません');
@@ -982,7 +1001,7 @@ function applyBalk(){
  pushGameHistory();
  g.runners=after;g.runnerNames=afterNames;g.scoreUs=(Number(g.scoreUs)||0)+scored;
  g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:'ボーク',inning:g.inning,half:g.half,from:'auto',dest:'auto',name:'走者自動進塁',beforeRunners:before,beforeNames,afterRunners:cloneRunners(after),afterNames:cloneRunnerNames(afterNames),runs:scored});
- updateInningScore(g);save();render();toast(`ボーク：${scored?scored+'点・':''}走者を自動進塁`);
+ updateInningScore(g);if(checkColdGame(g,'during'))return;save();render();toast(`ボーク：${scored?scored+'点・':''}走者を自動進塁`);
 }
 function openSteal(i){openRunnerMove('盗塁');selectRunnerToMove(i)}
 function closeSteal(){closeRunnerMove()}
@@ -991,7 +1010,7 @@ function updateInningScore(g){
   const x=g.innings[g.inning-1]||{us:0,opp:0}; x.us=Math.max(0,(Number(g.scoreUs)||0)-prev); g.innings[g.inning-1]=x;
 }
 function manualConfirmResult(result){
- return ['単打','二塁打','三塁打','犠打','犠飛','内野ゴロ','ライナー','内野フライ','外野フライ','インフィールドフライ'].includes(result);
+ return ['単打','二塁打','三塁打','犠打','犠飛','内野ゴロ','ライナー','内野フライ','外野フライ'].includes(result);
 }
 function defaultManualRunnerDest(before,beforeNames,after,afterNames,idx){
  if(!before[idx])return null;
@@ -1011,7 +1030,7 @@ function manualConfirmDefault(g,b,result){
  const batterFound=(mv.names||[]).findIndex(n=>n===b.name);
  const batterDest=batterFound>=0?String(batterFound+1):'out';
  const beforeOuts=Number(g.outs)||0;
- const defaultOuts=Math.min(3,beforeOuts+(['犠打','犠飛','内野ゴロ','ライナー','内野フライ','外野フライ','インフィールドフライ'].includes(result)?1:0));
+ const defaultOuts=Math.min(3,beforeOuts+(['犠打','犠飛','内野ゴロ','ライナー','内野フライ','外野フライ'].includes(result)?1:0));
  return {batterDest,runnerDest,outs:defaultOuts,runs:Math.min(3,Number(mv.scored)||0)};
 }
 function pa(result){
@@ -1032,6 +1051,7 @@ function pa(result){
  const paIndex=g.pa.length;
  g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:b.name,result,rbi:mv.rbi,runs:mv.scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(g.runners),afterRunnerNames:cloneRunnerNames(g.runnerNames),outsAfter:g.outs,beforeScoreUs:Number(g.scoreUs)-mv.scored,beforeScoreUsSnapshot:Number(g.scoreUs)-mv.scored,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:g.outs-out,beforeBatterIndex:g.batterIndex});
  updateInningScore(g);
+ if(checkColdGame(g,'during'))return;
  if(g.inning===9 && g.half===ownHalf(g) && ownHalf(g)==='裏' && Number(g.scoreUs)>Number(g.scoreOpp)){
    autoFinishGame(g,'9回裏・サヨナラ勝ち');
    return;
@@ -1119,6 +1139,7 @@ function confirmRunnerAdvance(){
  const rbi=scored;
  g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:p.batter,result:p.result,rbi,runs:scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(after),afterRunnerNames:cloneRunnerNames(afterNames),outsAfter:g.outs,beforeScoreUs:beforeScore,beforeScoreUsSnapshot:beforeScore,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:Number(p.beforeOuts),beforeBatterIndex:p.batterIndex});
  updateInningScore(g);
+ if(checkColdGame(g,'during'))return;
  if(g.inning===9 && g.half===ownHalf(g) && ownHalf(g)==='裏' && Number(g.scoreUs)>Number(g.scoreOpp)){
    autoFinishGame(g,'9回裏・サヨナラ勝ち');
    return;
