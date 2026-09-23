@@ -979,6 +979,37 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   color:#111!important;
 }
 </style>
+
+<style id="v2767-sticky-order-player-white">
+/* v2.76.7: 固定列「打順」「選手」の背景を最優先で白固定 */
+#gameResultView .resultStatsWrap .resultStatsTable th:first-child,
+#gameResultView .resultStatsWrap .resultStatsTable td:first-child,
+#gameResultView .resultStatsWrap .resultStatsTable th:nth-child(2),
+#gameResultView .resultStatsWrap .resultStatsTable td:nth-child(2){
+  background:#fff !important;
+  background-color:#fff !important;
+  background-image:none !important;
+  color:#111 !important;
+  opacity:1 !important;
+  filter:none !important;
+  text-shadow:none !important;
+}
+#gameResultView .resultStatsWrap .resultStatsTable th:first-child,
+#gameResultView .resultStatsWrap .resultStatsTable th:nth-child(2){
+  background:#fff !important;
+  background-color:#fff !important;
+  color:#111 !important;
+}
+#gameResultView .resultStatsWrap .resultStatsTable td:first-child,
+#gameResultView .resultStatsWrap .resultStatsTable td:nth-child(2){
+  position:sticky !important;
+  z-index:8 !important;
+}
+#gameResultView .resultStatsWrap .resultStatsTable td:first-child{left:0 !important;}
+#gameResultView .resultStatsWrap .resultStatsTable td:nth-child(2){left:3.2em !important;}
+#gameResultView .resultStatsWrap .resultStatsTable th:first-child{left:0 !important;z-index:10 !important;}
+#gameResultView .resultStatsWrap .resultStatsTable th:nth-child(2){left:3.2em !important;z-index:10 !important;}
+</style>
 </head>
 <body>
 <div class="app">
