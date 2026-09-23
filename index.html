@@ -948,7 +948,38 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 .resultStatsTable td:nth-child(2) .subName{display:inline;}
 .eventTop .subMark{margin-right:5px;}
 </style>
-<style id="v2765-final-batting-fix">#gameResultView .resultStatsWrap,#gameResultView .resultStatsTable{background:#fff!important;color:#111!important;opacity:1!important;filter:none!important}#gameResultView .resultStatsTable th,#gameResultView .resultStatsTable td{background:#fff!important;color:#111!important;text-shadow:none!important;opacity:1!important;visibility:visible!important}#gameResultView .resultStatsTable thead th{background:#eeeeeb!important;color:#111!important}#gameResultView .resultStatsTable td:nth-child(2){color:#111!important;font-weight:800!important}</style></head>
+<style id="v2765-final-batting-fix">#gameResultView .resultStatsWrap,#gameResultView .resultStatsTable{background:#fff!important;color:#111!important;opacity:1!important;filter:none!important}#gameResultView .resultStatsTable th,#gameResultView .resultStatsTable td{background:#fff!important;color:#111!important;text-shadow:none!important;opacity:1!important;visibility:visible!important}#gameResultView .resultStatsTable thead th{background:#eeeeeb!important;color:#111!important}#gameResultView .resultStatsTable td:nth-child(2){color:#111!important;font-weight:800!important}</style><style id="v2766-force-batting-white">
+/* v2.76.6: 打撃成績のグレー背景を完全に解除し、全セルを白背景へ固定 */
+#gameResultView .resultStatsWrap,
+#gameResultView .resultStatsTable,
+#gameResultView .resultStatsTable thead,
+#gameResultView .resultStatsTable tbody,
+#gameResultView .resultStatsTable tr,
+#gameResultView .resultStatsTable th,
+#gameResultView .resultStatsTable td,
+#gameResultView .resultStatsTable th:first-child,
+#gameResultView .resultStatsTable td:first-child,
+#gameResultView .resultStatsTable th:nth-child(2),
+#gameResultView .resultStatsTable td:nth-child(2),
+#gameResultView .resultStatsTable tr.battingSubHeader th{
+  background:#fff!important;
+  background-color:#fff!important;
+  color:#111!important;
+  text-shadow:none!important;
+  opacity:1!important;
+  filter:none!important;
+}
+#gameResultView .resultStatsTable thead th{
+  background:#fff!important;
+  background-color:#fff!important;
+  color:#111!important;
+}
+#gameResultView .resultStatsTable .subMark{
+  background:#f2c94c!important;
+  color:#111!important;
+}
+</style>
+</head>
 <body>
 <div class="app">
 <header class="top"><div class="brand">⚾ 野球ノート</div><div class="sub">西春高校野球部の試合結果を振り返る。</div></header>
