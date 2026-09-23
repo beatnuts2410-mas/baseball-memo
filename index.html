@@ -528,6 +528,20 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 #gameResultView .resultStatsTable th,#gameResultView .resultStatsTable td{padding:5px 2px!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:break-word!important}
 #gameResultView .resultStatsTable th:first-child,#gameResultView .resultStatsTable td:first-child{width:20%!important;position:static!important}
 </style>
+
+<style id="v2740-result-unify">
+/* v2.74.0: 打席成績を投手成績と同サイズに統一 */
+#gameResultView .resultStatsTable{font-size:12px!important;line-height:1.25!important;}
+#gameResultView .resultStatsTable th,#gameResultView .resultStatsTable td{font-size:12px!important;line-height:1.25!important;padding:7px 3px!important;}
+#gameResultView .resultStatsTable td:first-child{font-size:14px!important;font-weight:900!important;}
+#gameResultView .pitchingRecordName{font-size:14px!important;font-weight:900!important;}
+#gameResultView .pitchingStatCell .psLabel{font-size:9px!important;}
+#gameResultView .pitchingStatCell .psValue{font-size:12px!important;}
+/* 試合経過：選手名 → 内容を明確に分離 */
+#gameResultView .eventTop b{font-size:12px!important;line-height:1.4!important;letter-spacing:.01em!important;}
+#gameResultView .eventTop b{word-spacing:.18em;}
+#gameResultView .eventTop{column-gap:12px!important;}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1382,7 +1396,7 @@ function battingStats(g){
  return Object.values(stats);
 }
 function resultEvents(g){
- const events=[...(g.pa||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.batter} → ${x.result}${x.runs?`・${x.runs}点`:''}`,kind:'打席'})),...(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.type}${x.judgement?`・${x.judgement}`:''}：${x.name||'走者'}${x.dest===4?' → 本塁・得点':x.dest?` → ${x.dest}塁`:''}${x.runs?`・${x.runs}点`:''}`,kind:'走者'})),...((g.pitching?.history||[]).filter((x,i)=>i>0).map(x=>({seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`選手交代：投手 ${x.name}`,kind:'交代'})))];
+ const events=[...(g.pa||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.batter}　→　${x.result}${x.runs?`　${x.runs}点`:''}`,kind:'打席'})),...(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.type}${x.judgement?`・${x.judgement}`:''}：${x.name||'走者'}${x.dest===4?' → 本塁・得点':x.dest?` → ${x.dest}塁`:''}${x.runs?`・${x.runs}点`:''}`,kind:'走者'})),...((g.pitching?.history||[]).filter((x,i)=>i>0).map(x=>({seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`選手交代：投手 ${x.name}`,kind:'交代'})))];
  // 写真/SNS用の全記録は自チーム側の記録だけ。エラー表記は除外し、選手交代は残す。
  return events.filter(e=>!String(e.text||'').includes('エラー') && e.kind!=='エラー')
    .sort((a,b)=>a.seq-b.seq || a.inning-b.inning || (a.half==='表'?0:1)-(b.half==='表'?0:1));
