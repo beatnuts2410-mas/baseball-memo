@@ -853,6 +853,30 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 .sportsBoard th:not(:first-child),.sportsBoard td:not(:first-child){text-align:center!important;white-space:nowrap!important}
 @media(max-width:480px){.sportsMatch{grid-template-columns:minmax(0,.9fr) minmax(108px,1.2fr) minmax(0,.9fr)!important}.sportsTeamLogo{width:56px!important;height:56px!important}.sportsTeamName{font-size:11px!important}.sportsMiniInfo{grid-template-columns:1fr!important}.sportsMiniInfo span{font-size:9px!important;padding:3px!important}}
 </style>
+
+<style id="v2758-batting-order-width">
+/* v2.75.8: 打撃成績の「打順」列を内容幅に合わせて左詰め。選手名列は別に確保 */
+#gameResultView .resultStatsTable th:first-child,
+#gameResultView .resultStatsTable td:first-child{
+  width:3.2em!important;
+  min-width:3.2em!important;
+  max-width:3.2em!important;
+  padding-left:2px!important;
+  padding-right:1px!important;
+  text-align:left!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+#gameResultView .resultStatsTable th:nth-child(2),
+#gameResultView .resultStatsTable td:nth-child(2){
+  width:9em!important;
+  min-width:9em!important;
+  max-width:9em!important;
+  padding-left:2px!important;
+  text-align:left!important;
+}
+</style>
 </head>
 <body>
 <div class="app">
