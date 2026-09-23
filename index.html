@@ -473,6 +473,16 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   .runnerBases.groundImageBase .runnerBase .baseTag .baseNo{font-size:10px}
   .runnerBases.groundImageBase .rb1{left:76%!important}.runnerBases.groundImageBase .rb3{left:24%!important}
 }
+<style id="v2728-result-colors">
+/* v2.72.8: 打席結果の背景色を明確化 */
+.resultgrid .result.hit{background:#bfefff!important;border-color:#62c9e8!important;color:#111!important}
+.resultgrid .result.hr{background:#2563eb!important;border-color:#174ea6!important;color:#fff!important;font-size:16px!important;font-weight:950!important;box-shadow:0 0 0 3px #93c5fd inset,0 0 12px rgba(37,99,235,.35)!important}
+.resultgrid .result.out{background:#e0e0e0!important;border-color:#a3a3a3!important;color:#111!important}
+.resultgrid .result.sacrifice{background:#d9f5df!important;border-color:#5abf73!important;color:#111!important}
+.resultgrid .result.walk{background:#fff2bf!important;border-color:#e0b52a!important;color:#111!important}
+.resultgrid .result.error{background:#ffe0c2!important;border-color:#d97706!important;color:#111!important}
+.resultgrid .result.selected{outline:3px solid #111!important}
+</style>
 </style>
 </head>
 <body>
@@ -727,7 +737,7 @@ function registerPitcher(g,name,type='投手交代',fromName=''){
 }
 function addPitcherOut(g){ensurePitching(g);if(g.pitching.current)g.pitching.current.outs=(Number(g.pitching.current.outs)||0)+1;}
 function pitcherInningsText(rec){const outs=Math.max(0,Number(rec?.outs)||0);const rem=outs%3;return `${Math.floor(outs/3)}回${rem?rem+'/3':''}`;}
-function pitcherExitText(history,index,g){const next=history?.[index+1];if(next?.enteredInning)return `${next.enteredInning}回${next.enteredHalf||''}`;if(g?.finished)return `${g.inning||''}回${g.half||''}`;return '登板中';}
+function pitcherExitText(history,index,g){const cur=history?.[index]||{};const startHalf=cur.enteredHalf||'';const next=history?.[index+1];if(next?.enteredInning){const n=Number(next.enteredInning)||1;const nh=next.enteredHalf||startHalf;if(startHalf && nh && nh!==startHalf){return `${Math.max(1,n-1)}回${startHalf}`;}return `${n}回${startHalf||nh}`;}if(g?.finished){const n=Number(g.inning)||1;const h=g.half||startHalf; if(startHalf&&h&&h!==startHalf)return `${Math.max(1,n-1)}回${startHalf}`; return `${n}回${startHalf||h}`;}return '登板中';}
 function changePitcher(){
  const g=db.current;if(!g)return;ensurePitching(g);const current=g.pitching.current?.name||g.pitcher?.name||'';const roster=(db.team.players||[]).filter(p=>p.role!=='manager');
  const html=`<div class="subPanel" id="pitcherQuickModal" style="display:flex" onclick="if(event.target===this)document.getElementById('pitcherQuickModal').remove()"><div class="subCard"><div class="title">投手交代</div><div class="muted">現在：${esc(current||'未登録')}</div><select id="pitcherQuickSelect" class="subSelect">${roster.map(p=>`<option value="${esc(p.name)}" ${p.name===current?'selected':''}>${esc(p.name)}${p.num?' #'+p.num:''}</option>`).join('')}</select><div class="subActions"><button class="btn" onclick="document.getElementById('pitcherQuickModal').remove()">キャンセル</button><button class="btn primary" onclick="applyPitcherChange()">投手交代</button></div></div></div>`;
