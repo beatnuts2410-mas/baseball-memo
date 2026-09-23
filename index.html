@@ -1784,7 +1784,7 @@ function renderGameResult(g){
  return `<div id="gameResultView">${renderSportsScoreCard(g)}
  ${g.sharedTeamName?`<div class="sharedBanner"><b>📱 共有された試合</b><span class="muted">共有された試合結果をそのまま見ています。気に入ったらマイアプリに保存できます。</span><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveSharedMatch()">試合結果をマイアプリに保存</button></div>`:''}
  ${!g.sharedTeamName?`<div class="card shareLinkCard"><div class="title">試合結果をリンクでシェアしよう！</div><p class="muted">共有リンクをLINE・SNSなどへ送ります。受け取った人はリンクを開くだけで、この試合の「試合データ」に直行します。</p><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="createMatchShareLink(${g.id})">⚾ 試合結果リンクを作る</button><div id="matchSharePanel" class="hidden"><div id="matchShare"></div><button class="btn shareLinkBtn" onclick="shareMatchLink(${g.id})">📤 LINE・SNSへ送る</button></div></div>`:''}
- <div class="card resultDefenseCard"><div class="title">守備位置</div>${renderLineupDefenseGround(g)}<div class="hint" style="text-align:center">試合終了時点の最終守備位置です。</div></div>
+ <div class="card resultDefenseCard"><div class="title">守備位置</div>${renderLineupDefenseGround(g)}<div class="hint" style="text-align:center">試合終了時の守備位置を表示。正式な守備位置と配置選手を表示しています。</div></div>
  <div class="card"><div class="title">投手記録・登板履歴</div>${pitchingHtml}</div><div class="card"><div class="title">打撃成績</div>${batting}</div>
  <div class="card"><div class="title">試合経過・全記録</div><div class="eventList">${eventHtml}</div></div>
  <button class="btn resultBack" onclick="resultGameId=null;render()">← 試合データへ戻る</button></div>`;
