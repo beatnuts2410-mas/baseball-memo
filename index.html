@@ -1606,7 +1606,7 @@ function renderLineupDefenseGround(g){
  const assigned={};
  (g.lineup||[]).forEach(p=>{const pos=normalizeDefPos(p?.pos);if(pos)assigned[pos]=p?.name||'';});
  const marks=slots.map(([pos,cls])=>`<div class="defPos ${cls}" title="${esc(pos)}"><span class="defPosName">${esc(pos)}</span>${assigned[pos]?`<span class="defPlayer">${esc(assigned[pos])}</span>`:''}</div>`).join('');
- const dh=assigned['指名打者']||g.dh?.name||'';
+ const dh=assigned['指名打者']||'';
  return `<div class="lineupDefenseGround" aria-label="守備配置イメージ">${marks}${dh?`<div class="defDh"><span>指名打者</span><b>${esc(dh)}</b></div>`:''}</div>`;
 }
 function lineupView(){
@@ -1617,11 +1617,11 @@ function lineupView(){
  for(let i=0;i<9;i++){
    let v=g.lineup[i]?.name||db.lastLineup[i]?.name||db.team.players[i]?.name||'';
    let pos=g.lineup[i]?.pos||'';
-   rows+=`<div class="playerrow"><div class="num">${i+1}</div><select class="select" data-li="${i}"><option value="">選手を選択</option>${opts}</select><select class="select" data-pos="${i}"><option value="">守備位置を選択</option>${DEF_POSITIONS.map(([v,l])=>`<option value="${v}" ${normalizeDefPos(pos)===v?'selected':''}>${l}</option>`).join('')}</select><button class="btn small" onclick="moveLine(${i},-1)">↑</button></div>`
+   rows+=`<div class="playerrow"><div class="num">${i+1}</div><select class="select" data-li="${i}"><option value="">選手を選択</option>${opts.replace(/<option value="([^"]+)">/g,(m,n)=>`<option value="${n}" ${n===v?'selected':''}>`)}</select><select class="select" data-pos="${i}"><option value="">守備位置を選択</option>${DEF_POSITIONS.map(([v,l])=>`<option value="${v}" ${normalizeDefPos(pos)===v?'selected':''}>${l}</option>`).join('')}</select><button class="btn small" onclick="moveLine(${i},-1)">↑</button></div>`
  }
  return gameHeader()+`<div class="card"><div class="row between"><div class="title">試合情報</div><button class="btn small" onclick="copyPrev()">前回オーダー</button></div><div class="grid2"><input id="date" class="input" type="date" value="${g.date}"><input id="opp" class="input" value="${esc(g.opponent)}" placeholder="相手校"></div><div style="height:8px"></div><div class="grid2"><input id="tour" class="input" value="${esc(g.tournament)}" placeholder="大会名・回戦"><input id="stad" class="input" value="${esc(g.stadium)}" placeholder="球場"></div></div>
  <div class="card"><div class="title">打順・守備</div><div class="lineup">${rows}</div>
- <div style="height:10px"></div><div class="grid2"><div><div class="muted">投手</div><select id="pitcher" class="select"><option value="">選手を選択</option>${opts}</select></div><div><div class="muted">DH</div><select id="dh" class="select"><option value="">DHなし</option>${opts}</select></div></div>
+ <div style="height:10px"></div><div class="grid2"><div><div class="muted">投手</div><select id="pitcher" class="select"><option value="">選手を選択</option>${opts}</select></div><div><div class="muted">指名打者</div><select id="dh" class="select"><option value="">指名打者無し</option>${opts}</select></div></div>
  <button class="btn primary" style="width:100%;margin-top:10px" onclick="saveLineup()">オーダーを確定</button></div>
  <div class="card"><div class="title">守備イメージ</div>${renderLineupDefenseGround(g)}<div class="hint" style="text-align:center">走者・グランドと同じグラウンド画像を使用。正式な守備位置と配置選手を表示しています。</div></div>`;
 }
@@ -1780,6 +1780,7 @@ function renderGameResult(g){
  return `<div id="gameResultView">${renderSportsScoreCard(g)}
  ${g.sharedTeamName?`<div class="sharedBanner"><b>📱 共有された試合</b><span class="muted">共有された試合結果をそのまま見ています。気に入ったらマイアプリに保存できます。</span><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveSharedMatch()">試合結果をマイアプリに保存</button></div>`:''}
  ${!g.sharedTeamName?`<div class="card shareLinkCard"><div class="title">試合結果をリンクでシェアしよう！</div><p class="muted">共有リンクをLINE・SNSなどへ送ります。受け取った人はリンクを開くだけで、この試合の「試合データ」に直行します。</p><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="createMatchShareLink(${g.id})">⚾ 試合結果リンクを作る</button><div id="matchSharePanel" class="hidden"><div id="matchShare"></div><button class="btn shareLinkBtn" onclick="shareMatchLink(${g.id})">📤 LINE・SNSへ送る</button></div></div>`:''}
+ <div class="card resultDefenseCard"><div class="title">守備位置</div>${renderLineupDefenseGround(g)}<div class="hint" style="text-align:center">試合終了時点の最終守備位置です。</div></div>
  <div class="card"><div class="title">投手記録・登板履歴</div>${pitchingHtml}</div><div class="card"><div class="title">打撃成績</div>${batting}</div>
  <div class="card"><div class="title">試合経過・全記録</div><div class="eventList">${eventHtml}</div></div>
  <button class="btn resultBack" onclick="resultGameId=null;render()">← 試合データへ戻る</button></div>`;
@@ -2262,4 +2263,15 @@ input[type="date"]{min-width:0!important;overflow:hidden!important}
   #gameResultView .title{font-size:15px!important}
   #gameResultView .sportsHero{border-radius:14px!important}
 }
+</style>
+
+<style id="v2751-lineup-result-fixes">
+/* v2.75.1: 指名打者正式名称・選択状態・最終守備位置・ユニフォーム表示統一 */
+.playerrow .select{font-weight:700!important;}
+.playerrow .select[data-li]{font-weight:700!important;}
+.playerrow .select[data-pos]{font-weight:700!important;}
+.sportsTeamLogo,.sportsTeamLogo.opponent{width:62px!important;height:62px!important;max-width:62px!important;max-height:62px!important;object-fit:contain!important;display:block!important;margin:0 auto 7px!important;padding:0!important;border:0!important;box-shadow:none!important;background:transparent!important;}
+@media(max-width:480px){.sportsTeamLogo,.sportsTeamLogo.opponent{width:56px!important;height:56px!important;max-width:56px!important;max-height:56px!important;}}
+.resultDefenseCard .lineupDefenseGround{margin-top:8px!important;margin-bottom:8px!important;}
+.resultDefenseCard .defPlayer{font-size:11px!important;}
 </style>
