@@ -601,6 +601,29 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   #gameResultView .pitchingStatsGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
 }
 </style>
+
+<style id="v2743-final-ui">
+/* v2.74.3: 打席成績は選手名をフルネーム固定、その他項目は横スクロール */
+#gameResultView .resultStatsWrap{width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;box-sizing:border-box!important;}
+#gameResultView .resultStatsTable{width:max-content!important;min-width:980px!important;max-width:none!important;table-layout:auto!important;font-size:12px!important;line-height:1.25!important;}
+#gameResultView .resultStatsTable th,#gameResultView .resultStatsTable td{white-space:nowrap!important;word-break:normal!important;overflow:visible!important;padding:7px 6px!important;}
+#gameResultView .resultStatsTable th:first-child,#gameResultView .resultStatsTable td:first-child{position:sticky!important;left:0!important;z-index:2!important;width:auto!important;min-width:120px!important;max-width:none!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;background:#fff!important;font-weight:900!important;}
+
+/* 投手成績：枠で囲まず、選手名＋「登板：先発」の横並びで見やすく表示 */
+#gameResultView .pitchingRecord{border:0!important;border-bottom:1px solid #d9e1dc!important;border-radius:0!important;background:transparent!important;padding:8px 2px!important;margin:0!important;}
+#gameResultView .pitchingRecord:last-child{border-bottom:0!important;}
+#gameResultView .pitchingRecordName{font-size:12px!important;font-weight:900!important;margin:0 0 5px!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;}
+#gameResultView .pitchingStatsGrid{display:flex!important;flex-wrap:wrap!important;gap:4px 14px!important;width:100%!important;}
+#gameResultView .pitchingStatCell{border:0!important;background:transparent!important;padding:0!important;display:inline-flex!important;align-items:baseline!important;gap:2px!important;min-width:auto!important;white-space:nowrap!important;}
+#gameResultView .pitchingStatCell .psLabel{font-size:9px!important;font-weight:700!important;margin:0!important;}
+#gameResultView .pitchingStatCell .psLabel:after{content:'：';}
+#gameResultView .pitchingStatCell .psValue{font-size:12px!important;font-weight:800!important;overflow:visible!important;text-overflow:clip!important;}
+
+/* 自チーム・相手チームのアイコン後ろの四角い枠・枠線を削除 */
+#gameResultView .sportsTeamLogo,
+#gameResultView .sportsTeamLogo.opponent{border:0!important;box-shadow:none!important;background:transparent!important;padding:0!important;border-radius:0!important;}
+#gameResultView .sportsTeamLogo.nishiharuUniform{background:transparent!important;}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1477,7 +1500,7 @@ function battingStats(g){
  return Object.values(stats);
 }
 function resultEvents(g){
- const events=[...(g.pa||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.batter}　→　${x.result}${x.runs?`　${x.runs}点`:''}`,kind:'打席'})),...(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.type}${x.judgement?`・${x.judgement}`:''}：${x.name||'走者'}${x.dest===4?' → 本塁・得点':x.dest?` → ${x.dest}塁`:''}${x.runs?`・${x.runs}点`:''}`,kind:'走者'})),...((g.pitching?.history||[]).filter((x,i)=>i>0).map(x=>({seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`選手交代：投手 ${x.name}`,kind:'交代'})))];
+ const events=[...(g.pa||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${(g.lineup||[]).findIndex(pl=>pl?.name===x.batter)>=0?((g.lineup||[]).findIndex(pl=>pl?.name===x.batter)+1)+'番　':''}${x.batter}　→　${x.result}${x.runs?`　${x.runs}点`:''}`,kind:'打席'})),...(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.type}${x.judgement?`・${x.judgement}`:''}：${x.name||'走者'}${x.dest===4?' → 本塁・得点':x.dest?` → ${x.dest}塁`:''}${x.runs?`・${x.runs}点`:''}`,kind:'走者'})),...((g.pitching?.history||[]).filter((x,i)=>i>0).map(x=>({seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`選手交代：投手 ${x.name}`,kind:'交代'})))];
  // 写真/SNS用の全記録は自チーム側の記録だけ。エラー表記は除外し、選手交代は残す。
  return events.filter(e=>!String(e.text||'').includes('エラー') && e.kind!=='エラー')
    .sort((a,b)=>a.seq-b.seq || a.inning-b.inning || (a.half==='表'?0:1)-(b.half==='表'?0:1));
