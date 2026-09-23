@@ -1208,6 +1208,14 @@ function finishHalf(){pushGameHistory();const g=db.current;if(!g)return;const x=
 function cloneRunners(r){return [Number(r?.[0])||0,Number(r?.[1])||0,Number(r?.[2])||0]}
 function cloneRunnerNames(r){return [r?.[0]||null,r?.[1]||null,r?.[2]||null]}
 function syncRunnerNames(g,names){g.runnerNames=cloneRunnerNames(names);}
+function runnerProgressText(before,after,prefix){
+ const moved=[];
+ if(before[2])moved.push('本塁・得点');
+ if(before[1])moved.push('3塁');
+ if(before[0])moved.push('2塁');
+ return moved;
+}
+
 function advanceRunners(g,result,batterName){
   let before=cloneRunners(g.runners), names=cloneRunnerNames(g.runnerNames), after=[0,0,0], afterNames=[null,null,null], scored=0,rbi=0;
   const score=(n,credited=true)=>{scored+=n;if(credited)rbi+=n};
@@ -1222,8 +1230,8 @@ function advanceRunners(g,result,batterName){
     if(before[0]){after[1]=1;afterNames[1]=names[0]||'走者'}else if(before[1]){after[1]=1;afterNames[1]=names[1]||'走者'}
     after[0]=1;afterNames[0]=batterName;syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:scored?`押し出しで${scored}点`:''};
   }
-  if(result==='犠飛'){if(before[2])score(1);keep(0,0);keep(1,1);syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:scored?'犠飛で三塁走者生還':''};}
-  if(result==='バント'||result==='犠打'){if(before[2])score(1);else if(before[1])keep(1,2);keep(0,1);syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:'犠打で走者を進塁'};}
+  if(result==='犠飛'){if(before[2])score(1);keep(0,0);keep(1,1);syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:scored?`犠飛で${scored}点追加`:'犠飛'};}
+  if(result==='バント'||result==='犠打'){if(before[2])score(1);else if(before[1])keep(1,2);keep(0,1);syncRunnerNames(g,afterNames);const moved=runnerProgressText(before,after);const success=moved.length>0||scored>0;return {runners:after,names:afterNames,scored,rbi,detail:success?`犠打成功！${scored?scored+'点追加・':''}${moved.length?moved.join('・')+'に進塁':''}`:'犠打失敗'};}
   if(result==='相手エラー'||result==='エラー'){
     // 相手の守備エラー：打者は1塁へ進み、既存走者は1つずつ進塁。3塁走者は生還。
     if(before[2])score(1,false);
@@ -1280,7 +1288,7 @@ function judgeSteal(judgement){
  pushGameHistory();
  if(judgement==='アウト'){
    g.runners[from]=0;g.runnerNames[from]=null;g.outs=Math.min(3,(Number(g.outs)||0)+1);
-   g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:'盗塁',judgement:'アウト',inning:g.inning,half:g.half,from,dest:null,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(g.runners),afterNames:cloneRunnerNames(g.runnerNames),runs:0});
+   g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:'盗塁',judgement:'アウト',inning:g.inning,half:g.half,from,dest:null,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(g.runners),afterNames:cloneRunnerNames(g.runnerNames),runs:0,detail:`盗塁失敗・${name}アウト`});
    const outNow=endHalfOnThreeOuts(g);
    save();closeRunnerMove();render();toast(`盗塁：${name} → アウト${outNow?'・3アウト':''}`);return;
  }
@@ -1296,7 +1304,7 @@ function applyRunnerMove(dest){
  pushGameHistory();
  g.runners[from]=0;g.runnerNames[from]=null;let scored=0;
  if(dest===4){scored=1;g.scoreUs=(Number(g.scoreUs)||0)+1}else{g.runners[dest-1]=1;g.runnerNames[dest-1]=name}
- g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:runnerMoveMode,judgement:runnerMoveMode==='盗塁'?'セーフ':null,inning:g.inning,half:g.half,from,dest,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(g.runners),afterNames:cloneRunnerNames(g.runnerNames),runs:scored});
+ g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:runnerMoveMode,judgement:runnerMoveMode==='盗塁'?'セーフ':null,inning:g.inning,half:g.half,from,dest,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(g.runners),afterNames:cloneRunnerNames(g.runnerNames),runs:scored,detail:runnerMoveMode==='盗塁'?`盗塁で${dest===4?'本塁・得点':dest+'塁'}に進塁`:`${runnerMoveMode}で${dest===4?'本塁・得点':dest+'塁'}に進塁`});
  updateInningScore(g);if(checkColdGame(g,'during')){closeRunnerMove();return;}save();closeRunnerMove();render();toast(`${runnerMoveMode}：${name} → ${dest===4?'本塁・得点':dest+'塁'}`);
 }
 function applyBalk(){
@@ -1309,7 +1317,8 @@ function applyBalk(){
  if(before[0]){after[1]=1;afterNames[1]=beforeNames[0]||'走者';}
  pushGameHistory();
  g.runners=after;g.runnerNames=afterNames;g.scoreUs=(Number(g.scoreUs)||0)+scored;
- g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:'ボーク',inning:g.inning,half:g.half,from:'auto',dest:'auto',name:'走者自動進塁',beforeRunners:before,beforeNames,afterRunners:cloneRunners(after),afterNames:cloneRunnerNames(afterNames),runs:scored});
+ const balkDest=[];if(before[2])balkDest.push('本塁・得点');if(before[1])balkDest.push('3塁');if(before[0])balkDest.push('2塁');const balkDetail=`ボークで${scored?scored+'点追加・':''}${balkDest.length?balkDest.join('・')+'に進塁':'走者進塁'}`;
+ g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:'ボーク',inning:g.inning,half:g.half,from:'auto',dest:'auto',name:'走者自動進塁',beforeRunners:before,beforeNames,afterRunners:cloneRunners(after),afterNames:cloneRunnerNames(afterNames),runs:scored,detail:balkDetail});
  updateInningScore(g);if(checkColdGame(g,'during'))return;save();render();toast(`ボーク：${scored?scored+'点・':''}走者を自動進塁`);
 }
 function openSteal(i){openRunnerMove('盗塁');selectRunnerToMove(i)}
@@ -1358,7 +1367,7 @@ function pa(result){
  g.outs+=out;
  g.eventSeq=(Number(g.eventSeq)||0)+1;
  const paIndex=g.pa.length;
- g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:b.name,result,rbi:mv.rbi,runs:mv.scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(g.runners),afterRunnerNames:cloneRunnerNames(g.runnerNames),outsAfter:g.outs,beforeScoreUs:Number(g.scoreUs)-mv.scored,beforeScoreUsSnapshot:Number(g.scoreUs)-mv.scored,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:g.outs-out,beforeBatterIndex:g.batterIndex});
+ g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:b.name,result,rbi:mv.rbi,runs:mv.scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(g.runners),afterRunnerNames:cloneRunnerNames(g.runnerNames),outsAfter:g.outs,beforeScoreUs:Number(g.scoreUs)-mv.scored,beforeScoreUsSnapshot:Number(g.scoreUs)-mv.scored,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:g.outs-out,beforeBatterIndex:g.batterIndex,detail:mv.detail||''});
  updateInningScore(g);
  if(checkColdGame(g,'during'))return;
  if(g.inning===9 && g.half===ownHalf(g) && ownHalf(g)==='裏' && Number(g.scoreUs)>Number(g.scoreOpp)){
@@ -1446,7 +1455,7 @@ function confirmRunnerAdvance(){
  const paIndex=g.pa.length;
  const beforeScore=Number(p.beforeScoreUs)||0;
  const rbi=scored;
- g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:p.batter,result:p.result,rbi,runs:scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(after),afterRunnerNames:cloneRunnerNames(afterNames),outsAfter:g.outs,beforeScoreUs:beforeScore,beforeScoreUsSnapshot:beforeScore,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:Number(p.beforeOuts),beforeBatterIndex:p.batterIndex});
+ g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:p.batter,result:p.result,rbi,runs:scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(after),afterRunnerNames:cloneRunnerNames(afterNames),outsAfter:g.outs,beforeScoreUs:beforeScore,beforeScoreUsSnapshot:beforeScore,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:Number(p.beforeOuts),beforeBatterIndex:p.batterIndex,detail:p.detail||''});
  updateInningScore(g);
  if(checkColdGame(g,'during'))return;
  if(g.inning===9 && g.half===ownHalf(g) && ownHalf(g)==='裏' && Number(g.scoreUs)>Number(g.scoreOpp)){
@@ -1504,6 +1513,7 @@ function applyPACorrection(){
  p.beforeScoreUs=Number(g.scoreUs)-mv.scored; // before value is preserved below
  // restore true before score from the snapshot source, not the recalculated value
  p.beforeScoreUs=Number(p.beforeScoreUsSnapshot ?? (g.scoreUs-mv.scored));
+ p.detail=mv.detail||'';
  // The original before score is needed for future corrections; create it if legacy data lacks a snapshot.
  if(p.beforeScoreUsSnapshot==null) p.beforeScoreUsSnapshot=Number(g.scoreUs)-mv.scored;
  updateInningScore(g);
@@ -1678,14 +1688,14 @@ function compactMatchPayload(g){
  const dict=[],map=new Map();
  const S=v=>{v=String(v??'');if(!v)return 0;let n=map.get(v);if(n)return n;n=dict.length+1;dict.push(v);map.set(v,n);return n};
  const H=v=>v==='裏'?1:0;
- const P=(x)=>[Number(x?.seq)||0,Number(x?.inning)||0,H(x?.half),S(x?.batter),S(x?.result),Number(x?.rbi)||0,Number(x?.runs)||0];
- const R=(x)=>[Number(x?.seq)||0,S(x?.type),S(x?.judgement),Number(x?.inning)||0,H(x?.half),S(x?.name),x?.dest==null?0:Number(x.dest)||0,Number(x?.runs)||0];
+ const P=(x)=>[Number(x?.seq)||0,Number(x?.inning)||0,H(x?.half),S(x?.batter),S(x?.result),Number(x?.rbi)||0,Number(x?.runs)||0,S(x?.detail)];
+ const R=(x)=>[Number(x?.seq)||0,S(x?.type),S(x?.judgement),Number(x?.inning)||0,H(x?.half),S(x?.name),x?.dest==null?0:Number(x.dest)||0,Number(x?.runs)||0,S(x?.detail)];
  const T=(x)=>[S(x?.name),Number(x?.enteredInning)||0,H(x?.enteredHalf),Number(x?.outs)||0,x?.started?1:0,Number(x?.seq)||0];
  return {v:3,s:makeShareId(g),t:S(db.team.name),h:[g.date||'',g.tournament||'',g.stadium||'',g.opponent||'相手校',Number(g.scoreUs)||0,Number(g.scoreOpp)||0,g.order==='後攻'?1:0],d:dict,i:(g.innings||[]).map(x=>[Number(x?.us)||0,Number(x?.opp)||0]),p:(g.pa||[]).map(P),r:(g.runnerMoves||[]).map(R),y:(g.pitching?.history||[]).map(T)};
 }
 function expandMatchPayload(q){
  const D=Array.isArray(q.d)?q.d:[];const S=n=>n?D[n-1]||'':'';const H=n=>n?'裏':'表';const h=q.h||[];
- return {date:h[0]||'',tournament:h[1]||'',stadium:h[2]||'',opponent:h[3]||'相手校',scoreUs:Number(h[4])||0,scoreOpp:Number(h[5])||0,order:h[6]?'後攻':'先攻',finished:true,shareId:q.s||'',innings:(q.i||[]).map(x=>({us:Number(x?.[0])||0,opp:Number(x?.[1])||0})),pa:(q.p||[]).map(x=>({seq:Number(x?.[0])||0,inning:Number(x?.[1])||0,half:H(x?.[2]),batter:S(x?.[3]),result:S(x?.[4]),rbi:Number(x?.[5])||0,runs:Number(x?.[6])||0})),runnerMoves:(q.r||[]).map(x=>({seq:Number(x?.[0])||0,type:S(x?.[1]),judgement:S(x?.[2])||null,inning:Number(x?.[3])||0,half:H(x?.[4]),name:S(x?.[5]),dest:Number(x?.[6])||0,runs:Number(x?.[7])||0})),pitching:{history:(q.y||[]).map(x=>({name:S(x?.[0]),enteredInning:Number(x?.[1])||0,enteredHalf:H(x?.[2]),outs:Number(x?.[3])||0,started:!!x?.[4],seq:Number(x?.[5])||0}))}};
+ return {date:h[0]||'',tournament:h[1]||'',stadium:h[2]||'',opponent:h[3]||'相手校',scoreUs:Number(h[4])||0,scoreOpp:Number(h[5])||0,order:h[6]?'後攻':'先攻',finished:true,shareId:q.s||'',innings:(q.i||[]).map(x=>({us:Number(x?.[0])||0,opp:Number(x?.[1])||0})),pa:(q.p||[]).map(x=>({seq:Number(x?.[0])||0,inning:Number(x?.[1])||0,half:H(x?.[2]),batter:S(x?.[3]),result:S(x?.[4]),rbi:Number(x?.[5])||0,runs:Number(x?.[6])||0,detail:S(x?.[7])})),runnerMoves:(q.r||[]).map(x=>({seq:Number(x?.[0])||0,type:S(x?.[1]),judgement:S(x?.[2])||null,inning:Number(x?.[3])||0,half:H(x?.[4]),name:S(x?.[5]),dest:Number(x?.[6])||0,runs:Number(x?.[7])||0,detail:S(x?.[8])})),pitching:{history:(q.y||[]).map(x=>({name:S(x?.[0]),enteredInning:Number(x?.[1])||0,enteredHalf:H(x?.[2]),outs:Number(x?.[3])||0,started:!!x?.[4],seq:Number(x?.[5])||0}))}};
 }
 async function buildMatchShareUrl(g){
  const compact=compactMatchPayload(g),payload={v:4,s:compact.s,t:compact.t,g:compact},enc=await gzipEncodeUrlSafe(payload);
@@ -1748,10 +1758,25 @@ function battingStats(g){
  return Object.values(stats);
 }
 function resultEvents(g){
- const events=[...(g.pa||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${(g.lineup||[]).findIndex(pl=>pl?.name===x.batter)>=0?((g.lineup||[]).findIndex(pl=>pl?.name===x.batter)+1)+'番　':''}${x.batter}　→　${x.result}${x.runs?`　${x.runs}点`:''}`,kind:'打席'})),...(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:`${x.type}${x.judgement?`・${x.judgement}`:''}：${x.name||'走者'}${x.dest===4?' → 本塁・得点':x.dest?` → ${x.dest}塁`:''}${x.runs?`・${x.runs}点`:''}`,kind:'走者'})),...((g.pitching?.history||[]).filter((x,i)=>i>0).map(x=>({seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`選手交代：投手 ${x.name}`,kind:'交代'})))];
- // 写真/SNS用の全記録は自チーム側の記録だけ。エラー表記は除外し、選手交代は残す。
- return events.filter(e=>!String(e.text||'').includes('エラー') && e.kind!=='エラー')
-   .sort((a,b)=>a.seq-b.seq || a.inning-b.inning || (a.half==='表'?0:1)-(b.half==='表'?0:1));
+ const baseLabel=d=>d===4?'本塁・得点':d?`${d}塁`:'';
+ const moveText=x=>{
+   const type=x.type||'走塁';
+   if(x.detail)return x.detail;
+   if(type==='盗塁') return x.judgement==='アウト'?`盗塁失敗・${x.name||'走者'}アウト`:`盗塁で${baseLabel(x.dest)}に進塁`;
+   if(type==='パスボール'||type==='暴投'||type==='ボーク') return x.dest===4?`${type}で本塁・得点`:`${type}で${baseLabel(x.dest)}に進塁`;
+   return `${type}${x.judgement?`・${x.judgement}`:''}：${x.name||'走者'}${x.dest?` → ${baseLabel(x.dest)}`:''}${x.runs?`・${x.runs}点`:''}`;
+ };
+ const paEvents=(g.pa||[]).map(x=>{
+   const order=(g.lineup||[]).findIndex(pl=>pl?.name===x.batter)>=0?((g.lineup||[]).findIndex(pl=>pl?.name===x.batter)+1)+'番　':'';
+   let text=`${order}${x.batter}　→　${x.result}`;
+   if(x.result==='犠飛') text+=x.runs?`で${x.runs}点追加`:'（得点なし）';
+   else if(x.result==='犠打') text+=x.detail?`　${x.detail}`:'';
+   else if(x.runs) text+=`　${x.runs}点`;
+   return {seq:Number(x.seq)||0,inning:x.inning,half:x.half,text,kind:'打席'};
+ });
+ const runnerEvents=(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:moveText(x),kind:'走者'}));
+ const pitchingEvents=(g.pitching?.history||[]).filter((x,i)=>i>0).map(x=>({seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`選手交代：投手 ${x.name}`,kind:'交代'}));
+ return [...paEvents,...runnerEvents,...pitchingEvents].filter(e=>!String(e.text||'').includes('エラー')).sort((a,b)=>a.seq-b.seq || a.inning-b.inning || (a.half==='表'?0:1)-(b.half==='表'?0:1));
 }
 function resultInningRows(g){
  const max=Math.max(1,g.innings?.length||0,Math.ceil((g.pa||[]).reduce((m,p)=>Math.max(m,Number(p.inning)||1),0)));
