@@ -541,10 +541,70 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 #gameResultView .eventTop b{font-size:12px!important;line-height:1.4!important;letter-spacing:.01em!important;word-spacing:.18em;}
 #gameResultView .eventTop{column-gap:12px!important;}
 </style>
+
+<style id="v2742-final-ui">
+/* v2.74.2: 試合結果UI最終調整 */
+/* 打席成績：選手名は横一列で表示 */
+#gameResultView .resultStatsTable td:first-child,
+#gameResultView .resultStatsTable th:first-child{
+  white-space:nowrap!important;
+  word-break:normal!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  width:20%!important;
+}
+#gameResultView .resultStatsTable{width:100%!important;max-width:100%!important;table-layout:fixed!important;}
+
+/* 投手成績：四角枠を薄くし、「登板：先発」のように表示 */
+#gameResultView .pitchingRecord{
+  border:1px solid #d8e0da!important;
+  border-radius:8px!important;
+  padding:7px 8px!important;
+  background:#fff!important;
+}
+#gameResultView .pitchingRecordName{
+  font-size:12px!important;
+  font-weight:900!important;
+  margin-bottom:5px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#gameResultView .pitchingStatsGrid{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:4px!important;
+}
+#gameResultView .pitchingStatCell{
+  border:0!important;
+  background:transparent!important;
+  padding:2px 3px!important;
+  min-width:0!important;
+  display:flex!important;
+  align-items:baseline!important;
+  gap:3px!important;
+  white-space:nowrap!important;
+}
+#gameResultView .pitchingStatCell .psLabel{
+  font-size:9px!important;
+  font-weight:700!important;
+  margin:0!important;
+}
+#gameResultView .pitchingStatCell .psLabel:after{content:'：';}
+#gameResultView .pitchingStatCell .psValue{
+  font-size:12px!important;
+  font-weight:800!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+@media(max-width:520px){
+  #gameResultView .pitchingStatsGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+}
+</style>
 </head>
 <body>
 <div class="app">
-<header class="top"><div class="brand">⚾ 西春野球ノート</div><div class="sub">高校野球の試合記録を、少ないタップで。</div></header>
+<header class="top"><div class="brand">⚾ 野球ノート</div><div class="sub">西春高校野球部の試合結果を振り返る。</div></header>
 <main class="content" id="app"></main>
 <nav class="tabs">
 <button class="tab active" data-tab="record"><span class="ico">📝</span>記録</button>
@@ -1450,7 +1510,7 @@ function renderGameResult(g){
  const sportsBoard=`<div class="sportsBoard"><table><thead><tr><th>チーム</th>${Array.from({length:maxInning},(_,i)=>`<th>${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody>${sportsRow(firstName,firstIsOwn?'us':'opp',firstIsOwn?g.scoreUs:g.scoreOpp)}${sportsRow(secondName,firstIsOwn?'opp':'us',firstIsOwn?g.scoreOpp:g.scoreUs)}</tbody></table></div>`;
  return `<div id="gameResultView"><div class="resultHero sportsResultHero"><div class="sportsHeroTop"><span>試合結果</span><span>${esc(g.date||'')}　${esc(g.tournament||'')}</span></div><div class="sportsMatch"><div class="sportsTeam"><img class="sportsTeamLogo nishiharuUniform" src="nishiharu-uniform.png" alt="西春高校ユニフォーム"><div class="sportsTeamName">${esc(myTeamName)}</div><div class="sportsTeamLabel">自チーム</div></div><div class="sportsCenter"><div class="sportsStatus">FINAL</div><div class="sportsMainScore">${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}</div><span class="sportsResultBadge ${resultClass}">${win}</span><div class="sportsMiniInfo"><span>${g.innings?.length||1}回制</span><span>得点 ${Number(g.scoreUs)||0}</span><span>打撃記録 ${stats.length}人</span></div></div><div class="sportsTeam"><img class="sportsTeamLogo opponent" src="opponent-uniform.png" alt="相手チームユニフォーム"><div class="sportsTeamName">${esc(g.opponent||'相手校')}</div><div class="sportsTeamLabel">相手</div></div></div>${sportsBoard}<div class="sportsFooter"><span>${esc(g.stadium||'')}</span><span>${g.finishedAt?new Date(g.finishedAt).toLocaleString('ja-JP'):''}</span></div></div>
  ${g.sharedTeamName?`<div class="sharedBanner"><b>📱 共有された試合</b><span class="muted">共有された試合結果をそのまま見ています。気に入ったらマイアプリに保存できます。</span><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveSharedMatch()">試合結果をマイアプリに保存</button></div>`:''}
- ${!g.sharedTeamName?`<div class="card shareLinkCard"><div class="title">今日の試合結果をリンクでシェアしよう！</div><p class="muted">共有リンクをLINE・SNSなどへ送ります。受け取った人はリンクを開くだけで、この試合の「試合データ」に直行します。</p><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="createMatchShareLink(${g.id})">⚾ 試合結果リンクを作る</button><div id="matchSharePanel" class="hidden"><div id="matchShare"></div><button class="btn shareLinkBtn" onclick="shareMatchLink(${g.id})">📤 LINE・SNSへ送る</button></div></div>`:''}
+ ${!g.sharedTeamName?`<div class="card shareLinkCard"><div class="title">試合結果をリンクでシェアしよう！</div><p class="muted">共有リンクをLINE・SNSなどへ送ります。受け取った人はリンクを開くだけで、この試合の「試合データ」に直行します。</p><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="createMatchShareLink(${g.id})">⚾ 試合結果リンクを作る</button><div id="matchSharePanel" class="hidden"><div id="matchShare"></div><button class="btn shareLinkBtn" onclick="shareMatchLink(${g.id})">📤 LINE・SNSへ送る</button></div></div>`:''}
  <div class="card"><div class="title">投手記録・登板履歴</div>${pitchingHtml}</div><div class="card"><div class="title">打撃成績</div>${batting}</div>
  <div class="card"><div class="title">試合経過・全記録</div><div class="eventList">${eventHtml}</div></div>
  <button class="btn resultBack" onclick="resultGameId=null;render()">← 試合データへ戻る</button></div>`;
@@ -1661,7 +1721,7 @@ function render(){
  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
  document.getElementById("app").innerHTML=tab==="record"?recordView():tab==="team"?teamView():tab==="lineup"?lineupView():dataView();
 }
-document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;if(tab==="data"){resultGameId=null;sharedGame=null;history.replaceState(null,"",location.pathname)}render()});
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js?v=2.70",{updateViaCache:"none"}));
 (async function bootApp(){
   const sharedLoaded = await loadSharedMatchFromHash();
