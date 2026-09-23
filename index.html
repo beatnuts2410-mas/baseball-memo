@@ -877,6 +877,58 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   text-align:left!important;
 }
 </style>
+
+<style id="v2760-batting-order-player-sticky">
+/* v2.76.0: 打撃成績は「打順」と「選手」の2列を横スクロール時も固定 */
+#gameResultView .resultStatsWrap{
+  width:100%!important;
+  max-width:100%!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+#gameResultView .resultStatsTable{
+  width:max-content!important;
+  min-width:100%!important;
+  table-layout:auto!important;
+}
+#gameResultView .resultStatsTable th:first-child,
+#gameResultView .resultStatsTable td:first-child{
+  position:sticky!important;
+  left:0!important;
+  z-index:5!important;
+  width:3.2em!important;
+  min-width:3.2em!important;
+  max-width:3.2em!important;
+  box-sizing:border-box!important;
+  padding-left:2px!important;
+  padding-right:1px!important;
+  text-align:left!important;
+  white-space:nowrap!important;
+  background:#101a29!important;
+}
+#gameResultView .resultStatsTable th:nth-child(2),
+#gameResultView .resultStatsTable td:nth-child(2){
+  position:sticky!important;
+  left:3.2em!important;
+  z-index:5!important;
+  width:9em!important;
+  min-width:9em!important;
+  max-width:9em!important;
+  box-sizing:border-box!important;
+  padding-left:6px!important;
+  padding-right:6px!important;
+  text-align:left!important;
+  white-space:nowrap!important;
+  background:#101a29!important;
+  font-weight:900!important;
+}
+#gameResultView .resultStatsTable thead th:first-child,
+#gameResultView .resultStatsTable thead th:nth-child(2){
+  background:#172234!important;
+  z-index:6!important;
+}
+</style>
 </head>
 <body>
 <div class="app">
