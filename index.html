@@ -1367,7 +1367,7 @@ function pa(result){
  g.outs+=out;
  g.eventSeq=(Number(g.eventSeq)||0)+1;
  const paIndex=g.pa.length;
- g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:b.name,result,rbi:mv.rbi,runs:mv.scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(g.runners),afterRunnerNames:cloneRunnerNames(g.runnerNames),outsAfter:g.outs,beforeScoreUs:Number(g.scoreUs)-mv.scored,beforeScoreUsSnapshot:Number(g.scoreUs)-mv.scored,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:g.outs-out,beforeBatterIndex:g.batterIndex,detail:mv.detail||''});
+ g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:b.name,batterOrder:(Number(g.batterIndex)%9)+1,result,rbi:mv.rbi,runs:mv.scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(g.runners),afterRunnerNames:cloneRunnerNames(g.runnerNames),outsAfter:g.outs,beforeScoreUs:Number(g.scoreUs)-mv.scored,beforeScoreUsSnapshot:Number(g.scoreUs)-mv.scored,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:g.outs-out,beforeBatterIndex:g.batterIndex,detail:mv.detail||''});
  updateInningScore(g);
  if(checkColdGame(g,'during'))return;
  if(g.inning===9 && g.half===ownHalf(g) && ownHalf(g)==='裏' && Number(g.scoreUs)>Number(g.scoreOpp)){
@@ -1455,7 +1455,7 @@ function confirmRunnerAdvance(){
  const paIndex=g.pa.length;
  const beforeScore=Number(p.beforeScoreUs)||0;
  const rbi=scored;
- g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:p.batter,result:p.result,rbi,runs:scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(after),afterRunnerNames:cloneRunnerNames(afterNames),outsAfter:g.outs,beforeScoreUs:beforeScore,beforeScoreUsSnapshot:beforeScore,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:Number(p.beforeOuts),beforeBatterIndex:p.batterIndex,detail:p.detail||''});
+ g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:p.batter,batterOrder:(Number(p.batterIndex)%9)+1,result:p.result,rbi,runs:scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(after),afterRunnerNames:cloneRunnerNames(afterNames),outsAfter:g.outs,beforeScoreUs:beforeScore,beforeScoreUsSnapshot:beforeScore,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:Number(p.beforeOuts),beforeBatterIndex:p.batterIndex,detail:p.detail||''});
  updateInningScore(g);
  if(checkColdGame(g,'during'))return;
  if(g.inning===9 && g.half===ownHalf(g) && ownHalf(g)==='裏' && Number(g.scoreUs)>Number(g.scoreOpp)){
@@ -1732,11 +1732,13 @@ function battingStats(g){
  const stats={};
  const arr=Array.isArray(g.pa)?g.pa:[];
  const ensure=n=>{
-   if(!stats[n]) stats[n]={name:n,pa:0,ab:0,h:0,d2:0,d3:0,hr:0,rbi:0,bb:0,hbp:0,so:0,sh:0,sf:0};
+   if(!stats[n]) stats[n]={name:n,order:0,pa:0,ab:0,h:0,d2:0,d3:0,hr:0,rbi:0,bb:0,hbp:0,so:0,sh:0,sf:0};
    return stats[n];
  };
  arr.forEach(p=>{
    const n=p.batter||'不明',result=p.result||'その他',s=ensure(n);
+   const derivedOrder=(g.lineup||[]).findIndex(pl=>pl?.name===n);
+   if(!s.order) s.order=Number(p.batterOrder)||((derivedOrder>=0)?derivedOrder+1:((Number(p.beforeBatterIndex)%9)+1));
    s.pa++;
    s.ab++;
    s.rbi+=Number.isFinite(Number(p.rbi))?Number(p.rbi):0;
@@ -1767,7 +1769,7 @@ function resultEvents(g){
    return `${type}${x.judgement?`・${x.judgement}`:''}：${x.name||'走者'}${x.dest?` → ${baseLabel(x.dest)}`:''}${x.runs?`・${x.runs}点`:''}`;
  };
  const paEvents=(g.pa||[]).map(x=>{
-   const order=(g.lineup||[]).findIndex(pl=>pl?.name===x.batter)>=0?((g.lineup||[]).findIndex(pl=>pl?.name===x.batter)+1)+'番　':'';
+   const derivedOrder=(g.lineup||[]).findIndex(pl=>pl?.name===x.batter); const orderNum=Number(x.batterOrder)||((derivedOrder>=0)?derivedOrder+1:((Number(x.beforeBatterIndex)%9)+1)); const order=orderNum>0?`${orderNum}番　`:'';
    let text=`${order}${x.batter}　→　${x.result}`;
    if(x.result==='犠飛') text+=x.runs?`で${x.runs}点追加`:'（得点なし）';
    else if(x.result==='犠打') text+=x.detail?`　${x.detail}`:'';
@@ -1790,7 +1792,7 @@ function renderGameResult(g){
  const myTeamName=g.sharedTeamName||db.team.name;
  const win=g.scoreUs>g.scoreOpp?'勝利':g.scoreUs<g.scoreOpp?'敗戦':'引き分け';
  const stats=battingStats(g),events=resultEvents(g);
- const batting=stats.length?`<div class="resultStatsWrap"><table class="resultStatsTable"><thead><tr><th>選手</th><th>打席</th><th>打数</th><th>安打</th><th>二塁打</th><th>三塁打</th><th>本塁打</th><th>打点</th><th>四球</th><th>死球</th><th>三振</th><th>犠打</th><th>犠飛</th><th>打率</th></tr></thead><tbody>${stats.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.pa}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.d2}</td><td>${s.d3}</td><td>${s.hr}</td><td>${s.rbi}</td><td>${s.bb}</td><td>${s.hbp}</td><td>${s.so}</td><td>${s.sh}</td><td>${s.sf}</td><td class="avg">${s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">打席記録はありません</div>`;
+ const batting=stats.length?`<div class="resultStatsWrap"><table class="resultStatsTable"><thead><tr><th>打順</th><th>選手</th><th>打席</th><th>打数</th><th>安打</th><th>二塁打</th><th>三塁打</th><th>本塁打</th><th>打点</th><th>四球</th><th>死球</th><th>三振</th><th>犠打</th><th>犠飛</th><th>打率</th></tr></thead><tbody>${stats.map(s=>`<tr><td>${s.order?s.order+'番':'—'}</td><td>${esc(s.name)}</td><td>${s.pa}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.d2}</td><td>${s.d3}</td><td>${s.hr}</td><td>${s.rbi}</td><td>${s.bb}</td><td>${s.hbp}</td><td>${s.so}</td><td>${s.sh}</td><td>${s.sf}</td><td class="avg">${s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">打席記録はありません</div>`;
  const pitchingHtml=(g.pitching?.history||[]).length?`<div class="pitchingRecords">${(g.pitching.history||[]).map((p,i)=>`<div class="pitchingRecord"><div class="pitchingRecordName">${esc(p.name)}</div><div class="pitchingStatsGrid"><div class="pitchingStatCell"><span class="psLabel">登板</span><span class="psValue">${i===0?'先発':'途中登板'}</span></div><div class="pitchingStatCell"><span class="psLabel">投球回</span><span class="psValue">${pitcherInningsText(p)}</span></div><div class="pitchingStatCell"><span class="psLabel">登板開始</span><span class="psValue">${p.enteredInning}回${p.enteredHalf}</span></div><div class="pitchingStatCell"><span class="psLabel">降板回</span><span class="psValue">${pitcherExitText(g.pitching.history,i,g)}</span></div></div></div>`).join('')}</div>`:`<div class="empty">投手記録はありません</div>`; const max=Math.max(1,g.innings?.length||0);
  const firstIsOwn=g.order!=='後攻';
  const firstName=firstIsOwn?myTeamName:(g.opponent||'相手');
