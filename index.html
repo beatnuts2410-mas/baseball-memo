@@ -509,6 +509,25 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   background-color: transparent !important;
 }
 </style>
+<style id="v2738-result-final">
+/* v2.73.8: ゲームセット条件・試合結果表示を最終調整 */
+/* 投手成績：少しコンパクトに */
+.pitchingRecords{width:100%!important;max-width:100%!important;box-sizing:border-box!important;gap:6px!important}
+.pitchingRecord{width:100%!important;max-width:100%!important;box-sizing:border-box!important;padding:8px!important;margin-bottom:6px!important}
+.pitchingRecordName{font-size:14px!important;font-weight:900!important;margin-bottom:6px!important}
+.pitchingStatsGrid{width:100%!important;max-width:100%!important;gap:6px!important;box-sizing:border-box!important}
+.pitchingStatCell{padding:7px 5px!important}
+.pitchingStatCell .psLabel{font-size:9px!important;margin-bottom:2px!important}
+.pitchingStatCell .psValue{font-size:12px!important}
+/* 試合結果の選手名：太字＋1.1倍 */
+#gameResultView .resultStatsTable td:first-child{font-weight:900!important;font-size:1.1em!important}
+#gameResultView .pitchingRecordName{font-weight:900!important;font-size:1.1em!important}
+/* 試合結果の横幅は外枠に必ず合わせる。横スクロールを発生させない */
+#gameResultView .resultStatsWrap{width:100%!important;max-width:100%!important;box-sizing:border-box!important;overflow-x:hidden!important}
+#gameResultView .resultStatsTable{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;box-sizing:border-box!important;font-size:10px!important}
+#gameResultView .resultStatsTable th,#gameResultView .resultStatsTable td{padding:5px 2px!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+#gameResultView .resultStatsTable th:first-child,#gameResultView .resultStatsTable td:first-child{width:20%!important;position:static!important}
+</style>
 </head>
 <body>
 <div class="app">
@@ -634,17 +653,9 @@ function checkGameEndAfterHalf(g,endedHalf){
  if(inning===9){
    // 後攻チーム：9回表（相手攻撃）終了時にリードしていれば、その時点でゲームセット。
    if(own==='裏' && endedHalf===opp && us>os)return autoFinishGame(g,'9回表終了・自チーム勝利');
-   // 後攻チーム：9回裏に逆転したら即ゲームセット。9回裏終了時の勝敗も確定。
-   if(own==='裏' && endedHalf===own){
-     if(us>os)return autoFinishGame(g,'9回裏・逆転勝ち');
-     if(us<os)return autoFinishGame(g,'9回裏終了・敗戦');
-     return false; // 同点なら10回表へ
-   }
-   // 先攻チーム：9回裏（相手攻撃）終了時に勝敗確定。9回表終了時はまだ相手攻撃が残る。
-   if(own==='表' && endedHalf===opp){
-     if(us>os)return autoFinishGame(g,'9回裏終了・勝利');
-     if(us<os)return autoFinishGame(g,'9回裏終了・敗戦');
-     return false; // 同点なら10回表へ
+   // 9回裏終了でゲームセット（9回まで。延長には進まない）。
+   if(endedHalf===opp || (own==='裏' && endedHalf===own)){
+     return autoFinishGame(g, us===os ? '9回終了・同点' : (us>os ? '9回終了・勝利' : '9回終了・敗戦'));
    }
  }
  return false;
@@ -703,9 +714,9 @@ function ruleEndAlert(g){
  if(!g||g.finished)return '';
  const diff=Math.abs((Number(g.scoreUs)||0)-(Number(g.scoreOpp)||0));
  let reason='';
- if(g.inning>=5 && diff>=10) reason=`${g.inning}回・10点差以上`;
- else if(g.inning>=7 && diff>=7) reason=`${g.inning}回・7点差以上`;
- else if(g.inning>=9 && g.inning===9 && g.scoreUs!==g.scoreOpp) reason='9回終了条件・同点ではありません';
+ // ゲームセット条件：5〜6回は10点差以上、7回のみ7点差以上。8回以降はコールド条件なし。
+ if(g.inning>=5 && g.inning<=6 && diff>=10) reason=`${g.inning}回・10点差以上`;
+ else if(g.inning===7 && diff>=7) reason='7回・7点差以上';
  if(!reason)return '';
  return `<div class="ruleAlert"><b>⚠️ 試合終了しますか？</b><div class="muted">${reason}のため、試合終了を選択できます。</div><button class="ruleBtn" onclick="finishGame()">試合終了として保存する</button></div>`;
 }
