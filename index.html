@@ -801,6 +801,11 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   #gameResultView .sportsTeamLogo.opponent,
   .sportsTeamLogo, .sportsTeamLogo.opponent{width:62px!important;height:62px!important;}
 }
+
+/* v2.74.8: スコアボード見出しを速報・結果で統一。1〜9回（延長含む）は中央揃え。 */
+.sportsBoard thead th{font-size:11px!important;font-weight:900!important;text-align:center!important;line-height:1.2}
+.sportsBoard thead th:first-child{ text-align:left!important; }
+.sportsBoard thead th:not(:first-child){ text-align:center!important; }
 </style>
 </head>
 <body>
@@ -946,11 +951,13 @@ function checkGameEndAfterHalf(g,endedHalf){
  if(inning<9)return false;
  const own=ownHalf(g),opp=opponentHalf(g);
  if(inning===9){
-   // 後攻チーム：9回表（相手攻撃）終了時にリードしていれば、その時点でゲームセット。
+   // 後攻チーム：9回表終了時にリードしていれば、その時点でゲームセット。
    if(own==='裏' && endedHalf===opp && us>os)return autoFinishGame(g,'9回表終了・自チーム勝利');
-   // 9回裏終了でゲームセット（9回まで。延長には進まない）。
+   // 9回終了時に同点なら延長へ自動移行。10回以降は innings を自動追加して表示する。
+   // 9回裏終了後に同点の場合も、ゲームセットにはせず10回表へ進める。
    if(endedHalf===opp || (own==='裏' && endedHalf===own)){
-     return autoFinishGame(g, us===os ? '9回終了・同点' : (us>os ? '9回終了・勝利' : '9回終了・敗戦'));
+     if(us===os)return false;
+     return autoFinishGame(g, us>os ? '9回終了・勝利' : '9回終了・敗戦');
    }
  }
  return false;
