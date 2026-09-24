@@ -2284,12 +2284,12 @@ function battingStats(g){
  return {starters,replacements,rest};
 }
 function resultEvents(g){
- const baseLabel=d=>d===4?'本塁・得点':d?`${d}塁`:'';
+ const baseLabel=d=>d===4?'本塁・得点':d?`${d}塁へ`:'';
+ const resultLabel=r=>r==='単打'?'シングルヒット':r;
  const moveText=x=>{
    const type=x.type||'走塁';
    const name=x.name||'走者';
    const destText=x.dest===4?'本塁・得点':baseLabel(x.dest);
-   // 走者プレーは詳細文の有無に関係なく「誰が」を必ず表示する。
    if(type==='盗塁'){
      if(x.judgement==='アウト') return `盗塁：${name} → アウト`;
      return `盗塁：${name} → ${destText||'進塁'}`;
@@ -2304,22 +2304,34 @@ function resultEvents(g){
    return `${type}${x.judgement?`・${x.judgement}`:''}：${name}${destText?` → ${destText}`:''}${x.runs?`・${x.runs}点`:''}`;
  };
  const replacementMap=new Map((g.subs||[]).filter(s=>s.type!=='投手交代').map(s=>[displayPlayerName(s.to),s]).filter(([name])=>name));
- const paEvents=(g.pa||[]).map(x=>{
-   const derivedOrder=(g.lineup||[]).findIndex(pl=>pl?.name===x.batter); const orderNum=Number(x.batterOrder)||((derivedOrder>=0)?derivedOrder+1:((Number(x.beforeBatterIndex)%9)+1)); const order=orderNum>0?`${orderNum}番　`:'';
+ const paRaw=(g.pa||[]).map(x=>{
+   const derivedOrder=(g.lineup||[]).findIndex(pl=>pl?.name===x.batter);
+   const orderNum=Number(x.batterOrder)||((derivedOrder>=0)?derivedOrder+1:((Number(x.beforeBatterIndex)%9)+1));
+   const order=orderNum>0?`${orderNum}番　`:'';
    const batterName=displayPlayerName(x.batter); const sub=replacementMap.get(batterName);
-   const mark=sub?'<span class="subMark" aria-label="選手交代">◆</span>':'';
-   let text=`${order}${mark}<span class="subName">${esc(batterName)}</span>`;
-   if(sub){const typ=sub.type==='代打'?'代打':sub.type==='代走'?'代走':'守備交代';text+=`（${Number(sub.inning)||x.inning||''}回${typ}）`;} 
-   text+=`　→　${x.result}`;
-   if(x.result==='犠飛') text+=x.runs?`で${x.runs}点追加`:'（得点なし）';
-   else if(x.result==='犠打') text+=x.detail?`　${x.detail}`:'';
-   else if(x.runs) text+=`　${x.runs}点`;
-   return {seq:Number(x.seq)||0,inning:x.inning,half:x.half,text,html:text,kind:'打席'};
+   const mark=sub?'◆ ':'';
+   let text=`${order}${mark}${batterName}`;
+   if(sub){const typ=sub.type==='代打'?'代打':sub.type==='代走'?'代走':'守備交代';text+=`（${Number(sub.inning)||x.inning||''}回${typ}）`;}
+   text+=` → ${resultLabel(x.result)}`;
+   if(x.result==='犠飛') text+=x.runs?`・${x.runs}点追加`:'（得点なし）';
+   else if(x.result==='犠打') text+=x.detail?`・${x.detail}`:'';
+   else if(x.runs) text+=`・${x.runs}点`;
+   return {seq:Number(x.seq)||0,inning:x.inning,half:x.half,text,kind:'打席'};
  });
- const runnerEvents=(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:moveText(x),kind:'走者'}));
+ const runnerRaw=(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:moveText(x),kind:'走者',name:x.name||'走者',dest:x.dest}));
+ // 打席直後に発生した走者プレーは、別行に分けず同じ1行へまとめる。
+ const usedRunner=new Set();
+ const paEvents=paRaw.map((p,i)=>{
+   const nextSeq=i<paRaw.length-1?Number(paRaw[i+1].seq)||Infinity:Infinity;
+   const related=runnerRaw.filter(r=>!usedRunner.has(r.seq)&&r.inning===p.inning&&r.half===p.half&&r.seq>p.seq&&r.seq<nextSeq);
+   related.forEach(r=>usedRunner.add(r.seq));
+   const runnerSuffix=related.map(r=>r.text).join(' ｜ ');
+   return Object.assign({},p,{text:runnerSuffix?`${p.text} ｜ ${runnerSuffix}`:p.text,html:runnerSuffix?`${esc(p.text)} ｜ ${esc(runnerSuffix)}`:esc(p.text)});
+ });
+ const standaloneRunner=runnerRaw.filter(r=>!usedRunner.has(r.seq));
  const substitutionEvents=[];
  const pitchingEvents=(g.pitching?.history||[]).filter((x,i)=>i>0).map(x=>({seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`選手交代：投手 ${x.name}`,kind:'交代'}));
- return [...paEvents,...runnerEvents,...pitchingEvents].filter(e=>!String(e.text||'').includes('エラー')).sort((a,b)=>a.seq-b.seq || a.inning-b.inning || (a.half==='表'?0:1)-(b.half==='表'?0:1));
+ return [...paEvents,...standaloneRunner,...pitchingEvents].filter(e=>!String(e.text||'').includes('エラー')).sort((a,b)=>a.seq-b.seq || a.inning-b.inning || (a.half==='表'?0:1)-(b.half==='表'?0:1));
 }
 function resultInningRows(g){
  const max=Math.max(1,g.innings?.length||0,Math.ceil((g.pa||[]).reduce((m,p)=>Math.max(m,Number(p.inning)||1),0)));
@@ -3915,4 +3927,11 @@ input[type="date"]{min-width:0!important;overflow:hidden!important}
     font-size:14px!important;
   }
 }
+
+/* v2.91.0 エキサイティング試合経過：1イベント=1行、横スクロール可 */
+.eventList .eventRow{display:block!important;padding:12px 14px!important;font-size:16px!important;line-height:1.35!important;white-space:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;word-break:normal!important;overflow-wrap:normal!important;}
+.eventList .eventTop{display:block!important;white-space:nowrap!important;width:max-content!important;min-width:100%!important;}
+.eventList .eventTop>b{display:inline!important;white-space:nowrap!important;overflow:visible!important;word-break:normal!important;overflow-wrap:normal!important;}
+.eventList .eventTag{display:inline!important;margin-left:12px!important;font-size:11px!important;white-space:nowrap!important;}
+@media(max-width:430px){.eventList .eventRow{font-size:15px!important;padding:11px 12px!important;}.eventList .eventTag{font-size:10px!important;}}
 </style>
