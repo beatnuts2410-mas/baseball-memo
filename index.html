@@ -1301,241 +1301,6 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   position:static!important;
 }
 </style>
-
-<style id="v3_03_final_interaction_and_home_fix">
-/* v3.03: 起動画面の写真を独立レイヤー化。背景画像が画面レイアウトへ干渉しないようにする。 */
-#launchScreen.launchScreen{
-  position:fixed!important;
-  inset:0!important;
-  width:100%!important;
-  height:100dvh!important;
-  min-height:0!important;
-  overflow:hidden!important;
-  box-sizing:border-box!important;
-  background:#07101d!important;
-  background-image:none!important;
-  padding:0!important;
-}
-#launchScreen .launchBackgroundImage{
-  position:absolute!important;
-  inset:0!important;
-  width:100%!important;
-  height:100%!important;
-  max-width:none!important;
-  max-height:none!important;
-  object-fit:cover!important;
-  object-position:center center!important;
-  display:block!important;
-  margin:0!important;
-  z-index:0!important;
-  pointer-events:none!important;
-  user-select:none!important;
-}
-#launchScreen::after{
-  content:""!important;
-  position:absolute!important;
-  inset:0!important;
-  background:linear-gradient(rgba(0,0,0,.22),rgba(0,0,0,.34))!important;
-  z-index:0!important;
-  pointer-events:none!important;
-}
-#launchScreen .launchInner{
-  position:relative!important;
-  z-index:1!important;
-  box-sizing:border-box!important;
-}
-
-/* v3.03: 打者結果→確認画面。画面全体は固定し、確認カードだけ上下スクロール可能。 */
-#runnerConfirmModal{
-  position:fixed!important;
-  inset:0!important;
-  z-index:10000!important;
-  display:flex!important;
-  align-items:flex-start!important;
-  justify-content:center!important;
-  width:100%!important;
-  height:100dvh!important;
-  min-height:0!important;
-  box-sizing:border-box!important;
-  padding:8px 8px calc(8px + env(safe-area-inset-bottom))!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  overscroll-behavior:contain!important;
-  touch-action:pan-y!important;
-}
-#runnerConfirmModal .runnerCard{
-  position:relative!important;
-  width:min(560px,100%)!important;
-  max-width:560px!important;
-  height:auto!important;
-  max-height:calc(100dvh - 16px - env(safe-area-inset-bottom))!important;
-  min-height:0!important;
-  margin:0 auto!important;
-  padding:12px 12px calc(86px + env(safe-area-inset-bottom))!important;
-  box-sizing:border-box!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  overscroll-behavior:contain!important;
-  touch-action:pan-y!important;
-  border-radius:16px!important;
-}
-#runnerConfirmModal .runnerConfirmSummary{
-  width:100%!important;
-  min-width:0!important;
-  box-sizing:border-box!important;
-}
-#runnerConfirmModal .manualConfirmSection,
-#runnerConfirmModal .manualConfirmPreview{
-  width:100%!important;
-  min-width:0!important;
-  box-sizing:border-box!important;
-}
-#runnerConfirmModal .manualRunnerRow{
-  width:100%!important;
-  min-width:0!important;
-  box-sizing:border-box!important;
-}
-#runnerConfirmModal .manualRunnerName,
-#runnerConfirmModal .manualRunnerSelect{
-  min-width:0!important;
-  box-sizing:border-box!important;
-}
-#runnerConfirmModal .runnerConfirmBtns{
-  position:sticky!important;
-  left:0!important;
-  bottom:calc(-1px - env(safe-area-inset-bottom))!important;
-  z-index:20!important;
-  width:calc(100% + 24px)!important;
-  margin-left:-12px!important;
-  margin-right:-12px!important;
-  margin-top:10px!important;
-  padding:8px 12px calc(8px + env(safe-area-inset-bottom))!important;
-  box-sizing:border-box!important;
-  background:rgba(255,255,255,.98)!important;
-  border-top:1px solid #d9d9d4!important;
-  backdrop-filter:blur(8px)!important;
-  -webkit-backdrop-filter:blur(8px)!important;
-}
-#runnerConfirmModal .runnerConfirmBtns button{
-  position:relative!important;
-  z-index:21!important;
-  pointer-events:auto!important;
-  touch-action:manipulation!important;
-}
-#runnerConfirmModal .runnerConfirmBtns .primary{
-  min-height:54px!important;
-  height:auto!important;
-  line-height:1.25!important;
-  white-space:normal!important;
-}
-
-/* v3.03: 盗塁・走者プレーを2列×2段の共通配置へ。ネストしたflexを廃止。 */
-#runnerMoveModal{
-  position:fixed!important;
-  inset:0!important;
-  z-index:9999!important;
-  align-items:flex-start!important;
-  justify-content:center!important;
-  width:100%!important;
-  height:100dvh!important;
-  min-height:0!important;
-  box-sizing:border-box!important;
-  padding:8px 8px calc(8px + env(safe-area-inset-bottom))!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  overscroll-behavior:contain!important;
-  touch-action:pan-y!important;
-}
-#runnerMoveModal .runnerCard{
-  width:min(560px,100%)!important;
-  max-width:560px!important;
-  max-height:calc(100dvh - 16px - env(safe-area-inset-bottom))!important;
-  height:auto!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  box-sizing:border-box!important;
-  padding:14px 12px calc(16px + env(safe-area-inset-bottom))!important;
-  border-radius:16px!important;
-}
-#runnerMoveModal .runnerMovePick{
-  display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:8px!important;
-  width:100%!important;
-  min-width:0!important;
-}
-#runnerMoveModal .runnerMovePick .runnerChoiceRunner{
-  width:100%!important;
-  min-width:0!important;
-  min-height:58px!important;
-  height:58px!important;
-  box-sizing:border-box!important;
-  padding:7px 5px!important;
-  font-size:clamp(12px,3.5vw,15px)!important;
-  white-space:nowrap!important;
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
-}
-#runnerMoveModal .runnerMoveDest{
-  display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:8px!important;
-  width:100%!important;
-  min-width:0!important;
-  align-items:stretch!important;
-}
-#runnerMoveModal .runnerMoveHint{
-  grid-column:1/-1!important;
-  width:100%!important;
-  box-sizing:border-box!important;
-  padding:6px 4px!important;
-  margin:0!important;
-  text-align:left!important;
-}
-#runnerMoveModal .runnerStealJudgementGrid{
-  grid-column:1/-1!important;
-  display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:8px!important;
-  width:100%!important;
-}
-#runnerMoveModal .runnerStealJudgementGrid button,
-#runnerMoveModal .runnerDestinationBtn{
-  width:100%!important;
-  min-width:0!important;
-  min-height:64px!important;
-  height:64px!important;
-  box-sizing:border-box!important;
-  margin:0!important;
-  border-radius:12px!important;
-  font-size:clamp(15px,4vw,19px)!important;
-  font-weight:900!important;
-  white-space:nowrap!important;
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
-}
-#runnerMoveModal .runnerStealOutBtn{background:#fee2e2!important;color:#991b1b!important;border:2px solid #ef4444!important;}
-#runnerMoveModal .runnerStealSafeBtn{background:#dcfce7!important;color:#166534!important;border:2px solid #22c55e!important;}
-#runnerMoveModal .runnerHomeBtn{font-size:clamp(14px,3.8vw,18px)!important;}
-#runnerMoveModal .runnerActions{display:contents!important;}
-#runnerMoveModal .runnerActions button{margin:0!important;}
-#runnerMoveModal .secondaryBtn{width:100%!important;min-height:50px!important;height:50px!important;box-sizing:border-box!important;}
-@media(max-width:430px){
-  #runnerConfirmModal{padding:5px 5px calc(5px + env(safe-area-inset-bottom))!important;}
-  #runnerConfirmModal .runnerCard{max-height:calc(100dvh - 10px - env(safe-area-inset-bottom))!important;padding:10px 9px calc(82px + env(safe-area-inset-bottom))!important;border-radius:14px!important;}
-  #runnerConfirmModal .runnerConfirmBtns{width:calc(100% + 18px)!important;margin-left:-9px!important;margin-right:-9px!important;padding:7px 9px calc(7px + env(safe-area-inset-bottom))!important;}
-  #runnerConfirmModal .runnerConfirmBtns .primary{min-height:52px!important;font-size:13px!important;}
-  #runnerMoveModal{padding:5px 5px calc(5px + env(safe-area-inset-bottom))!important;}
-  #runnerMoveModal .runnerCard{max-height:calc(100dvh - 10px - env(safe-area-inset-bottom))!important;padding:12px 9px calc(12px + env(safe-area-inset-bottom))!important;border-radius:14px!important;}
-  #runnerMoveModal .runnerMovePick,#runnerMoveModal .runnerMoveDest,#runnerMoveModal .runnerStealJudgementGrid{gap:7px!important;}
-  #runnerMoveModal .runnerMovePick .runnerChoiceRunner{min-height:54px!important;height:54px!important;font-size:clamp(11px,3.4vw,14px)!important;}
-  #runnerMoveModal .runnerStealJudgementGrid button,#runnerMoveModal .runnerDestinationBtn{min-height:58px!important;height:58px!important;font-size:clamp(14px,4vw,17px)!important;}
-}
-</style>
-
 </head>
 <body>
 <div class="app">
@@ -1998,13 +1763,13 @@ function selectRunnerToMove(i){
  const name=g.runnerNames?.[i]||'走者';
  document.getElementById('moveTarget').textContent=`${runnerMoveMode}：${i+1}塁 ${name} の${runnerMoveMode==='盗塁'?'判定':'進塁先'}`;
  if(runnerMoveMode==='盗塁'){
-   document.getElementById('moveDest').className='runnerScore runnerMoveDest'; document.getElementById('moveDest').innerHTML='<div class="hint runnerMoveHint">まず盗塁の判定を選択してください。</div><div class="runnerStealJudgementGrid"><button type="button" class="btn red runnerStealOutBtn" onclick="judgeSteal(\'アウト\')">アウト</button><button type="button" class="btn primary runnerStealSafeBtn" onclick="judgeSteal(\'セーフ\')">セーフ</button></div>';
+   document.getElementById('moveDest').className='runnerScore runnerMoveDest'; document.getElementById('moveDest').innerHTML='<div class="hint">まず盗塁の判定を選択してください。</div><div class="runnerActions"><button class="btn red" style="min-height:62px;font-size:17px" onclick="judgeSteal(\'アウト\')">アウト</button><button class="btn primary" style="min-height:62px;font-size:17px" onclick="judgeSteal(\'セーフ\')">セーフ</button></div>';
  }else{renderRunnerDestinations();}
 }
 function renderRunnerDestinations(){
  const g=db.current;if(runnerMoveFrom==null||!g)return;
  const i=runnerMoveFrom;
- document.getElementById('moveDest').className='runnerScore runnerMoveDest'; document.getElementById('moveDest').innerHTML=`<div class="hint runnerMoveHint">進塁先を選択してください。</div>${[1,2,3,4].filter(d=>d>i+1&&(d===4||!g.runners[d-1])).map(d=>`<button type="button" class="btn runnerDestinationBtn ${d===4?'red runnerHomeBtn':''}" onclick="applyRunnerMove(${d})">${d===4?'本塁・得点':d+'塁へ'}</button>`).join('')}`;
+ document.getElementById('moveDest').className='runnerScore runnerMoveDest'; document.getElementById('moveDest').innerHTML=`<div class="hint">進塁先を選択してください。</div><div class="runnerActions runnerDestinationGrid">${[1,2,3,4].filter(d=>d>i+1&&(d===4||!g.runners[d-1])).map(d=>`<button class="btn runnerDestinationBtn ${d===4?'red runnerHomeBtn':''}" onclick="applyRunnerMove(${d})">${d===4?'本塁・得点':d+'塁へ'}</button>`).join('')}</div>`;
 }
 function judgeSteal(judgement){
  const g=db.current;if(runnerMoveFrom==null||!g?.runners[runnerMoveFrom])return closeRunnerMove();
@@ -3029,9 +2794,18 @@ function hasSavedGame(){
   }catch(e){ return false; }
 }
 
+function closeAllGameModals(){
+  ['paCorrectionModal','runnerCorrectionModal','inGameSubModal','outsAdjustModal','defSubModal','runnerConfirmModal','runnerMoveModal'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display='none';
+  });
+}
+
 function showLaunchScreen(){
   const ls=document.getElementById('launchScreen');
   if(!ls) return;
+  // 起動画面表示中に前回のモーダルが残って操作を奪わないよう、必ず閉じる。
+  closeAllGameModals();
   ls.style.display='flex';
   const cb=document.getElementById('continueGameBtn');
   if(cb) cb.style.display=hasSavedGame()?'block':'none';
@@ -3054,9 +2828,10 @@ function hideLaunchScreen(){
   if(ls) ls.style.display='none';
 }
 
-function startNewFromLaunch(){ hideLaunchScreen(); newGameSetup(); }
+function startNewFromLaunch(){ closeAllGameModals(); hideLaunchScreen(); if(db.current) db.current.pendingRunnerConfirm=null; newGameSetup(); }
 
 function continueFromLaunch(){
+  closeAllGameModals();
   try{
     if(typeof db !== 'undefined' && db.current){
       tab='record';
@@ -3167,7 +2942,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <div id="runnerMoveModal" class="runnerModal" style="display:none" onclick="if(event.target===this)closeRunnerMove()"><div class="runnerCard"><h3 style="margin:0">走者プレー</h3><div id="moveTarget" class="muted" style="margin-top:6px"></div><div class="title" style="margin-top:14px">① 走者を選択</div><div id="moveRunnerList" class="runnerScore runnerMovePick"></div><div class="title" style="margin-top:14px">② 進塁先を選択</div><div id="moveDest" class="runnerScore runnerMoveDest"><div class="hint">先に走者を選択してください。</div></div><button class="secondaryBtn" style="width:100%;margin-top:12px" onclick="closeRunnerMove()">キャンセル</button></div></div>
 
 <div id="launchScreen" class="launchScreen" style="display:none">
-  <img src="home-launch-bg.png" class="launchBackgroundImage" alt="" aria-hidden="true">
   <div class="launchInner">
     <img src="icon-192.png" class="launchIcon" alt="野球メモ">
     <h1>野球メモ</h1>
@@ -3400,6 +3174,109 @@ document.addEventListener('DOMContentLoaded', ()=>{
   background:rgba(8,18,32,.72)!important;
   border:1px solid rgba(255,255,255,.45)!important;
   color:#fff!important;
+}
+</style>
+
+<style id="v3_02_3_startup_and_runner_final_fix">
+/* v3.02.3: 起動画面と走者プレーの最終固定。
+   起動画面表示中はゲーム用モーダルを確実に隠し、開始操作を邪魔させない。 */
+#launchScreen.launchScreen{
+  position:fixed!important;
+  inset:0!important;
+  z-index:100000!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:auto!important;
+  box-sizing:border-box!important;
+  padding:20px 14px!important;
+}
+#launchScreen .launchInner{
+  width:min(430px,100%)!important;
+  max-height:calc(100dvh - 40px)!important;
+  overflow:auto!important;
+  box-sizing:border-box!important;
+}
+/* 走者プレーは「走者選択」「盗塁判定」「進塁先」をすべて同じ2列グリッド規則で統一 */
+#runnerMoveModal.runnerModal{
+  z-index:9000!important;
+  align-items:flex-end!important;
+  padding:8px 8px max(8px,env(safe-area-inset-bottom))!important;
+  box-sizing:border-box!important;
+}
+#runnerMoveModal .runnerCard{
+  width:min(620px,100%)!important;
+  max-width:620px!important;
+  max-height:calc(100dvh - 16px)!important;
+  overflow-y:auto!important;
+  box-sizing:border-box!important;
+  padding:16px 14px calc(16px + env(safe-area-inset-bottom))!important;
+}
+#runnerMoveModal #moveRunnerList,
+#runnerMoveModal #moveDest{
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+#runnerMoveModal .runnerMovePick{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+#runnerMoveModal .runnerMovePick .runnerChoiceRunner{
+  width:100%!important;
+  min-width:0!important;
+  min-height:62px!important;
+  height:62px!important;
+  box-sizing:border-box!important;
+  padding:8px 6px!important;
+  font-size:15px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#runnerMoveModal .runnerMoveDest{
+  display:block!important;
+}
+#runnerMoveModal .runnerMoveDest > .hint{
+  margin:0 0 8px!important;
+}
+#runnerMoveModal .runnerMoveDest .runnerActions,
+#runnerMoveModal .runnerMoveDest .runnerDestinationGrid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin-top:8px!important;
+}
+#runnerMoveModal .runnerMoveDest .runnerActions button,
+#runnerMoveModal .runnerMoveDest .runnerDestinationGrid .runnerDestinationBtn{
+  width:100%!important;
+  min-width:0!important;
+  min-height:76px!important;
+  height:76px!important;
+  box-sizing:border-box!important;
+  margin:0!important;
+  padding:8px 6px!important;
+  font-size:18px!important;
+  line-height:1.15!important;
+  white-space:normal!important;
+}
+#runnerMoveModal .runnerMoveDest .runnerActions button{
+  font-size:20px!important;
+  font-weight:900!important;
+}
+#runnerMoveModal .runnerHomeBtn{font-size:17px!important;}
+@media(max-width:430px){
+  #runnerMoveModal.runnerModal{padding:6px 6px max(6px,env(safe-area-inset-bottom))!important;}
+  #runnerMoveModal .runnerCard{padding:13px 10px calc(13px + env(safe-area-inset-bottom))!important;}
+  #runnerMoveModal .runnerMovePick{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;}
+  #runnerMoveModal .runnerMovePick .runnerChoiceRunner{min-height:58px!important;height:58px!important;font-size:14px!important;}
+  #runnerMoveModal .runnerMoveDest .runnerActions,
+  #runnerMoveModal .runnerMoveDest .runnerDestinationGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;}
+  #runnerMoveModal .runnerMoveDest .runnerActions button,
+  #runnerMoveModal .runnerMoveDest .runnerDestinationGrid .runnerDestinationBtn{min-height:68px!important;height:68px!important;font-size:17px!important;}
+  #runnerMoveModal .runnerHomeBtn{font-size:15px!important;}
 }
 </style>
 </body>
@@ -4553,6 +4430,7 @@ input[type="date"]{min-width:0!important;overflow:hidden!important}
 }
 </style>
 
+<style id="v3_00_cold_game_fix">
 /* v3.00.0: 試合終了データのコールドゲーム表示 */
 #gameResultView .coldGameBanner{
  display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;
@@ -4567,6 +4445,7 @@ input[type="date"]{min-width:0!important;overflow:hidden!important}
  #gameResultView .coldGameBanner .coldGameReason{font-size:11px!important;width:100%!important;}
 }
 
+</style>
 
 <style id="v3_01_layout_restore_and_subheader_fix">
 /* v3.01: 基本画面設定を復元。
@@ -4645,7 +4524,7 @@ html,body{
 <style id="v3_02_launch_home_background">
 /* v3.02: 起動時ホーム画面にユーザー指定の野球写真を背景設定 */
 #launchScreen.launchScreen{
-  background-image:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.40)),url('home-launch-bg.png')!important;
+  background-image:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.40)),url('home-launch-bg.jpg')!important;
   background-size:cover!important;
   background-position:center center!important;
   background-repeat:no-repeat!important;
