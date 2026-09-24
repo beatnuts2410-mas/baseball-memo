@@ -1450,6 +1450,26 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
  #runnerConfirmModal .runnerConfirmBtns button{height:48px!important;min-height:48px!important;font-size:12px!important;}
 }
 </style>
+
+<style id="v3_02_7_manual_confirm_scroll_final">
+/* v3.02.7: 手動確認画面の実DOMを優先。表示内容を消さず、画面高さ不足時だけ確認モーダル全体を縦スクロール。 */
+#runnerConfirmModal{display:flex!important;align-items:flex-start!important;justify-content:center!important;overflow-x:hidden!important;overflow-y:auto!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important;}
+#runnerConfirmModal>.runnerCard{display:block!important;flex:0 0 auto!important;height:auto!important;max-height:none!important;overflow:visible!important;}
+#runnerConfirmModal #runnerConfirmTarget,#runnerConfirmModal #runnerConfirmSummary{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important;}
+#runnerConfirmModal #runnerConfirmSummary:empty{display:block!important;min-height:0!important;}
+#runnerConfirmModal #runnerConfirmSummary>.manualConfirmSection,#runnerConfirmModal #runnerConfirmSummary>.confirmSectionPreview{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible!important;}
+#runnerConfirmModal .runnerConfirmBtns{position:sticky!important;bottom:0!important;z-index:200!important;display:grid!important;visibility:visible!important;opacity:1!important;}
+#runnerConfirmModal .runnerConfirmBtns button{display:flex!important;visibility:visible!important;opacity:1!important;touch-action:manipulation!important;}
+@media(max-height:700px){
+ #runnerConfirmModal{padding-top:4px!important;padding-bottom:4px!important;}
+ #runnerConfirmModal>.runnerCard{padding:8px!important;}
+ #runnerConfirmModal #runnerConfirmSummary>.manualConfirmSection,#runnerConfirmModal #runnerConfirmSummary>.confirmSectionPreview{margin-bottom:6px!important;padding:7px!important;}
+ #runnerConfirmModal .manualConfirmGrid{gap:5px!important;}
+ #runnerConfirmModal .manualConfirmGrid button{height:44px!important;min-height:44px!important;max-height:44px!important;}
+ #runnerConfirmModal .confirmSectionRunner .manualRunnerRow{min-height:46px!important;}
+ #runnerConfirmModal .confirmSectionRunner .manualRunnerSelect{height:44px!important;min-height:44px!important;}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1998,7 +2018,10 @@ function pa(result){
  if(manualConfirmResult(result)){
    const d=manualConfirmDefault(g,b,result);
    g.pendingRunnerConfirm={manual:true,batterIndex:g.batterIndex,result,batter:b.name,beforeRunners:cloneRunners(g.runners),beforeNames:cloneRunnerNames(g.runnerNames),beforeOuts:Number(g.outs)||0,beforeScoreUs:Number(g.scoreUs)||0,batterDest:d.batterDest,runnerDest:d.runnerDest,afterOuts:d.outs,scored:d.runs};
-   save();render();openRunnerConfirm();
+   save();
+   /* 手動確認画面は現在の記録画面DOMをそのまま使う。ここでrender()すると確認モーダル自身を再生成するため、
+      確認内容の描画タイミングがずれて空のモーダルになることがある。 */
+   openRunnerConfirm();
    return;
  }
  pushGameHistory();
@@ -2097,7 +2120,26 @@ function renderRunnerConfirmEditor(){
  }
  el.style.display='flex';
 }
-function openRunnerConfirm(){renderRunnerConfirmEditor()}
+function openRunnerConfirm(){
+ const g=db.current,p=g?.pendingRunnerConfirm;
+ if(!g||!p||!p.manual)return toast('確認する打席データがありません');
+ let el=document.getElementById('runnerConfirmModal');
+ /* 万一モーダルDOMが存在しない場合だけ現在画面を再描画して取得する。 */
+ if(!el){
+   render();
+   el=document.getElementById('runnerConfirmModal');
+ }
+ if(!el)return toast('確認画面を表示できませんでした');
+ renderRunnerConfirmEditor();
+ /* 描画直後に中身が空なら1フレーム後にも再描画して、確実に選択UIを出す。 */
+ const summary=document.getElementById('runnerConfirmSummary');
+ if(!summary || !summary.children.length){
+   requestAnimationFrame(()=>{
+     if(db.current?.pendingRunnerConfirm?.manual)renderRunnerConfirmEditor();
+   });
+ }
+ el.style.display='flex';
+}
 function closeRunnerConfirm(){document.getElementById('runnerConfirmModal').style.display='none'}
 function confirmRunnerAdvance(){
  const g=db.current,p=g?.pendingRunnerConfirm;if(!g||!p)return;
