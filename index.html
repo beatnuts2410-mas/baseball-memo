@@ -3120,6 +3120,52 @@ document.addEventListener('DOMContentLoaded', ()=>{
  #gameResultView .eventList .eventGroupTitle{font-size:17px!important;min-height:38px!important;padding:8px!important;}
 }
 </style>
+
+<style id="v3_02_1_launch_clean_overlay">
+/* v3.02.1: ホーム画面の白い外枠を廃止。背景写真を主役にして文字を見やすくする。 */
+#launchScreen .launchInner{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  padding:22px 18px!important;
+}
+#launchScreen .launchActions{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#launchScreen .launchPrimary,
+#launchScreen .launchSecondary,
+#launchScreen .installBtn{
+  border-radius:14px!important;
+  box-shadow:0 4px 14px rgba(0,0,0,.28)!important;
+}
+#launchScreen .launchSecondary{
+  background:rgba(8,18,32,.72)!important;
+  border:1px solid rgba(255,255,255,.45)!important;
+  color:#fff!important;
+}
+#launchScreen .installArea{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#launchScreen .installGuide{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  color:#fff!important;
+  text-shadow:0 2px 7px rgba(0,0,0,.85)!important;
+  font-weight:700!important;
+}
+#launchScreen .installBtn{
+  background:rgba(8,18,32,.72)!important;
+  border:1px solid rgba(255,255,255,.45)!important;
+  color:#fff!important;
+}
+</style>
 </body>
 
 </html><style id="v2750-mobile-fit">
@@ -4360,8 +4406,8 @@ html,body{
 }
 </style>
 
-<style id="v3_02_launch_home_background">
-/* v3.02: 起動時ホーム画面にユーザー指定の野球写真を背景設定 */
+<style id="v3_02_2_launch_home_background">
+/* v3.02.2: 起動時ホーム画面の背景写真を最新ユーザー指定画像へ変更 */
 #launchScreen.launchScreen{
   background-image:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.40)),url('home-launch-bg.png')!important;
   background-size:cover!important;
