@@ -2068,7 +2068,7 @@ function renderGameResult(g){
  const statRow=(s,displayName=null,orderText=null)=>{const nm=displayName==null?displayPlayerName(s?.name):displayName;return `<tr><td>${orderText!==null?orderText:(s.order?s.order+'番':'—')}</td><td>${String(nm).includes('<span class="subMark"')?nm:esc(displayPlayerName(nm))}</td><td>${s.pa}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.d2}</td><td>${s.d3}</td><td>${s.hr}</td><td>${s.rbi}</td><td>${s.bb}</td><td>${s.hbp}</td><td>${s.so}</td><td>${s.sh}</td><td>${s.sf}</td><td class="avg">${s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'}</td></tr>`;};
  const battingRows=[...battingData.starters.map(s=>statRow(s,null))];
  if(battingData.replacements.length){
-   battingRows.push(`<tr class="battingSubHeader"><td class="battingSubHeaderCell" colspan="15">代打・選手交代</td></tr>`);
+   battingRows.push(`<tr class="battingSubHeader"><td class="battingSubHeaderSpacer" aria-hidden="true"></td><td class="battingSubHeaderCell" colspan="14">代打・選手交代</td></tr>`);
    battingData.replacements.forEach(r=>{
      const typeLabel=r.type==='代打'?'代打':r.type==='代走'?'代走':'守備交代';
      const when=r.inning?`${r.inning}回${typeLabel}`:'';
@@ -2614,5 +2614,55 @@ input[type="date"]{min-width:0!important;overflow:hidden!important}
 #gameResultView .resultStatsTable tr.battingSubHeader td:first-child,
 #gameResultView .resultStatsTable tr.battingSubHeader td:nth-child(2){
   position:static!important;left:auto!important;
+}
+</style>
+<style id="v2772-batting-table-shift">
+/* v2.77.2: 打順列の固定幅は維持し、選手列以降の打撃成績だけ右へずらして交代選手名の表示領域を確保 */
+#gameResultView .resultStatsTable th:nth-child(n+2),
+#gameResultView .resultStatsTable td:nth-child(n+2){
+  position:relative!important;
+  left:12px!important;
+}
+#gameResultView .resultStatsTable th:first-child,
+#gameResultView .resultStatsTable td:first-child{
+  left:0!important;
+  width:48px!important;
+  min-width:48px!important;
+  max-width:48px!important;
+}
+#gameResultView .resultStatsTable th:nth-child(2),
+#gameResultView .resultStatsTable td:nth-child(2){
+  left:12px!important;
+}
+#gameResultView .resultStatsTable tr.battingSubHeader .battingSubHeaderSpacer{
+  width:48px!important;min-width:48px!important;max-width:48px!important;
+  position:static!important;left:auto!important;
+}
+#gameResultView .resultStatsTable tr.battingSubHeader .battingSubHeaderCell{
+  position:static!important;left:auto!important;
+}
+</style>
+<style id="v2771-batting-subheader-align">
+/* v2.77.1: 「代打・選手交代」は打順列の右、選手列の開始位置から表示 */
+#gameResultView .resultStatsTable tr.battingSubHeader .battingSubHeaderSpacer{
+  display:table-cell!important;
+  position:static!important;
+  left:auto!important;
+  width:48px!important;
+  min-width:48px!important;
+  max-width:48px!important;
+  padding:0!important;
+  background:#fff!important;
+  border:0!important;
+}
+#gameResultView .resultStatsTable tr.battingSubHeader .battingSubHeaderCell{
+  display:table-cell!important;
+  position:static!important;
+  left:auto!important;
+  padding:8px 10px!important;
+  text-align:left!important;
+  white-space:nowrap!important;
+  background:#f3f3f0!important;
+  color:#111!important;
 }
 </style>
