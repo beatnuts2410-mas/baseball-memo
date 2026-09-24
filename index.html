@@ -2068,7 +2068,7 @@ function renderGameResult(g){
  const statRow=(s,displayName=null,orderText=null)=>{const nm=displayName==null?displayPlayerName(s?.name):displayName;return `<tr><td>${orderText!==null?orderText:(s.order?s.order+'番':'—')}</td><td>${String(nm).includes('<span class="subMark"')?nm:esc(displayPlayerName(nm))}</td><td>${s.pa}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.d2}</td><td>${s.d3}</td><td>${s.hr}</td><td>${s.rbi}</td><td>${s.bb}</td><td>${s.hbp}</td><td>${s.so}</td><td>${s.sh}</td><td>${s.sf}</td><td class="avg">${s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'}</td></tr>`;};
  const battingRows=[...battingData.starters.map(s=>statRow(s,null))];
  if(battingData.replacements.length){
-   battingRows.push(`<tr class="battingSubHeader"><th colspan="15">代打・選手交代</th></tr>`);
+   battingRows.push(`<tr class="battingSubHeader"><td class="battingSubHeaderCell" colspan="15">代打・選手交代</td></tr>`);
    battingData.replacements.forEach(r=>{
      const typeLabel=r.type==='代打'?'代打':r.type==='代走'?'代走':'守備交代';
      const when=r.inning?`${r.inning}回${typeLabel}`:'';
@@ -2096,8 +2096,7 @@ function renderGameResult(g){
  return `<div id="gameResultView">${renderSportsScoreCard(g)}
  ${g.sharedTeamName?`<div class="sharedBanner"><b>📱 共有された試合</b><span class="muted">共有された試合結果をそのまま見ています。気に入ったらマイアプリに保存できます。</span><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveSharedMatch()">試合結果をマイアプリに保存</button></div>`:''}
  ${!g.sharedTeamName?`<div class="card shareLinkCard"><div class="title">試合結果をリンクでシェアしよう！</div><p class="muted">共有リンクをLINE・SNSなどへ送ります。受け取った人はリンクを開くだけで、この試合の「試合データ」に直行します。</p><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="createMatchShareLink(${g.id})">⚾ 試合結果リンクを作る</button><div id="matchSharePanel" class="hidden"><div id="matchShare"></div><button class="btn shareLinkBtn" onclick="shareMatchLink(${g.id})">📤 LINE・SNSへ送る</button></div></div>`:''}
- <div class="card resultDefenseCard"><div class="title">守備位置</div>${renderLineupDefenseGround(g)}<div class="hint" style="text-align:center">試合終了時の守備位置を表示。正式な守備位置と配置選手を表示しています。</div></div>
- <div class="card"><div class="title">投手記録・登板履歴</div>${pitchingHtml}</div><div class="card"><div class="title">打撃成績</div>${batting}</div>
+  <div class="card"><div class="title">投手記録・登板履歴</div>${pitchingHtml}</div><div class="card"><div class="title">打撃成績</div>${batting}</div>
  <div class="card"><div class="title">試合経過・全記録</div><div class="eventList">${eventHtml}</div></div>
  <button class="btn resultBack" onclick="resultGameId=null;render()">← 試合データへ戻る</button></div>`;
 }
@@ -2594,4 +2593,26 @@ input[type="date"]{min-width:0!important;overflow:hidden!important}
 .liveDefenseCard{margin-top:10px!important;}
 .liveDefenseCard .lineupDefenseGround{margin-top:8px!important;margin-bottom:8px!important;}
 .liveDefenseCard .defPlayer{font-size:11px!important;}
+</style>
+
+<style id="v2770-result-fix">
+/* v2.77.0: 試合終了画面の守備位置は速報カード側の1箇所だけを使用 */
+#gameResultView .resultDefenseCard{display:none!important;}
+/* 代打・選手交代の区切り行が打席数字と重ならないよう、表の1行として独立表示 */
+#gameResultView .resultStatsTable tr.battingSubHeader{position:static!important;height:auto!important;}
+#gameResultView .resultStatsTable tr.battingSubHeader .battingSubHeaderCell{
+  position:static!important;left:auto!important;right:auto!important;top:auto!important;
+  display:table-cell!important;box-sizing:border-box!important;
+  width:auto!important;min-width:0!important;max-width:none!important;
+  height:34px!important;padding:8px 10px!important;
+  background:#f3f3f0!important;color:#111!important;
+  border-top:2px solid #bbb!important;border-bottom:1px solid #ccc!important;
+  text-align:left!important;white-space:nowrap!important;
+  vertical-align:middle!important;font-weight:900!important;
+  line-height:1.2!important;
+}
+#gameResultView .resultStatsTable tr.battingSubHeader td:first-child,
+#gameResultView .resultStatsTable tr.battingSubHeader td:nth-child(2){
+  position:static!important;left:auto!important;
+}
 </style>
