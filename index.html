@@ -1872,7 +1872,7 @@ function renderRunnerConfirmEditor(){
  const batterBase=p.batterDest==='out'?'アウト':`${p.batterDest}塁`;
  const runnerRows=[0,1,2].filter(i=>before[i]).map(i=>`<div class="manualRunnerRow"><div class="manualRunnerName">${i+1}塁<br><span class="muted">${esc(names[i]||'走者')}</span></div><select class="manualRunnerSelect" onchange="setManualConfirm('runnerDest',Object.assign([],db.current.pendingRunnerConfirm.runnerDest,{[${i}]:this.value}))">${runnerDestinationOptions(i+1,p.runnerDest?.[i])}</select></div>`).join('');
  const outsBefore=Number(p.beforeOuts)||0;
- const outsBtns=[0,1,2,3].map(n=>`<button class="${Number(p.afterOuts)===n?'active':''}" onclick="setManualConfirm('outs',${n})">${n}アウト</button>`).join('');
+ const outsBtns=[1,2,3].map(n=>`<button class="${Number(p.afterOuts)===n?'active':''}" onclick="setManualConfirm('outs',${n})">${n}アウト</button>`).join('');
  const runBtns=[0,1,2,3].map(n=>`<button class="${Number(p.scored)===n?'active':''}" onclick="setManualConfirm('runs',${n})">${n}点</button>`).join('');
  document.getElementById('runnerConfirmTarget').textContent=`${p.result}：${p.batter} の進塁・アウト・得点を確認`;
  document.getElementById('runnerConfirmSummary').innerHTML=`
@@ -1880,7 +1880,7 @@ function renderRunnerConfirmEditor(){
   <div class="manualConfirmSection"><div class="manualConfirmLabel">② 走者進塁先（1塁・2塁・3塁走者）</div>${runnerRows||'<div class="manualConfirmHint">走者なし</div>'}</div>
   <div class="manualConfirmSection"><div class="manualConfirmLabel">③ アウトカウント</div><div class="manualConfirmGrid">${outsBtns}</div><div class="manualConfirmHint">現在 ${outsBefore}アウト。実際の試合後のアウト数を選択してください。</div></div>
   <div class="manualConfirmSection"><div class="manualConfirmLabel">④ この打席での得点</div><div class="manualConfirmGrid">${runBtns}</div></div>
-  <div class="manualConfirmPreview"><div class="runnerConfirmRow"><b>確定予定</b><br>打者：${esc(p.batter)} → ${batterBase}<br>走者：${[0,1,2].filter(i=>before[i]).map(i=>`${i+1}塁 ${esc(names[i]||'走者')} → ${manualDestLabel(String(p.runnerDest?.[i]),i+1)}`).join(' ／ ')||'なし'}<br>アウト：${outsBefore} → ${Number(p.afterOuts)||0}アウト<br>得点：${Number(p.scored)||0}点（${Number(p.beforeScoreUs)||0} → ${(Number(p.beforeScoreUs)||0)+(Number(p.scored)||0)}点）</div></div>`;
+  <div class="manualConfirmPreview"><div class="runnerConfirmRow"><b>確定予定</b><div class="batterConfirmLine">打者：${esc(p.batter)} → ${batterBase}</div><div>走者：${[0,1,2].filter(i=>before[i]).map(i=>`${i+1}塁 ${esc(names[i]||'走者')} → ${manualDestLabel(String(p.runnerDest?.[i]),i+1)}`).join(' ／ ')||'なし'}</div><div>アウト：${outsBefore} → ${Number(p.afterOuts)||0}アウト</div><div>得点：${Number(p.scored)||0}点（${Number(p.beforeScoreUs)||0} → ${(Number(p.beforeScoreUs)||0)+(Number(p.scored)||0)}点）</div></div></div>`;
  el.style.display='flex';
 }
 function openRunnerConfirm(){renderRunnerConfirmEditor()}
@@ -3396,5 +3396,79 @@ input[type="date"]{min-width:0!important;overflow:hidden!important}
   #runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid button{
     height:48px!important;min-height:48px!important;max-height:48px!important;
   }
+}
+</style>
+
+<style id="v2_85_runner_confirm_verified_layout">
+/* v2.85.0: ①③④・確定予定を④と同一デザインへ。0アウト非表示。打者確認対象は常時1行。 */
+#runnerConfirmModal .manualConfirmSection,
+#runnerConfirmModal .manualConfirmPreview .runnerConfirmRow{
+  width:100%!important; box-sizing:border-box!important;
+  border:1px solid #d7dde5!important; border-radius:12px!important;
+  background:#fff!important; color:#1f2937!important;
+  box-shadow:0 1px 3px rgba(15,23,42,.08)!important;
+}
+#runnerConfirmModal .manualConfirmSection{padding:10px!important; margin:0 0 7px!important;}
+#runnerConfirmModal .manualConfirmLabel{color:#334155!important; font-size:12px!important; font-weight:800!important;}
+#runnerConfirmModal .manualConfirmGrid{width:100%!important; box-sizing:border-box!important;}
+#runnerConfirmModal .manualConfirmSection:nth-child(1) .manualConfirmGrid,
+#runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid,
+#runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid{
+  display:grid!important; gap:7px!important;
+}
+#runnerConfirmModal .manualConfirmSection:nth-child(1) .manualConfirmGrid,
+#runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+#runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+#runnerConfirmModal .manualConfirmSection:nth-child(1) .manualConfirmGrid button,
+#runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid button,
+#runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid button{
+  width:100%!important; height:52px!important; min-height:52px!important; max-height:52px!important;
+  border:1px solid #cbd5e1!important; border-radius:10px!important;
+  background:#f8fafc!important; color:#1f2937!important;
+  box-shadow:none!important; font-weight:800!important;
+}
+#runnerConfirmModal .manualConfirmSection:nth-child(1) .manualConfirmGrid button.active,
+#runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid button.active,
+#runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid button.active{
+  background:#e8f3ff!important; border-color:#4b86c5!important; color:#174a7a!important;
+}
+#runnerConfirmModal .manualConfirmSection:nth-child(2){padding:10px!important;}
+#runnerConfirmModal .manualRunnerRow{
+  display:grid!important; grid-template-columns:minmax(0,1fr) minmax(156px,42%)!important;
+  gap:8px!important; align-items:center!important;
+  padding:5px 0!important; border-bottom:1px solid #e5e7eb!important;
+}
+#runnerConfirmModal .manualRunnerRow:last-child{border-bottom:0!important;}
+#runnerConfirmModal .manualRunnerName{color:#334155!important;}
+#runnerConfirmModal .manualRunnerSelect{
+  width:100%!important; min-width:156px!important; height:58px!important; min-height:58px!important;
+  border:1px solid #cbd5e1!important; border-radius:10px!important;
+  background:#f8fafc!important; color:#1f2937!important; font-weight:800!important;
+}
+#runnerConfirmModal .manualConfirmPreview{width:100%!important; margin:0 0 7px!important;}
+#runnerConfirmModal .manualConfirmPreview .runnerConfirmRow{
+  width:100%!important; padding:11px 12px!important; font-size:13px!important; line-height:1.5!important;
+}
+#runnerConfirmModal .manualConfirmPreview .runnerConfirmRow b{color:#334155!important; font-size:13px!important;}
+#runnerConfirmModal .manualConfirmPreview .runnerConfirmRow .batterConfirmLine{
+  display:block!important; width:100%!important; max-width:100%!important;
+  white-space:nowrap!important; overflow:hidden!important; text-overflow:ellipsis!important;
+  word-break:keep-all!important; overflow-wrap:normal!important;
+}
+#runnerConfirmModal #runnerConfirmTarget{
+  white-space:nowrap!important; overflow:hidden!important; text-overflow:ellipsis!important;
+  word-break:keep-all!important; overflow-wrap:normal!important;
+}
+@media(max-width:420px){
+  #runnerConfirmModal .manualConfirmSection:nth-child(1) .manualConfirmGrid button,
+  #runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid button,
+  #runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid button{height:50px!important;min-height:50px!important;max-height:50px!important;}
+  #runnerConfirmModal .manualRunnerRow{grid-template-columns:minmax(0,1fr) minmax(145px,44%)!important;}
+  #runnerConfirmModal .manualRunnerSelect{min-width:145px!important;height:56px!important;min-height:56px!important;}
+}
+@media(max-width:340px){
+  #runnerConfirmModal .manualConfirmSection:nth-child(1) .manualConfirmGrid button,
+  #runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid button,
+  #runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid button{height:48px!important;min-height:48px!important;max-height:48px!important;}
 }
 </style>
