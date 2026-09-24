@@ -1347,8 +1347,9 @@ function createConfiguredGame(){
 function renderSportsScoreCard(g){
  const max=Math.max(9,g.innings?.length||0);
  const own=ownHalf(g), firstIsOwn=g.order!=='後攻';
- const firstName=firstIsOwn?db.team.name:(g.opponent||'相手校');
- const secondName=firstIsOwn?(g.opponent||'相手校'):db.team.name;
+ const sharedOwnName=String(g.sharedTeamName||db.team.name||'自チーム');
+ const firstName=firstIsOwn?sharedOwnName:(g.opponent||'相手校');
+ const secondName=firstIsOwn?(g.opponent||'相手校'):sharedOwnName;
  const firstScoreKey=firstIsOwn?'us':'opp', secondScoreKey=firstIsOwn?'opp':'us';
  const firstTotal=firstIsOwn?g.scoreUs:g.scoreOpp, secondTotal=firstIsOwn?g.scoreOpp:g.scoreUs;
  const teamCol=teamNameColWidth(firstName,secondName);
@@ -1357,7 +1358,7 @@ function renderSportsScoreCard(g){
  const attack=own===g.half?'自チーム攻撃':'相手攻撃';
  const outText=`${Math.min(3,Number(g.outs)||0)}アウト`;
  const boardRow=(name,key,total)=>`<tr><th>${esc(name)}</th>${Array.from({length:max},(_,i)=>{const n=Number(g.innings?.[i]?.[key])||0;return `<td class="${i===g.inning-1?'activeInning ':''}${n===0?'zero':''}">${n}</td>`}).join('')}<td class="total">${Number(total)||0}</td></tr>`;
- return `<div class="sportsHero" data-sports-shared="true"><div class="sportsHeroTop"><span class="sportsLive"><i></i> ${g.finished?'試合終了':'試合速報'}</span><span>${esc(g.date||'')}　${esc(g.tournament||'')}</span></div><div class="sportsMatch" style="--team-col:${teamCol}px"><div class="sportsTeam"><img class="sportsTeamLogo nishiharuUniform" src="nishiharu-uniform.png" alt="西春高校ユニフォーム"><div class="sportsTeamName">${esc(db.team.name)}</div><div class="sportsTeamLabel">自チーム</div></div><div class="sportsCenter"><div class="sportsStatus">${esc(result)}</div><div class="sportsMainScore">${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}</div><span class="sportsInning">${g.inning}回${g.half}　${esc(g.order||'先攻')}</span><div class="sportsMiniInfo"><span>${attack}</span><span>${outText}</span><span>走者 ${runnerCount}人</span></div></div><div class="sportsTeam"><img class="sportsTeamLogo opponent" src="opponent-uniform.png" alt="相手チームユニフォーム"><div class="sportsTeamName">${esc(g.opponent||'相手校')}</div><div class="sportsTeamLabel">相手</div></div></div><div class="sportsBoard" style="--team-col:${teamCol}px"><table><thead><tr><th>チーム</th>${Array.from({length:max},(_,i)=>`<th class="${i===g.inning-1?'activeInning':''}">${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody>${boardRow(firstName,firstScoreKey,firstTotal)}${boardRow(secondName,secondScoreKey,secondTotal)}</tbody></table></div><div class="sportsFooter"><span>${esc(g.stadium||'')}　<strong>${attack}</strong></span><span>${esc(g.finished?'試合終了':'試合記録中')}</span></div></div>`;
+ return `<div class="sportsHero" data-sports-shared="true"><div class="sportsHeroTop"><span class="sportsLive"><i></i> ${g.finished?'試合終了':'試合速報'}</span><span>${esc(g.date||'')}　${esc(g.tournament||'')}</span></div><div class="sportsMatch" style="--team-col:${teamCol}px"><div class="sportsTeam"><img class="sportsTeamLogo nishiharuUniform" src="nishiharu-uniform.png" alt="西春高校ユニフォーム"><div class="sportsTeamName">${esc(sharedOwnName)}</div><div class="sportsTeamLabel">自チーム</div></div><div class="sportsCenter"><div class="sportsStatus">${esc(result)}</div><div class="sportsMainScore">${Number(g.scoreUs)||0} - ${Number(g.scoreOpp)||0}</div><span class="sportsInning">${g.inning}回${g.half}　${esc(g.order||'先攻')}</span><div class="sportsMiniInfo"><span>${attack}</span><span>${outText}</span><span>走者 ${runnerCount}人</span></div></div><div class="sportsTeam"><img class="sportsTeamLogo opponent" src="opponent-uniform.png" alt="相手チームユニフォーム"><div class="sportsTeamName">${esc(g.opponent||'相手校')}</div><div class="sportsTeamLabel">相手</div></div></div><div class="sportsBoard" style="--team-col:${teamCol}px"><table><thead><tr><th>チーム</th>${Array.from({length:max},(_,i)=>`<th class="${i===g.inning-1?'activeInning':''}">${i+1}</th>`).join('')}<th class="total">R</th></tr></thead><tbody>${boardRow(firstName,firstScoreKey,firstTotal)}${boardRow(secondName,secondScoreKey,secondTotal)}</tbody></table></div><div class="sportsFooter"><span>${esc(g.stadium||'')}　<strong>${attack}</strong></span><span>${esc(g.finished?'試合終了':'試合記録中')}</span></div></div>`;
 }
 
 function gameHeader(){
@@ -2216,17 +2217,17 @@ function compactMatchPayload(g){
  const L=(x)=>[S(x?.name),S(x?.pos)];
  const U=(x)=>[Number(x?.seq)||0,S(x?.type),Number(x?.slot)||0,Number(x?.inning)||0,H(x?.half),S(x?.from?.name||x?.from),S(x?.from?.pos),S(x?.to?.name||x?.to),S(x?.to?.pos)];
  const A=(x)=>[Number(x?.seq)||0,S(x?.type),S(x?.result),Number(x?.inning)||0,H(x?.half),Number(x?.runs)||0,Number(x?.outsDelta)||0,S(x?.detail),JSON.stringify(x?.advances||[])];
- return {v:4,s:makeShareId(g),t:S(db.team.name),h:[g.date||'',g.tournament||'',g.stadium||'',g.opponent||'相手校',Number(g.scoreUs)||0,Number(g.scoreOpp)||0,g.order==='後攻'?1:0],d:dict,i:(g.innings||[]).map(x=>[Number(x?.us)||0,Number(x?.opp)||0]),p:(g.pa||[]).map(P),r:(g.runnerMoves||[]).map(R),a:(g.advanceResults||[]).map(A),y:(g.pitching?.history||[]).map(T),l:(g.initialLineup||g.lineup||[]).map(L),c:(g.lineup||[]).map(L),u:(g.subs||[]).filter(x=>x?.type!=='投手交代').map(U)};
+ return {v:5,s:makeShareId(g),t:S(db.team.name),tn:String(db.team.name||'').trim(),h:[g.date||'',g.tournament||'',g.stadium||'',g.opponent||'相手校',Number(g.scoreUs)||0,Number(g.scoreOpp)||0,g.order==='後攻'?1:0,Number(g.inning)||0,(g.half==='表'||g.half==='裏')?g.half:''],d:dict,i:(g.innings||[]).map(x=>[Number(x?.us)||0,Number(x?.opp)||0]),p:(g.pa||[]).map(P),r:(g.runnerMoves||[]).map(R),a:(g.advanceResults||[]).map(A),y:(g.pitching?.history||[]).map(T),l:(g.initialLineup||g.lineup||[]).map(L),c:(g.lineup||[]).map(L),u:(g.subs||[]).filter(x=>x?.type!=='投手交代').map(U)};
 }
 function expandMatchPayload(q){
  const D=Array.isArray(q.d)?q.d:[];const S=n=>n?D[n-1]||'':'';const H=n=>n?'裏':'表';const h=q.h||[];
  const lineups=a=>Array.isArray(a)?a.map(x=>({name:S(x?.[0]),pos:S(x?.[1])})).filter(x=>x.name):[];
  const initialLineup=lineups(q.l),lineup=lineups(q.c);
  const subs=(q.u||[]).map(x=>({seq:Number(x?.[0])||0,type:S(x?.[1]),slot:Number(x?.[2])||0,inning:Number(x?.[3])||0,half:H(x?.[4]),from:{name:S(x?.[5]),pos:S(x?.[6])},to:{name:S(x?.[7]),pos:S(x?.[8])}}));
- return {date:h[0]||'',tournament:h[1]||'',stadium:h[2]||'',opponent:h[3]||'相手校',scoreUs:Number(h[4])||0,scoreOpp:Number(h[5])||0,order:h[6]?'後攻':'先攻',finished:true,shareId:q.s||'',initialLineup,lineup,subs,innings:(q.i||[]).map(x=>({us:Number(x?.[0])||0,opp:Number(x?.[1])||0})),pa:(q.p||[]).map(x=>({seq:Number(x?.[0])||0,inning:Number(x?.[1])||0,half:H(x?.[2]),batter:S(x?.[3]),result:S(x?.[4]),rbi:Number(x?.[5])||0,runs:Number(x?.[6])||0,detail:S(x?.[7]),batterOrder:Number(x?.[8])||0})),runnerMoves:(q.r||[]).map(x=>({seq:Number(x?.[0])||0,type:S(x?.[1]),judgement:S(x?.[2])||null,inning:Number(x?.[3])||0,half:H(x?.[4]),name:S(x?.[5]),dest:Number(x?.[6])||0,runs:Number(x?.[7])||0,detail:S(x?.[8]),from:x?.[9]||''})),advanceResults:(q.a||[]).map(x=>({seq:Number(x?.[0])||0,type:S(x?.[1]),result:S(x?.[2]),inning:Number(x?.[3])||0,half:H(x?.[4]),runs:Number(x?.[5])||0,outsDelta:Number(x?.[6])||0,detail:S(x?.[7]),advances:(()=>{try{return JSON.parse(S(x?.[8])||'[]')}catch(e){return[]}})()})),pitching:{history:(q.y||[]).map(x=>({name:S(x?.[0]),enteredInning:Number(x?.[1])||0,enteredHalf:H(x?.[2]),outs:Number(x?.[3])||0,started:!!x?.[4],seq:Number(x?.[5])||0}))}};
+ return {date:h[0]||'',tournament:h[1]||'',stadium:h[2]||'',opponent:h[3]||'相手校',scoreUs:Number(h[4])||0,scoreOpp:Number(h[5])||0,order:h[6]?'後攻':'先攻',inning:Number(h[7])||0,half:h[8]||'',finished:true,shareId:q.s||'',initialLineup,lineup,subs,innings:(q.i||[]).map(x=>({us:Number(x?.[0])||0,opp:Number(x?.[1])||0})),pa:(q.p||[]).map(x=>({seq:Number(x?.[0])||0,inning:Number(x?.[1])||0,half:H(x?.[2]),batter:S(x?.[3]),result:S(x?.[4]),rbi:Number(x?.[5])||0,runs:Number(x?.[6])||0,detail:S(x?.[7]),batterOrder:Number(x?.[8])||0})),runnerMoves:(q.r||[]).map(x=>({seq:Number(x?.[0])||0,type:S(x?.[1]),judgement:S(x?.[2])||null,inning:Number(x?.[3])||0,half:H(x?.[4]),name:S(x?.[5]),dest:Number(x?.[6])||0,runs:Number(x?.[7])||0,detail:S(x?.[8]),from:x?.[9]||''})),advanceResults:(q.a||[]).map(x=>({seq:Number(x?.[0])||0,type:S(x?.[1]),result:S(x?.[2]),inning:Number(x?.[3])||0,half:H(x?.[4]),runs:Number(x?.[5])||0,outsDelta:Number(x?.[6])||0,detail:S(x?.[7]),advances:(()=>{try{return JSON.parse(S(x?.[8])||'[]')}catch(e){return[]}})()})),pitching:{history:(q.y||[]).map(x=>({name:S(x?.[0]),enteredInning:Number(x?.[1])||0,enteredHalf:H(x?.[2]),outs:Number(x?.[3])||0,started:!!x?.[4],seq:Number(x?.[5])||0}))}};
 }
 async function buildMatchShareUrl(g){
- const compact=compactMatchPayload(g),payload={v:4,s:compact.s,t:compact.t,g:compact},enc=await gzipEncodeUrlSafe(payload);
+ const compact=compactMatchPayload(g),payload={v:5,s:compact.s,t:compact.t,tn:compact.tn,g:compact},enc=await gzipEncodeUrlSafe(payload);
  if(!enc)throw new Error('共有リンク圧縮機能が使えません');
  return {url:location.origin+location.pathname+'?m4='+enc,bytes:enc.length,payload};
 }
@@ -2254,7 +2255,7 @@ async function shareMatchLink(id){
  }catch(e){if(e?.name!=='AbortError'){console.error('shareMatchLink',e);toast('共有に失敗しました。もう一度お試しください')}}
 }
 function saveSharedMatch(){if(!sharedGame)return;const sid=sharedGame.shareId||makeShareId(sharedGame),idx=db.games.findIndex(x=>x.shareId===sid||x.id===sharedGame.id),copy=JSON.parse(JSON.stringify(sharedGame));delete copy.sharedTeamName;if(idx>=0){toast('この試合はすでに保存されています');resultGameId=db.games[idx].id;sharedGame=null;history.replaceState(null,'',location.pathname);tab='data';render();setTimeout(()=>viewGameResult(resultGameId),50);return}copy.shareId=sid;copy.id=Date.now()+Math.floor(Math.random()*1000);copy.finished=true;db.games.push(copy);save();sharedGame=null;history.replaceState(null,'',location.pathname);resultGameId=copy.id;tab='data';render();setTimeout(()=>viewGameResult(copy.id),50);toast('試合結果をマイアプリに保存しました')}
-async function loadSharedMatchFromHash(){const m4=new URLSearchParams(location.search).get('m4');try{if(!m4)return false;const payload=await gzipDecodeUrlSafe(m4);if(!payload?.g)return false;const g=expandMatchPayload(payload.g);g.shareId=payload.s||g.shareId;g.sharedTeamName=payload.t?String((Array.isArray(payload.g.d)?payload.g.d[payload.t-1]:'')||'共有元チーム'):'共有元チーム';sharedGame=g;sharedSourceUrl=location.href;tab='data';resultGameId=null;render();return true}catch(e){console.error(e);toast('共有された試合を読み込めませんでした');return false}}
+async function loadSharedMatchFromHash(){const m4=new URLSearchParams(location.search).get('m4');try{if(!m4)return false;const payload=await gzipDecodeUrlSafe(m4);if(!payload?.g)return false;const g=expandMatchPayload(payload.g);g.shareId=payload.s||g.shareId;const dictTeam=payload.t?String((Array.isArray(payload.g.d)?payload.g.d[payload.t-1]:'')||''):'';g.sharedTeamName=String(payload.g.tn||payload.tn||dictTeam||'共有元チーム').trim()||'共有元チーム';if(g.half!=='表'&&g.half!=='裏'){const evs=resultEvents(g)||[];const last=evs.length?evs[evs.length-1]:null;g.inning=Number(last?.inning)||Number(g.inning)||Math.max(1,g.innings?.length||1);g.half=(last?.half==='表'||last?.half==='裏')?last.half:'';}sharedGame=g;sharedSourceUrl=location.href;tab='data';resultGameId=null;render();return true}catch(e){console.error(e);toast('共有された試合を読み込めませんでした');return false}}
 function viewGameResult(id){const g=db.games.find(x=>x.id===id);if(!g)return toast('試合結果が見つかりません');resultGameId=id;tab='data';render();setTimeout(()=>{const el=document.getElementById('gameResultView');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},0)}
 function displayPlayerName(v){if(v==null)return '';if(typeof v==='string'||typeof v==='number')return String(v);if(typeof v==='object')return String(v.name||v.playerName||v.label||v.value||'');return String(v);}
 function battingStats(g){
@@ -2411,8 +2412,22 @@ function teamNameColWidth(a,b){
  const longest=Math.max(Array.from(String(a||'')).length,Array.from(String(b||'')).length,6);
  return Math.min(280,Math.max(116,longest*16+24));
 }
+function normalizeHalf(v){return v==='表'||v==='裏'?v:'';}
+function normalizeGameInningHalf(g){
+ const evs=resultEvents(g)||[];
+ if(!Number(g.inning)||!normalizeHalf(g.half)){
+   const last=evs.length?evs[evs.length-1]:null;
+   const lastInning=Number(last?.inning)||0,lastHalf=normalizeHalf(last?.half);
+   if(lastInning){g.inning=lastInning;g.half=lastHalf||g.half||'';}
+   if(!Number(g.inning))g.inning=Math.max(1,Array.isArray(g.innings)?g.innings.length:1);
+   if(!normalizeHalf(g.half))g.half='';
+ }else g.half=normalizeHalf(g.half);
+ return g;
+}
 function renderGameResult(g){
- const myTeamName=g.sharedTeamName||db.team.name;
+ const myTeamName=String(g.sharedTeamName||db.team.name||'自チーム');
+ // 共有リンクでも「undefined回undefined」を出さない
+ normalizeGameInningHalf(g);
  const win=g.scoreUs>g.scoreOpp?'勝利':g.scoreUs<g.scoreOpp?'敗戦':'引き分け';
  const battingData=battingStats(g),events=resultEvents(g);
  const statRow=(s,displayName=null,orderText=null)=>{const nm=displayName==null?displayPlayerName(s?.name):displayName;return `<tr><td>${orderText!==null?orderText:(s.order?s.order+'番':'—')}</td><td>${String(nm).includes('<span class="subMark"')?nm:esc(displayPlayerName(nm))}</td><td>${s.pa}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.d2}</td><td>${s.d3}</td><td>${s.hr}</td><td>${s.rbi}</td><td>${s.bb}</td><td>${s.hbp}</td><td>${s.so}</td><td>${s.sh}</td><td>${s.sf}</td><td class="avg">${s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'}</td></tr>`;};
@@ -2444,7 +2459,7 @@ function renderGameResult(g){
    let currentKey='';
    const chunks=[];
    events.forEach((e,i)=>{
-     const inning=Number(e.inning)||1, half=e.half||'';
+     const inning=Number(e.inning)||1, half=normalizeHalf(e.half)||normalizeHalf(g.half)||'表';
      const key=`${inning}-${half}`;
      if(key!==currentKey){
        currentKey=key;
