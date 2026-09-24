@@ -1488,7 +1488,6 @@ function judgeSteal(judgement){
    g.runners[from]=0;g.runnerNames[from]=null;g.outs=Math.min(3,(Number(g.outs)||0)+1);
    g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:'盗塁',judgement:'アウト',inning:g.inning,half:g.half,from,dest:null,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(g.runners),afterNames:cloneRunnerNames(g.runnerNames),runs:0,detail:`盗塁失敗・${name}アウト`});
    storeAdvanceResult(g,buildAdvanceResult({type:'盗塁',result:'盗塁・アウト',beforeRunners:before,beforeNames,afterRunners:g.runners,afterNames:g.runnerNames,runs:0,outsDelta:1,inning:g.inning,half:g.half,detail:`盗塁失敗・${name}アウト`,outByRunner:{[from]:true}}));
-   storeAdvanceResult(g,buildAdvanceResult({type:'盗塁',result:'盗塁・アウト',beforeRunners:before,beforeNames,afterRunners:g.runners,afterNames:g.runnerNames,runs:0,outsDelta:1,inning:g.inning,half:g.half,detail:`盗塁失敗・${name}アウト`,outByRunner:{[from]:true}}));
    const outNow=endHalfOnThreeOuts(g);
    save();closeRunnerMove();render();toast(`盗塁：${name} → アウト${outNow?'・3アウト':''}`);return;
  }
