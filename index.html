@@ -1736,7 +1736,7 @@ function selectRunnerToMove(i){
 function renderRunnerDestinations(){
  const g=db.current;if(runnerMoveFrom==null||!g)return;
  const i=runnerMoveFrom;
- document.getElementById('moveDest').className='runnerScore runnerMoveDest'; document.getElementById('moveDest').innerHTML=`<div class="hint">進塁先を選択してください。</div><div class="runnerActions">${[1,2,3,4].filter(d=>d>i+1&&(d===4||!g.runners[d-1])).map(d=>`<button class="btn ${d===4?'red':''}" onclick="applyRunnerMove(${d})">${d===4?'本塁・得点':d+'塁へ'}</button>`).join('')}</div>`;
+ document.getElementById('moveDest').className='runnerScore runnerMoveDest'; document.getElementById('moveDest').innerHTML=`<div class="hint">進塁先を選択してください。</div><div class="runnerActions runnerDestinationGrid">${[1,2,3,4].filter(d=>d>i+1&&(d===4||!g.runners[d-1])).map(d=>`<button class="btn runnerDestinationBtn ${d===4?'red runnerHomeBtn':''}" onclick="applyRunnerMove(${d})">${d===4?'本塁・得点':d+'塁へ'}</button>`).join('')}</div>`;
 }
 function judgeSteal(judgement){
  const g=db.current;if(runnerMoveFrom==null||!g?.runners[runnerMoveFrom])return closeRunnerMove();
@@ -2886,6 +2886,66 @@ document.addEventListener('DOMContentLoaded', ()=>{
   .runnerMoveDest .runnerActions button{min-height:96px!important;height:96px!important;font-size:21px!important;}
   .runnerMoveDest > .runnerActions:not(:has(button[onclick*="judgeSteal"])) button{min-height:84px!important;height:84px!important;font-size:18px!important;}
 }
+
+<style id="v2_90_runner_decision_force">
+/* v2.90.0: 走塁判定UIを実際の選択画面で確実に大表示 */
+#runnerMoveModal .runnerCard{
+  width:min(620px,100%)!important;
+  padding:18px 14px calc(20px + env(safe-area-inset-bottom))!important;
+}
+#runnerMoveModal #moveTarget{
+  font-size:20px!important;
+  line-height:1.35!important;
+  font-weight:950!important;
+  color:#fff!important;
+  margin-bottom:10px!important;
+}
+#runnerMoveModal .runnerDecisionGrid,
+#runnerMoveModal .runnerDestinationGrid{
+  display:grid!important;
+  width:100%!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:12px!important;
+  margin-top:10px!important;
+}
+#runnerMoveModal .runnerDecisionBtn{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:128px!important;
+  height:128px!important;
+  padding:10px!important;
+  border-radius:18px!important;
+  font-size:30px!important;
+  line-height:1!important;
+  font-weight:950!important;
+}
+#runnerMoveModal .runnerDestinationBtn{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:112px!important;
+  height:112px!important;
+  padding:10px!important;
+  border-radius:18px!important;
+  font-size:27px!important;
+  line-height:1.15!important;
+  font-weight:950!important;
+}
+#runnerMoveModal .runnerHomeBtn{font-size:25px!important}
+#runnerMoveModal .runnerDecisionGrid + *{margin-top:12px}
+@media(max-width:430px){
+  #runnerMoveModal .runnerDecisionGrid,
+  #runnerMoveModal .runnerDestinationGrid{gap:10px!important}
+  #runnerMoveModal .runnerDecisionBtn{min-height:116px!important;height:116px!important;font-size:28px!important}
+  #runnerMoveModal .runnerDestinationBtn{min-height:100px!important;height:100px!important;font-size:24px!important}
+  #runnerMoveModal .runnerHomeBtn{font-size:22px!important}
+}
+</style>
 </style>
 
 </body>
