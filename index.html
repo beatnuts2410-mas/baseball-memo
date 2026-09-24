@@ -3214,3 +3214,187 @@ input[type="date"]{min-width:0!important;overflow:hidden!important}
   #runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid button{height:48px!important;min-height:48px!important;}
 }
 </style>
+<style id="v2_83_runner_confirm_width_singleline">
+/* v2.83.0: ①③④・確定予定の横幅を完全統一。打者内容は常時1行。 */
+#runnerConfirmModal .manualConfirmSection,
+#runnerConfirmModal .manualConfirmPreview,
+#runnerConfirmModal .manualConfirmPreview .runnerConfirmRow{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+#runnerConfirmModal .manualConfirmSection:nth-child(1),
+#runnerConfirmModal .manualConfirmSection:nth-child(3),
+#runnerConfirmModal .manualConfirmSection:nth-child(4),
+#runnerConfirmModal .manualConfirmPreview{
+  display:block!important;
+  width:100%!important;
+  margin-left:0!important;
+  margin-right:0!important;
+}
+#runnerConfirmModal .manualConfirmSection:nth-child(1) .manualConfirmGrid,
+#runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid,
+#runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid{
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+/* ①・③・④は同一寸法。②だけ既存指定どおり若干大きくする。 */
+#runnerConfirmModal .manualConfirmSection:nth-child(1) .manualConfirmGrid button,
+#runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid button,
+#runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid button{
+  width:100%!important;
+  height:52px!important;
+  min-height:52px!important;
+  max-height:52px!important;
+  box-sizing:border-box!important;
+}
+/* 「確定予定」も①③と同じ横幅の面として表示 */
+#runnerConfirmModal .manualConfirmPreview .runnerConfirmRow{
+  display:block!important;
+  width:100%!important;
+  min-width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+/* 打者の確認対象欄は、文字数が増えても絶対に2行へ折り返さない */
+#runnerConfirmModal #runnerConfirmTarget{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+}
+@media (max-width:420px){
+  #runnerConfirmModal .manualConfirmSection:nth-child(1) .manualConfirmGrid button,
+  #runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid button,
+  #runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid button{
+    height:50px!important;
+    min-height:50px!important;
+    max-height:50px!important;
+  }
+}
+@media (max-width:340px){
+  #runnerConfirmModal .manualConfirmSection:nth-child(1) .manualConfirmGrid button,
+  #runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid button,
+  #runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid button{
+    height:48px!important;
+    min-height:48px!important;
+    max-height:48px!important;
+  }
+}
+</style>
+
+<style id="v2_84_runner_confirm_final_layout">
+/* v2.84.0: ①③④・確定予定の右端まで完全統一。③は0アウトを廃止。確認対象は必ず1行。 */
+#runnerConfirmModal .manualConfirmSection,
+#runnerConfirmModal .manualConfirmPreview,
+#runnerConfirmModal .manualConfirmPreview .runnerConfirmRow{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  margin-left:0!important;
+  margin-right:0!important;
+}
+#runnerConfirmModal .manualConfirmSection:nth-child(1),
+#runnerConfirmModal .manualConfirmSection:nth-child(3),
+#runnerConfirmModal .manualConfirmPreview{
+  width:100%!important;
+  display:block!important;
+}
+#runnerConfirmModal .manualConfirmSection:nth-child(1) .manualConfirmGrid,
+#runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid{
+  width:100%!important;
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;
+  box-sizing:border-box!important;
+}
+#runnerConfirmModal .manualConfirmSection:nth-child(1) .manualConfirmGrid button,
+#runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid button{
+  width:100%!important;
+  min-width:0!important;
+  height:52px!important;
+  min-height:52px!important;
+  max-height:52px!important;
+  box-sizing:border-box!important;
+}
+/* ④も①③と同じボタン寸法 */
+#runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid{
+  width:100%!important;
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;
+}
+#runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid button{
+  width:100%!important;
+  min-width:0!important;
+  height:52px!important;
+  min-height:52px!important;
+  max-height:52px!important;
+  box-sizing:border-box!important;
+}
+/* ③は0アウトを表示しないため、1～3アウトを横3列で均等配置 */
+#runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+/* ②は他より若干大きく、名前と選択欄が重ならない */
+#runnerConfirmModal .manualRunnerSelect{
+  min-height:58px!important;
+  height:58px!important;
+}
+/* 確定予定は右端まで届く同一面 */
+#runnerConfirmModal .manualConfirmPreview .runnerConfirmRow{
+  width:100%!important;
+  min-width:100%!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+}
+/* 打者の確認対象は文字数に関係なく必ず1行 */
+#runnerConfirmModal #runnerConfirmTarget{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  display:block!important;
+  box-sizing:border-box!important;
+}
+/* 確定予定内の打者行も1行を絶対維持 */
+#runnerConfirmModal .manualConfirmPreview .runnerConfirmRow{
+  white-space:normal!important;
+}
+#runnerConfirmModal .manualConfirmPreview .runnerConfirmRow .batterConfirmLine{
+  display:block!important;
+  width:100%!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+@media(max-width:420px){
+  #runnerConfirmModal .manualConfirmSection:nth-child(1) .manualConfirmGrid button,
+  #runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid button,
+  #runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid button{
+    height:50px!important;min-height:50px!important;max-height:50px!important;
+  }
+  #runnerConfirmModal .manualRunnerSelect{height:56px!important;min-height:56px!important;}
+}
+@media(max-width:340px){
+  #runnerConfirmModal .manualConfirmSection:nth-child(1) .manualConfirmGrid button,
+  #runnerConfirmModal .manualConfirmSection:nth-child(3) .manualConfirmGrid button,
+  #runnerConfirmModal .manualConfirmSection:nth-child(4) .manualConfirmGrid button{
+    height:48px!important;min-height:48px!important;max-height:48px!important;
+  }
+}
+</style>
