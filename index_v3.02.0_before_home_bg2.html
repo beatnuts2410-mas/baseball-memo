@@ -3120,129 +3120,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
  #gameResultView .eventList .eventGroupTitle{font-size:17px!important;min-height:38px!important;padding:8px!important;}
 }
 </style>
-
-<style id="v3_02_1_launch_clean_overlay">
-/* v3.02.1: ホーム画面の白い外枠を廃止。背景写真を主役にして文字を見やすくする。 */
-#launchScreen .launchInner{
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
-  backdrop-filter:none!important;
-  -webkit-backdrop-filter:none!important;
-  padding:22px 18px!important;
-}
-#launchScreen .launchActions{
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
-}
-#launchScreen .launchPrimary,
-#launchScreen .launchSecondary,
-#launchScreen .installBtn{
-  border-radius:14px!important;
-  box-shadow:0 4px 14px rgba(0,0,0,.28)!important;
-}
-#launchScreen .launchSecondary{
-  background:rgba(8,18,32,.72)!important;
-  border:1px solid rgba(255,255,255,.45)!important;
-  color:#fff!important;
-}
-#launchScreen .installArea{
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
-}
-#launchScreen .installGuide{
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
-  color:#fff!important;
-  text-shadow:0 2px 7px rgba(0,0,0,.85)!important;
-  font-weight:700!important;
-}
-#launchScreen .installBtn{
-  background:rgba(8,18,32,.72)!important;
-  border:1px solid rgba(255,255,255,.45)!important;
-  color:#fff!important;
-}
-</style>
-
-<style id="v3_02_3_runner_confirm_scroll_fix">
-/* v3.02.3: 打席成績＋走塁プレーの選択確認画面を画面高に合わせ、必要時のみ縦スクロール。確定ボタンを常に操作可能にする。 */
-#runnerConfirmModal{
-  align-items:flex-start!important;
-  justify-content:center!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  overscroll-behavior:contain!important;
-  box-sizing:border-box!important;
-  padding:8px 6px calc(8px + env(safe-area-inset-bottom))!important;
-}
-#runnerConfirmModal .runnerCard{
-  width:min(560px,100%)!important;
-  max-width:560px!important;
-  max-height:calc(100dvh - 16px - env(safe-area-inset-bottom))!important;
-  height:auto!important;
-  min-height:0!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  overscroll-behavior-y:contain!important;
-  box-sizing:border-box!important;
-  flex:0 1 auto!important;
-}
-/* 内容が長いときも、確定・戻る操作はカード下端で常に押せる */
-#runnerConfirmModal .runnerConfirmBtns{
-  position:sticky!important;
-  bottom:0!important;
-  z-index:20!important;
-  margin-left:-2px!important;
-  margin-right:-2px!important;
-  padding:7px 2px calc(7px + env(safe-area-inset-bottom))!important;
-  background:linear-gradient(to bottom,rgba(255,255,255,.78),#fff 22%)!important;
-  backdrop-filter:blur(5px)!important;
-}
-#runnerConfirmModal .runnerConfirmBtns .primary,
-#runnerConfirmModal .runnerConfirmBtns .secondaryBtn{
-  position:relative!important;
-  z-index:21!important;
-  touch-action:manipulation!important;
-}
-/* 選手名・進塁先の長い内容で横方向へはみ出さない */
-#runnerConfirmModal .manualConfirmSummary,
-#runnerConfirmModal .runnerConfirmSummary,
-#runnerConfirmModal .manualConfirmSection,
-#runnerConfirmModal .manualConfirmPreview,
-#runnerConfirmModal .manualRunnerRow{
-  min-width:0!important;
-  max-width:100%!important;
-  box-sizing:border-box!important;
-}
-#runnerConfirmModal .manualRunnerSelect{
-  min-width:0!important;
-  max-width:100%!important;
-}
-@media(max-width:420px){
-  #runnerConfirmModal{padding:5px 4px calc(5px + env(safe-area-inset-bottom))!important;}
-  #runnerConfirmModal .runnerCard{
-    width:100%!important;
-    max-width:100%!important;
-    max-height:calc(100dvh - 10px - env(safe-area-inset-bottom))!important;
-    border-radius:15px!important;
-  }
-  #runnerConfirmModal .runnerConfirmBtns{
-    padding-top:6px!important;
-    padding-bottom:calc(6px + env(safe-area-inset-bottom))!important;
-  }
-}
-@media(max-height:620px){
-  #runnerConfirmModal .runnerCard{
-    max-height:calc(100dvh - 8px - env(safe-area-inset-bottom))!important;
-  }
-}
-</style>
-
 </body>
 
 </html><style id="v2750-mobile-fit">
@@ -4483,8 +4360,8 @@ html,body{
 }
 </style>
 
-<style id="v3_02_2_launch_home_background">
-/* v3.02.2: 起動時ホーム画面の背景写真を最新ユーザー指定画像へ変更 */
+<style id="v3_02_launch_home_background">
+/* v3.02: 起動時ホーム画面にユーザー指定の野球写真を背景設定 */
 #launchScreen.launchScreen{
   background-image:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.40)),url('home-launch-bg.png')!important;
   background-size:cover!important;
