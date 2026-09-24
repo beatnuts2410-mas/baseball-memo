@@ -2458,6 +2458,8 @@ function normalizeGameInningHalf(g){
  return g;
 }
 function renderGameResult(g){
+ const isColdGame=String(g?.finishReason||'').includes('コールド');
+ const coldGameBanner=isColdGame?`<div class="coldGameBanner" role="status"><span class="coldGameIcon">⚾</span><strong>コールドゲーム</strong><span class="coldGameReason">${esc(g.finishReason||'')}</span></div>`:'';
  const myTeamName=String(g.sharedTeamName||db.team.name||'自チーム');
  // 共有リンクでも「undefined回undefined」を出さない
  normalizeGameInningHalf(g);
@@ -2506,7 +2508,7 @@ function renderGameResult(g){
    });
    eventHtml=chunks.join('');
  }else eventHtml='<div class="empty">記録がありません</div>';
- return `<div id="gameResultView">${renderSportsScoreCard(g)}
+ return `<div id="gameResultView">${coldGameBanner}${renderSportsScoreCard(g)}
  ${g.sharedTeamName?`<div class="sharedBanner"><b>📱 共有された試合</b><span class="muted">共有された試合結果をそのまま見ています。気に入ったらマイアプリに保存できます。</span><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveSharedMatch()">試合結果をマイアプリに保存</button></div>`:''}
  ${!g.sharedTeamName?`<div class="card shareLinkCard"><div class="title">試合結果をリンクでシェアしよう！</div><p class="muted">共有リンクをLINE・SNSなどへ送ります。受け取った人はリンクを開くだけで、この試合の「試合データ」に直行します。</p><button class="btn primary" style="width:100%;font-size:16px;padding:13px" onclick="createMatchShareLink(${g.id})">⚾ 試合結果リンクを作る</button><div id="matchSharePanel" class="hidden"><div id="matchShare"></div><button class="btn shareLinkBtn" onclick="shareMatchLink(${g.id})">📤 LINE・SNSへ送る</button></div></div>`:''}
   <div class="card"><div class="title">投手記録・登板履歴</div>${pitchingHtml}</div><div class="card"><div class="title">打撃成績</div>${batting}</div>
@@ -4268,3 +4270,17 @@ input[type="date"]{min-width:0!important;overflow:hidden!important}
   .runnerChoiceIcon{font-size:12px!important;}
 }
 </style>
+
+/* v3.00.0: 試合終了データのコールドゲーム表示 */
+#gameResultView .coldGameBanner{
+ display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;
+ width:100%!important;box-sizing:border-box!important;margin:0 0 10px!important;padding:10px 12px!important;
+ border:2px solid #d97706!important;border-radius:10px!important;background:rgba(245,158,11,.14)!important;color:#7c2d12!important;
+ font-size:18px!important;font-weight:900!important;line-height:1.25!important;text-align:center!important;
+}
+#gameResultView .coldGameBanner .coldGameIcon{font-size:18px!important;flex:0 0 auto!important;}
+#gameResultView .coldGameBanner .coldGameReason{font-size:12px!important;font-weight:700!important;color:#7c2d12!important;}
+@media(max-width:430px){
+ #gameResultView .coldGameBanner{font-size:16px!important;padding:9px 8px!important;gap:6px!important;flex-wrap:wrap!important;}
+ #gameResultView .coldGameBanner .coldGameReason{font-size:11px!important;width:100%!important;}
+}
