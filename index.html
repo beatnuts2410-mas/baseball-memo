@@ -3324,6 +3324,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 </body>
 
+
+
 </html><style id="v2750-mobile-fit">
 /* v2.75.0: スマホ実画面での見切れ防止・オーダー守備表示・データ結果中央配置 */
 *{box-sizing:border-box!important}
@@ -4590,4 +4592,238 @@ html,body{
 }
 #launchScreen .launchInner h1{font-size:34px!important}
 #launchScreen .launchInner .launchSub{font-weight:700!important}
+</style>
+
+<style id="v3_02_5_runner_confirm_real_final">
+/* v3.02.5: 選択確認画面の最終固定。過去の確認画面CSSが後から上書きしていたため、全確認UIを最後尾で再定義。 */
+#runnerConfirmModal{
+  position:fixed!important;
+  inset:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  width:100%!important;
+  height:100dvh!important;
+  max-height:100dvh!important;
+  min-height:0!important;
+  padding:8px 6px calc(8px + env(safe-area-inset-bottom))!important;
+  box-sizing:border-box!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  touch-action:pan-y!important;
+  overscroll-behavior-y:contain!important;
+  z-index:9999!important;
+}
+#runnerConfirmModal .runnerCard{
+  display:block!important;
+  flex:0 0 auto!important;
+  width:min(560px,100%)!important;
+  max-width:560px!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0 auto!important;
+  padding:12px!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+  background:#fff!important;
+  color:#172033!important;
+  border:1px solid #d7dee8!important;
+  border-radius:18px!important;
+}
+#runnerConfirmModal #runnerConfirmSummary{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+  box-sizing:border-box!important;
+}
+#runnerConfirmModal .manualConfirmSection,
+#runnerConfirmModal .confirmSectionBatter,
+#runnerConfirmModal .confirmSectionRunner,
+#runnerConfirmModal .confirmSectionOuts,
+#runnerConfirmModal .confirmSectionRuns,
+#runnerConfirmModal .confirmSectionPreview{
+  display:block!important;
+  position:relative!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0 0 8px!important;
+  padding:10px!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+#runnerConfirmModal .manualConfirmGrid{
+  display:grid!important;
+  width:100%!important;
+  min-width:0!important;
+  height:auto!important;
+  box-sizing:border-box!important;
+  gap:7px!important;
+  overflow:visible!important;
+}
+#runnerConfirmModal .confirmSectionBatter .manualConfirmGrid,
+#runnerConfirmModal .confirmSectionRuns .manualConfirmGrid{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+#runnerConfirmModal .confirmSectionOuts .manualConfirmGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+#runnerConfirmModal .manualConfirmGrid button,
+#runnerConfirmModal .confirmSectionBatter .manualConfirmGrid button,
+#runnerConfirmModal .confirmSectionOuts .manualConfirmGrid button,
+#runnerConfirmModal .confirmSectionRuns .manualConfirmGrid button{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-width:0!important;
+  height:52px!important;
+  min-height:52px!important;
+  max-height:52px!important;
+  margin:0!important;
+  padding:5px 3px!important;
+  box-sizing:border-box!important;
+  visibility:visible!important;
+  opacity:1!important;
+  color:#1f2937!important;
+  background:#f8fafc!important;
+  border:1px solid #cbd5e1!important;
+  border-radius:10px!important;
+  font-size:13px!important;
+  font-weight:800!important;
+  line-height:1.15!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+}
+#runnerConfirmModal .manualConfirmGrid button.active{
+  background:#e8f3ff!important;
+  border-color:#4b86c5!important;
+  color:#174a7a!important;
+}
+#runnerConfirmModal .confirmSectionRunner .manualRunnerRow{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(118px,42%)!important;
+  gap:7px!important;
+  align-items:center!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:54px!important;
+  padding:5px 0!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+}
+#runnerConfirmModal .confirmSectionRunner .manualRunnerName{
+  min-width:0!important;
+  max-width:100%!important;
+  color:#334155!important;
+  font-size:16px!important;
+  line-height:1.2!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#runnerConfirmModal .confirmSectionRunner .manualRunnerSelect{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  height:52px!important;
+  min-height:52px!important;
+  box-sizing:border-box!important;
+  padding:6px 8px!important;
+  color:#1f2937!important;
+  background:#f8fafc!important;
+  border:1px solid #cbd5e1!important;
+  border-radius:10px!important;
+  font-size:14px!important;
+  font-weight:800!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+#runnerConfirmModal .confirmSectionPreview .runnerConfirmRow{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  color:#1f2937!important;
+  background:#fff!important;
+  overflow:visible!important;
+}
+#runnerConfirmModal .runnerConfirmBtns{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 86px!important;
+  gap:7px!important;
+  position:sticky!important;
+  bottom:0!important;
+  z-index:30!important;
+  width:100%!important;
+  margin:0!important;
+  padding:7px 0 calc(7px + env(safe-area-inset-bottom))!important;
+  box-sizing:border-box!important;
+  background:linear-gradient(to bottom,rgba(255,255,255,.9),#fff 30%)!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+#runnerConfirmModal .runnerConfirmBtns button{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-width:0!important;
+  height:50px!important;
+  min-height:50px!important;
+  box-sizing:border-box!important;
+  visibility:visible!important;
+  opacity:1!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  touch-action:manipulation!important;
+}
+/* 走塁プレー側も小さい画面でカード内スクロールできるよう統一 */
+#runnerMoveModal,
+#runnerCorrectionModal{
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:8px 6px calc(8px + env(safe-area-inset-bottom))!important;
+  box-sizing:border-box!important;
+}
+#runnerMoveModal .runnerCard,
+#runnerCorrectionModal .runnerCard{
+  width:min(560px,100%)!important;
+  max-width:560px!important;
+  max-height:none!important;
+  height:auto!important;
+  overflow:visible!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:430px){
+  #runnerConfirmModal{padding:5px 4px calc(5px + env(safe-area-inset-bottom))!important;}
+  #runnerConfirmModal .runnerCard{width:100%!important;max-width:100%!important;padding:9px!important;border-radius:15px!important;}
+  #runnerConfirmModal .manualConfirmSection{padding:8px!important;margin-bottom:7px!important;}
+  #runnerConfirmModal .manualConfirmGrid{gap:5px!important;}
+  #runnerConfirmModal .manualConfirmGrid button{height:50px!important;min-height:50px!important;max-height:50px!important;font-size:12px!important;}
+  #runnerConfirmModal .confirmSectionRunner .manualRunnerRow{grid-template-columns:minmax(0,1fr) minmax(112px,43%)!important;gap:6px!important;}
+  #runnerConfirmModal .confirmSectionRunner .manualRunnerName{font-size:14px!important;}
+  #runnerConfirmModal .confirmSectionRunner .manualRunnerSelect{height:50px!important;min-height:50px!important;font-size:13px!important;}
+  #runnerConfirmModal .runnerConfirmBtns{grid-template-columns:minmax(0,1fr) 78px!important;}
+  #runnerConfirmModal .runnerConfirmBtns button{height:48px!important;min-height:48px!important;font-size:12px!important;}
+}
+@media(max-width:340px){
+  #runnerConfirmModal .manualConfirmGrid button{height:48px!important;min-height:48px!important;max-height:48px!important;font-size:11px!important;}
+  #runnerConfirmModal .confirmSectionRunner .manualRunnerRow{grid-template-columns:minmax(0,1fr) 108px!important;}
+  #runnerConfirmModal .confirmSectionRunner .manualRunnerSelect{height:48px!important;min-height:48px!important;font-size:12px!important;}
+}
 </style>
