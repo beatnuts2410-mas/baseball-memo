@@ -2418,7 +2418,7 @@ function renderGameResult(g){
  const statRow=(s,displayName=null,orderText=null)=>{const nm=displayName==null?displayPlayerName(s?.name):displayName;return `<tr><td>${orderText!==null?orderText:(s.order?s.order+'番':'—')}</td><td>${String(nm).includes('<span class="subMark"')?nm:esc(displayPlayerName(nm))}</td><td>${s.pa}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.d2}</td><td>${s.d3}</td><td>${s.hr}</td><td>${s.rbi}</td><td>${s.bb}</td><td>${s.hbp}</td><td>${s.so}</td><td>${s.sh}</td><td>${s.sf}</td><td class="avg">${s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'}</td></tr>`;};
  const battingRows=[...battingData.starters.map(s=>statRow(s,null))];
  if(battingData.replacements.length){
-   battingRows.push(`<tr class="battingSubHeader"><td class="battingSubHeaderCell" colspan="15">代打・選手交代</td></tr>`);
+   battingRows.push(`<tr class="battingSubHeader"><td class="battingSubHeaderCell" colspan="2">代打・選手交代</td><td class="battingSubHeaderFill" colspan="13"></td></tr>`);
    battingData.replacements.forEach(r=>{
      const typeLabel=r.type==='代打'?'代打':r.type==='代走'?'代走':'守備交代';
      const when=r.inning?`${r.inning}回${typeLabel}`:'';
@@ -4141,5 +4141,82 @@ input[type="date"]{min-width:0!important;overflow:hidden!important}
  #runnerMoveModal .runnerDecisionGrid,#runnerMoveModal .runnerDestinationGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;}
  #runnerMoveModal .runnerDecisionBtn{min-height:78px!important;height:78px!important;font-size:21px!important;}
  #runnerMoveModal .runnerDestinationBtn{min-height:74px!important;height:74px!important;font-size:17px!important;}
+}
+</style>
+
+<style id="v2_98_final_ui_fix">
+/* v2.98: 代打・選手交代見出しを「打順・選手」固定列内に固定。走者プレーは常時2列×2段で均等配置。 */
+#gameResultView .resultStatsTable tr.battingSubHeader{
+  position:static!important;
+  height:34px!important;
+}
+#gameResultView .resultStatsTable tr.battingSubHeader .battingSubHeaderCell{
+  position:sticky!important;
+  left:0!important;
+  z-index:30!important;
+  display:table-cell!important;
+  box-sizing:border-box!important;
+  min-width:calc(3.2em + var(--batting-player-col, 11em))!important;
+  width:calc(3.2em + var(--batting-player-col, 11em))!important;
+  height:34px!important;
+  padding:8px 10px!important;
+  background:#f3f3f0!important;
+  color:#111!important;
+  border-top:2px solid #bbb!important;
+  border-bottom:1px solid #ccc!important;
+  box-shadow:2px 0 0 #c8c8c3!important;
+  text-align:left!important;
+  white-space:nowrap!important;
+  vertical-align:middle!important;
+  font-weight:900!important;
+  line-height:1.2!important;
+}
+#gameResultView .resultStatsTable tr.battingSubHeader .battingSubHeaderFill{
+  display:table-cell!important;
+  padding:0!important;
+  background:#fff!important;
+  border-top:2px solid #bbb!important;
+  border-bottom:1px solid #ccc!important;
+}
+.runnerChoiceGrid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,minmax(54px,1fr))!important;
+  gap:8px!important;
+  width:100%!important;
+  align-items:stretch!important;
+}
+.runnerChoice{
+  display:flex!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:58px!important;
+  height:58px!important;
+  box-sizing:border-box!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  padding:8px 6px!important;
+  border-radius:12px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  font-size:15px!important;
+  line-height:1.1!important;
+  font-weight:800!important;
+}
+.runnerChoiceIcon{font-size:15px!important;line-height:1!important;flex:0 0 auto!important;}
+.runnerChoiceSteal{background:rgba(34,197,94,.16)!important;border-color:rgba(22,163,74,.55)!important;}
+.runnerChoicePB{background:rgba(59,130,246,.14)!important;border-color:rgba(37,99,235,.45)!important;}
+.runnerChoiceWP{background:rgba(245,158,11,.15)!important;border-color:rgba(217,119,6,.48)!important;}
+.runnerChoiceBalk{background:rgba(239,68,68,.13)!important;border-color:rgba(220,38,38,.45)!important;}
+@media(max-width:430px){
+  .runnerChoiceGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(50px,1fr))!important;gap:7px!important;}
+  .runnerChoice{min-height:52px!important;height:52px!important;padding:7px 4px!important;gap:4px!important;font-size:clamp(11px,3.25vw,13px)!important;}
+  .runnerChoiceIcon{font-size:clamp(12px,3.4vw,14px)!important;}
+}
+@media(max-width:350px){
+  .runnerChoice{font-size:11px!important;padding-left:3px!important;padding-right:3px!important;}
+  .runnerChoiceIcon{font-size:12px!important;}
 }
 </style>
