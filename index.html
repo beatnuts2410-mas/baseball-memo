@@ -3081,6 +3081,7 @@ input[type="date"]{min-width:0!important;overflow:hidden!important}
   max-height:none!important;
   height:auto!important;
   overflow:visible!important;
+  max-width:100%!important;
   margin:0 auto!important;
   background:#fff!important;
   color:#263238!important;
@@ -3528,5 +3529,122 @@ input[type="date"]{min-width:0!important;overflow:hidden!important}
  #runnerConfirmModal .confirmSectionBatter .manualConfirmGrid button,
  #runnerConfirmModal .confirmSectionOuts .manualConfirmGrid button,
  #runnerConfirmModal .confirmSectionRuns .manualConfirmGrid button{height:48px!important;min-height:48px!important;max-height:48px!important;}
+}
+</style>
+
+<style id="v2_87_runner_confirm_real_behavior_fix">
+/* v2.87.0: 最終表示を実際の操作DOMへ適用。小画面は必ず上下スクロール可能。 */
+#runnerConfirmModal{
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:10px!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  touch-action:pan-y!important;
+  overscroll-behavior-y:contain!important;
+  box-sizing:border-box!important;
+}
+#runnerConfirmModal .runnerCard{
+  width:min(560px,100%)!important;
+  max-height:none!important;
+  height:auto!important;
+  overflow:visible!important;
+  max-width:100%!important;
+  margin:0 auto!important;
+  background:#fff!important;
+  color:#172033!important;
+  border:1px solid #d7dee8!important;
+  box-shadow:0 8px 28px rgba(31,48,72,.12)!important;
+  box-sizing:border-box!important;
+}
+#runnerConfirmModal .runnerConfirmSummary{
+  display:block!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+/* ①・③・④・確定予定は完全に同じ外枠 */
+#runnerConfirmModal .confirmSectionBatter,
+#runnerConfirmModal .confirmSectionOuts,
+#runnerConfirmModal .confirmSectionRuns,
+#runnerConfirmModal .confirmSectionPreview{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  margin:0 0 8px!important;
+  padding:10px!important;
+  border:1px solid #d7dde5!important;
+  border-radius:12px!important;
+  background:#fff!important;
+  box-shadow:0 1px 3px rgba(15,23,42,.08)!important;
+}
+#runnerConfirmModal .confirmSectionBatter .manualConfirmGrid,
+#runnerConfirmModal .confirmSectionOuts .manualConfirmGrid,
+#runnerConfirmModal .confirmSectionRuns .manualConfirmGrid{
+  display:grid!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  gap:7px!important;
+}
+#runnerConfirmModal .confirmSectionBatter .manualConfirmGrid{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+#runnerConfirmModal .confirmSectionOuts .manualConfirmGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+#runnerConfirmModal .confirmSectionRuns .manualConfirmGrid{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+#runnerConfirmModal .confirmSectionBatter .manualConfirmGrid button,
+#runnerConfirmModal .confirmSectionOuts .manualConfirmGrid button,
+#runnerConfirmModal .confirmSectionRuns .manualConfirmGrid button{
+  width:100%!important;
+  min-width:0!important;
+  height:52px!important;
+  min-height:52px!important;
+  max-height:52px!important;
+  box-sizing:border-box!important;
+  border:1px solid #cbd5e1!important;
+  border-radius:10px!important;
+  background:#f8fafc!important;
+  color:#1f2937!important;
+  box-shadow:none!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+}
+#runnerConfirmModal .confirmSectionBatter .manualConfirmGrid button.active,
+#runnerConfirmModal .confirmSectionOuts .manualConfirmGrid button.active,
+#runnerConfirmModal .confirmSectionRuns .manualConfirmGrid button.active{
+  background:#e8f3ff!important;
+  border-color:#4b86c5!important;
+  color:#174a7a!important;
+}
+#runnerConfirmModal .confirmSectionOuts .manualConfirmHint{display:none!important;}
+#runnerConfirmModal .confirmSectionPreview .runnerConfirmRow{
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin:0!important;
+  padding:11px 12px!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#1f2937!important;
+  font-size:13px!important;
+  line-height:1.5!important;
+}
+/* 打者確認欄は常時1行 */
+#runnerConfirmModal #runnerConfirmTarget,
+#runnerConfirmModal .confirmSectionPreview .batterConfirmLine{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:420px){
+  #runnerConfirmModal{padding:6px!important;}
+  #runnerConfirmModal .confirmSectionBatter .manualConfirmGrid button,
+  #runnerConfirmModal .confirmSectionOuts .manualConfirmGrid button,
+  #runnerConfirmModal .confirmSectionRuns .manualConfirmGrid button{height:52px!important;min-height:52px!important;max-height:52px!important;}
 }
 </style>
