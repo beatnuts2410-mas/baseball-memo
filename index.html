@@ -1742,6 +1742,17 @@ html,body{
  #runnerMoveModal>.runnerCard,#runnerCorrectionModal>.runnerCard{width:100%!important;max-width:100%!important;}
 }
 </style>
+
+<style id="v3022-next-pitching-and-defense-fix">
+/* 投手記録：打撃成績と同じ結果テーブル基準で横方向のずれを防止 */
+#gameResultView .pitchingStatsWrap{width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;box-sizing:border-box!important;}
+#gameResultView .pitchingStatsTable{width:max-content!important;min-width:620px!important;max-width:none!important;table-layout:auto!important;}
+#gameResultView .pitchingStatsTable th:first-child,#gameResultView .pitchingStatsTable td:first-child{position:sticky!important;left:0!important;z-index:2!important;background:#fff!important;min-width:130px!important;text-align:left!important;white-space:nowrap!important;}
+#gameResultView .pitchingStatsTable th,#gameResultView .pitchingStatsTable td{white-space:nowrap!important;padding:7px 8px!important;text-align:center!important;}
+#gameResultView .pitchingStatsTable td:first-child{font-weight:900!important;text-align:left!important;}
+#orderDefensePreview{width:100%;}
+#orderDefensePreview .lineupDefenseGround{margin-left:auto;margin-right:auto;}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1952,8 +1963,8 @@ function ruleEndAlert(g){
  if(!g||g.finished)return '';
  const diff=Math.abs((Number(g.scoreUs)||0)-(Number(g.scoreOpp)||0));
  let reason='';
- // ゲームセット条件：5〜6回は10点差以上、7回のみ7点差以上。8回以降はコールド条件なし。
- if(g.inning>=5 && g.inning<=6 && diff>=10) reason=`${g.inning}回・10点差以上`;
+ // ゲームセット条件：5回10点差、7回7点差。8回以降はコールド条件なし。
+ if(g.inning===5 && diff>=10) reason='5回・10点差以上';
  else if(g.inning===7 && diff>=7) reason='7回・7点差以上';
  if(!reason)return '';
  return `<div class="ruleAlert"><b>⚠️ 試合終了しますか？</b><div class="muted">${reason}のため、試合終了を選択できます。</div><button class="ruleBtn" onclick="finishGame()">試合終了として保存する</button></div>`;
@@ -2028,7 +2039,7 @@ function recordView(){
    const slot=Math.min(8,Number(g.batterIndex)||0);
    if(!g.lineup?.[slot]?.name)return lateBatterView(g);
    const b=g.lineup[slot];
-   const labels=[['単打','single'],['二塁打','hit'],['三塁打','hit'],['本塁打','hr'],['犠打','sacrifice'],['犠飛','sacrifice'],['エラー','error'],['四球','walk'],['死球','walk'],['三振','out'],['内野ゴロ','out'],['ライナー','out'],['内野フライ','out'],['外野フライ','out'],['グランドルール','out']];
+   const labels=[['単打','single'],['二塁打','hit'],['三塁打','hit'],['本塁打','hr'],['犠打','sacrifice'],['犠飛','sacrifice'],['相手エラー','error'],['四球','walk'],['死球','walk'],['三振','out'],['内野ゴロ','out'],['ライナー','out'],['内野フライ','out'],['外野フライ','out'],['グランドルール','out']];
    return gameHeader()+renderOrderDefenseGround(g)+ruleEndAlert(g)+`<div class="card"><div class="row between"><div class="title" style="margin:0">選手交代</div><button class="btn small" onclick="openInGameSub()">交代</button></div><div class="muted">${(g.subs||[]).slice(-2).map(x=>`${x.type}：${x.from?.name||''} → ${x.to?.name||''}`).join('<br>')||'交代なし'}</div></div>
  <div class="card current"><div class="muted">${g.inning}回${g.half}・自チーム攻撃</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${slot+1}番</span></div><div class="recordOutCount"><div class="recordOutValue">${Math.min(3,Number(g.outs)||0)}<span>アウト</span></div><button class="btn small" onclick="adjustOuts()">✎ アウト修正</button></div></div></div>
  <div class="card"><div class="title">打席結果を選択</div><div class="hint" style="margin-bottom:8px">・盗塁などの走塁が発生した場合は、下の「走塁プレー」または「走者・グラウンド」で操作して下さい。</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="latePA('${t}')">${t}</button>`).join('')}</div></div>
@@ -2042,7 +2053,7 @@ function recordView(){
    return `<div class="card"><div class="title">まずオーダーを作成</div><p class="muted">チーム登録済みの選手から1〜9番を選びます。</p><button class="btn primary" onclick="tab='lineup';render()">オーダー作成へ</button></div>`;
  }
  let b=g.lineup[g.batterIndex%9]||{name:"打者"};
- let labels=[['単打','single'],['二塁打','hit'],['三塁打','hit'],['本塁打','hr'],['犠打','sacrifice'],['犠飛','sacrifice'],['エラー','error'],['四球','walk'],['死球','walk'],['三振','out'],['内野ゴロ','out'],['ライナー','out'],['内野フライ','out'],['外野フライ','out'],['グランドルール','out']];
+ let labels=[['単打','single'],['二塁打','hit'],['三塁打','hit'],['本塁打','hr'],['犠打','sacrifice'],['犠飛','sacrifice'],['相手エラー','error'],['四球','walk'],['死球','walk'],['三振','out'],['内野ゴロ','out'],['ライナー','out'],['内野フライ','out'],['外野フライ','out'],['グランドルール','out']];
  return gameHeader()+renderOrderDefenseGround(g)+ruleEndAlert(g)+`<div class="card current"><div class="muted">${g.inning}回${g.half}・自チーム攻撃</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${(g.batterIndex%9)+1}番</span></div><div class="recordOutCount"><div class="recordOutValue">${Math.min(3,Number(g.outs)||0)}<span>アウト</span></div><button class="btn small" onclick="adjustOuts()">✎ アウト修正</button></div></div></div>
 
  <div class="card"><div class="row between"><div class="title" style="margin:0">選手交代</div><button class="btn small" onclick="openInGameSub()">交代</button></div><div class="muted">${(g.subs||[]).slice(-2).map(x=>`${x.type}：${x.from?.name||''} → ${x.to?.name||''}`).join('<br>')||'交代なし'}</div></div>
@@ -2056,7 +2067,7 @@ function lateBatterView(g){
  const selected=g.lineup?.[slot]?.name||'';
  const used=new Set((g.lineup||[]).filter(Boolean).map(p=>p?.name));
  const opts=db.team.players.filter(p=>p.role!=='manager'&&(!used.has(p.name)||p.name===selected)).map(p=>`<option value="${esc(p.name)}" ${p.name===selected?'selected':''}>${esc(p.name)}${p.num?' #'+p.num:''}</option>`).join('');
- const labels=[['単打','single'],['二塁打','hit'],['三塁打','hit'],['本塁打','hr'],['犠打','sacrifice'],['犠飛','sacrifice'],['エラー','error'],['四球','walk'],['死球','walk'],['三振','out'],['内野ゴロ','out'],['ライナー','out'],['内野フライ','out'],['外野フライ','out'],['グランドルール','out']];
+ const PA_RESULTS=[['単打','single'],['二塁打','hit'],['三塁打','hit'],['本塁打','hr'],['犠打','sacrifice'],['犠飛','sacrifice'],['相手エラー','error'],['四球','walk'],['死球','walk'],['三振','out'],['内野ゴロ','out'],['ライナー','out'],['内野フライ','out'],['外野フライ','out'],['グランドルール','out']];
  return gameHeader()+`<div class="card current"><div class="title">途中開始：${slot+1}番打者を確認</div><p class="muted">「打順確認中」です。${slot+1}番打者を選択して、打席結果を入力してください。入力後、進塁先・アウト・得点を確認してから次の打者へ進みます。</p><select id="lateBatterSelect" class="select"><option value="">${slot+1}番の選手を選択</option>${opts}</select><button class="btn primary" style="width:100%;margin-top:10px" onclick="saveLateBatter()">${slot+1}番を確定して打席結果へ</button></div>
  <div class="card"><div class="title">現在の打順確認</div>${Array.from({length:9},(_,i)=>`<div class="row between" style="padding:8px 0;border-bottom:1px solid #243248"><span>${i+1}番</span><b>${esc(g.lineup[i]?.name||'未登録')}</b></div>`).join('')}</div>`;
 }
@@ -2453,7 +2464,7 @@ function restartFromPA(index){
 この打席以降の記録をいったん削除して、そこから再入力します。`))return;
  pushGameHistory(); g.scoreUs=Number(p.beforeScoreUsSnapshot ?? p.beforeScoreUs ?? 0);g.inning=p.beforeInning;g.half=p.beforeHalf;g.outs=p.beforeOuts;g.runners=cloneRunners(p.beforeRunners);g.runnerNames=cloneRunnerNames(p.beforeRunnerNames);g.batterIndex=p.beforeBatterIndex;g.pa=g.pa.slice(0,index);g.steals=(g.steals||[]).filter(x=>x.inning<p.inning || (x.inning===p.inning && x.half!==p.half));g.runnerMoves=(g.runnerMoves||[]).filter(x=>x.inning<p.inning || (x.inning===p.inning && x.half!==p.half));updateInningScore(g);save();render();toast('この打席から再入力できます');
 }
-const labels=[['単打','single'],['二塁打','hit'],['三塁打','hit'],['本塁打','hr'],['犠打','sacrifice'],['犠飛','sacrifice'],['エラー','error'],['四球','walk'],['死球','walk'],['三振','out'],['内野ゴロ','out'],['ライナー','out'],['内野フライ','out'],['外野フライ','out'],['グランドルール','out']];
+const PA_RESULTS=[['単打','single'],['二塁打','hit'],['三塁打','hit'],['本塁打','hr'],['犠打','sacrifice'],['犠飛','sacrifice'],['相手エラー','error'],['四球','walk'],['死球','walk'],['三振','out'],['内野ゴロ','out'],['ライナー','out'],['内野フライ','out'],['外野フライ','out'],['グランドルール','out']];
 function openPACorrection(){
  ensureGame(); const g=db.current;
  if(!g||!g.pa.length)return toast('まず打席を1つ記録してください');
@@ -2631,6 +2642,16 @@ function renderOrderDefenseGround(g){
  const starters=getInitialLineup(g);
  return `<div class="resultDefenseCard orderDefenseGround"><div class="title">本日のスターティングメンバー</div>${renderLineupDefenseGround(g,starters,new Set())}</div>`;
 }
+function refreshOrderDefensePreview(){
+ const g=db.current; const el=document.getElementById('orderDefensePreview'); if(!g||!el)return;
+ const players=[...document.querySelectorAll('[data-li]')].map((sel,i)=>{
+   const name=sel.value||''; const pos=normalizeDefPos(document.querySelector(`[data-pos="${i}"]`)?.value||'');
+   const base=db.team.players.find(p=>p.name===name)||{name}; return name?Object.assign({},base,{name,pos}):null;
+ });
+ const pitcherName=document.getElementById('pitcher')?.value||'';
+ const preview=Object.assign({},g,{lineup:players,pitcher:pitcherName?({name:pitcherName}):null});
+ el.innerHTML=renderLineupDefenseGround(preview,players,new Set());
+}
 function lineupView(){
  ensureGame();let g=db.current;
  const activePlayers=db.team.players.filter(p=>p.role!=='manager'); if(activePlayers.length<9)return `<div class="card"><div class="title">選手を9人以上登録してください</div><button class="btn" onclick="tab='team';render()">チーム登録へ</button></div>`;
@@ -2639,13 +2660,13 @@ function lineupView(){
  for(let i=0;i<9;i++){
    let v=g.lineup[i]?.name||db.lastLineup[i]?.name||db.team.players[i]?.name||'';
    let pos=g.lineup[i]?.pos||'';
-   rows+=`<div class="playerrow"><div class="num">${i+1}</div><select class="select" data-li="${i}"><option value="">選手を選択</option>${opts.replace(/<option value="([^"]+)">/g,(m,n)=>`<option value="${n}" ${n===v?'selected':''}>`)}</select><select class="select" data-pos="${i}" onchange="syncDHFromPosition(${i},this.value)"><option value="">守備位置を選択</option>${DEF_POSITIONS.map(([v,l])=>`<option value="${v}" ${normalizeDefPos(pos)===v?'selected':''}>${l}</option>`).join('')}</select><button class="btn small" onclick="moveLine(${i},-1)">↑</button></div>`
+   rows+=`<div class="playerrow"><div class="num">${i+1}</div><select class="select" data-li="${i}" onchange="refreshOrderDefensePreview()"><option value="">選手を選択</option>${opts.replace(/<option value="([^"]+)">/g,(m,n)=>`<option value="${n}" ${n===v?'selected':''}>`)}</select><select class="select" data-pos="${i}" onchange="syncDHFromPosition(${i},this.value);refreshOrderDefensePreview()"><option value="">守備位置を選択</option>${DEF_POSITIONS.map(([v,l])=>`<option value="${v}" ${normalizeDefPos(pos)===v?'selected':''}>${l}</option>`).join('')}</select><button class="btn small" onclick="moveLine(${i},-1)">↑</button></div>`
  }
  return gameHeader()+`<div class="card"><div class="row between"><div class="title">試合情報</div><button class="btn small" onclick="copyPrev()">前回オーダー</button></div><div class="grid2"><input id="date" class="input" type="date" value="${g.date}"><input id="opp" class="input" value="${esc(g.opponent)}" placeholder="相手校"></div><div style="height:8px"></div><div class="grid2"><input id="tour" class="input" value="${esc(g.tournament)}" placeholder="大会名・回戦"><input id="stad" class="input" value="${esc(g.stadium)}" placeholder="球場"></div></div>
  <div class="card"><div class="title">打順・守備</div><div class="lineup">${rows}</div>
- <div style="height:10px"></div><div class="grid2"><div><div class="muted">投手</div><select id="pitcher" class="select"><option value="">選手を選択</option>${opts}</select></div><div><div class="muted">指名打者</div><input id="dh" class="input" value="${esc(g.dh?.name||((g.lineup||[]).find(p=>normalizeDefPos(p?.pos)==='指名打者')?.name||''))}" placeholder="打順で指名打者を選択" readonly></div></div>
+ <div style="height:10px"></div><div class="grid2"><div><div class="muted">投手</div><select id="pitcher" class="select" onchange="refreshOrderDefensePreview()"><option value="">選手を選択</option>${opts}</select></div><div><div class="muted">指名打者</div><input id="dh" class="input" value="${esc(g.dh?.name||((g.lineup||[]).find(p=>normalizeDefPos(p?.pos)==='指名打者')?.name||''))}" placeholder="打順で指名打者を選択" readonly></div></div>
  <button class="btn primary" style="width:100%;margin-top:10px" onclick="saveLineup()">オーダーを確定</button></div>
- <div class="card"><div class="title">本日のスターティングメンバー</div>${renderLineupDefenseGround(g,g.lineup||[],new Set())}<div class="hint" style="text-align:center">オーダーで決定した守備位置と配置選手を表示しています。</div></div>`;
+ <div class="card"><div class="title">守備イメージ（オーダー確認）</div><div id="orderDefensePreview">${renderLineupDefenseGround(g,g.lineup||[],new Set())}</div><div class="hint" style="text-align:center">守備位置を選ぶとグラウンド上に選手名を表示。<b>「オーダーを確定」後もこの配置を固定</b>します。</div></div>`;
 }
 function syncDHFromPosition(index,pos){
  const dh=document.getElementById('dh');
@@ -2665,7 +2686,7 @@ function syncDHFromCurrentLineup(){
  const idx=row?.dataset?.pos;
  if(idx!=null)dh.value=document.querySelector(`[data-li="${idx}"]`)?.value||'';
 }
-function copyPrev(){if(!db.lastLineup.length)return toast("前回オーダーがありません");document.querySelectorAll("[data-li]").forEach((s,i)=>s.value=db.lastLineup[i]?.name||"");document.querySelectorAll("[data-pos]").forEach((s,i)=>s.value=normalizeDefPos(db.lastLineup[i]?.pos||''));syncDHFromCurrentLineup();toast("前回オーダーを読み込みました")}
+function copyPrev(){if(!db.lastLineup.length)return toast("前回オーダーがありません");document.querySelectorAll("[data-li]").forEach((s,i)=>s.value=db.lastLineup[i]?.name||"");document.querySelectorAll("[data-pos]").forEach((s,i)=>s.value=normalizeDefPos(db.lastLineup[i]?.pos||''));syncDHFromCurrentLineup();refreshOrderDefensePreview();toast("前回オーダーを読み込みました")}
 function saveLineup(){
  let g=db.current;g.date=document.getElementById('date').value;g.opponent=document.getElementById('opp').value.trim()||'相手校';g.tournament=document.getElementById('tour').value.trim();g.stadium=document.getElementById('stad').value.trim();
  let sels=[...document.querySelectorAll('[data-li]')];let arr=sels.map(s=>s.value);let poss=[...document.querySelectorAll('[data-pos]')].map(s=>normalizeDefPos(s.value));
@@ -2957,7 +2978,8 @@ function renderGameResult(g){
  const longestPlayerName=Math.max(4,...allBattingNames.map(n=>Array.from(String(n)).length));
  const playerColEm=Math.min(18,Math.max(9,longestPlayerName+2));
  const batting=battingRows.length?`<div class="resultStatsWrap"><table class="resultStatsTable" style="--batting-player-col:${playerColEm}em"><thead><tr><th>打順</th><th>選手</th><th>打席</th><th>打数</th><th>安打</th><th>二塁打</th><th>三塁打</th><th>本塁打</th><th>打点</th><th>四球</th><th>死球</th><th>三振</th><th>犠打</th><th>犠飛</th><th>打率</th></tr></thead><tbody>${battingRows.join('')}</tbody></table></div>`:`<div class="empty">打席記録はありません</div>`;
- const pitchingHtml=(g.pitching?.history||[]).length?`<div class="pitchingRecords">${(g.pitching.history||[]).map((p,i)=>`<div class="pitchingRecord"><div class="pitchingRecordName">${esc(p.name)}</div><div class="pitchingStatsGrid"><div class="pitchingStatCell"><span class="psLabel">登板</span><span class="psValue">${i===0?'先発':'途中登板'}</span></div><div class="pitchingStatCell"><span class="psLabel">投球回</span><span class="psValue">${pitcherInningsText(p)}</span></div><div class="pitchingStatCell"><span class="psLabel">登板開始</span><span class="psValue">${p.enteredInning}回${p.enteredHalf}</span></div><div class="pitchingStatCell"><span class="psLabel">降板回</span><span class="psValue">${pitcherExitText(g.pitching.history,i,g)}</span></div></div></div>`).join('')}</div>`:`<div class="empty">投手記録はありません</div>`; const max=Math.max(1,g.innings?.length||0);
+ const pitchingHistory=g.pitching?.history||[];
+ const pitchingHtml=pitchingHistory.length?`<div class="resultStatsWrap pitchingStatsWrap"><table class="resultStatsTable pitchingStatsTable"><thead><tr><th>選手</th><th>登板</th><th>投球回</th><th>登板開始</th><th>降板回</th></tr></thead><tbody>${pitchingHistory.map((p,i)=>`<tr><td>${esc(p.name)}</td><td>${i===0?'先発':'途中登板'}</td><td>${pitcherInningsText(p)}</td><td>${p.enteredInning}回${p.enteredHalf}</td><td>${pitcherExitText(pitchingHistory,i,g)}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">投手記録はありません</div>`; const max=Math.max(1,g.innings?.length||0);
  const firstIsOwn=g.order!=='後攻';
  const firstName=firstIsOwn?myTeamName:(g.opponent||'相手');
  const secondName=firstIsOwn?(g.opponent||'相手'):myTeamName;
