@@ -3131,6 +3131,48 @@ document.addEventListener('DOMContentLoaded', ()=>{
 .resultDefenseCard.orderDefenseGround .lineupDefenseGround{margin-top:8px!important}
 @media(max-width:480px){.pitchingResultTable{min-width:560px!important}.pitchingResultTable th,.pitchingResultTable td{padding:8px 6px!important}}
 </style>
+
+<style id="layout-only-runner-top-scroll-fix">
+/* 配置表示のみの修正：v3.01.0 ①〜⑤統合テスト版の機能・操作ロジックは変更しない。
+   タップ後のパネルは画面上部から開始し、縦方向に収まらない場合だけ上下スクロール。 */
+.runnerModal{
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:10px 8px calc(10px + env(safe-area-inset-bottom))!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  touch-action:pan-y!important;
+  overscroll-behavior-y:contain!important;
+  box-sizing:border-box!important;
+}
+.runnerModal .runnerCard{
+  width:min(560px,100%)!important;
+  max-width:100%!important;
+  max-height:none!important;
+  height:auto!important;
+  margin:0 auto!important;
+  overflow:visible!important;
+  box-sizing:border-box!important;
+}
+/* 走者プレー：常にパネル上端から始まり、内容が長い端末では親パネルを上下スクロール */
+#runnerMoveModal .runnerCard{
+  overflow:visible!important;
+}
+/* 打者・走者・アウト・得点を選択・確認：同じ上端開始＋上下スクロール方式 */
+#runnerConfirmModal .runnerCard{
+  overflow:visible!important;
+}
+@media(max-width:430px){
+  .runnerModal{
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom))!important;
+  }
+  .runnerModal .runnerCard{
+    width:100%!important;
+  }
+}
+</style>
+
 </body>
 
 </html><style id="v2750-mobile-fit">
