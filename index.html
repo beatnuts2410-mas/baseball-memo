@@ -2794,18 +2794,9 @@ function hasSavedGame(){
   }catch(e){ return false; }
 }
 
-function closeAllGameModals(){
-  ['paCorrectionModal','runnerCorrectionModal','inGameSubModal','outsAdjustModal','defSubModal','runnerConfirmModal','runnerMoveModal'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.style.display='none';
-  });
-}
-
 function showLaunchScreen(){
   const ls=document.getElementById('launchScreen');
   if(!ls) return;
-  // 起動画面表示中に前回のモーダルが残って操作を奪わないよう、必ず閉じる。
-  closeAllGameModals();
   ls.style.display='flex';
   const cb=document.getElementById('continueGameBtn');
   if(cb) cb.style.display=hasSavedGame()?'block':'none';
@@ -2828,10 +2819,9 @@ function hideLaunchScreen(){
   if(ls) ls.style.display='none';
 }
 
-function startNewFromLaunch(){ closeAllGameModals(); hideLaunchScreen(); if(db.current) db.current.pendingRunnerConfirm=null; newGameSetup(); }
+function startNewFromLaunch(){ hideLaunchScreen(); newGameSetup(); }
 
 function continueFromLaunch(){
-  closeAllGameModals();
   try{
     if(typeof db !== 'undefined' && db.current){
       tab='record';
@@ -3174,109 +3164,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   background:rgba(8,18,32,.72)!important;
   border:1px solid rgba(255,255,255,.45)!important;
   color:#fff!important;
-}
-</style>
-
-<style id="v3_02_3_startup_and_runner_final_fix">
-/* v3.02.3: 起動画面と走者プレーの最終固定。
-   起動画面表示中はゲーム用モーダルを確実に隠し、開始操作を邪魔させない。 */
-#launchScreen.launchScreen{
-  position:fixed!important;
-  inset:0!important;
-  z-index:100000!important;
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  overflow:auto!important;
-  box-sizing:border-box!important;
-  padding:20px 14px!important;
-}
-#launchScreen .launchInner{
-  width:min(430px,100%)!important;
-  max-height:calc(100dvh - 40px)!important;
-  overflow:auto!important;
-  box-sizing:border-box!important;
-}
-/* 走者プレーは「走者選択」「盗塁判定」「進塁先」をすべて同じ2列グリッド規則で統一 */
-#runnerMoveModal.runnerModal{
-  z-index:9000!important;
-  align-items:flex-end!important;
-  padding:8px 8px max(8px,env(safe-area-inset-bottom))!important;
-  box-sizing:border-box!important;
-}
-#runnerMoveModal .runnerCard{
-  width:min(620px,100%)!important;
-  max-width:620px!important;
-  max-height:calc(100dvh - 16px)!important;
-  overflow-y:auto!important;
-  box-sizing:border-box!important;
-  padding:16px 14px calc(16px + env(safe-area-inset-bottom))!important;
-}
-#runnerMoveModal #moveRunnerList,
-#runnerMoveModal #moveDest{
-  width:100%!important;
-  box-sizing:border-box!important;
-}
-#runnerMoveModal .runnerMovePick{
-  display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:8px!important;
-}
-#runnerMoveModal .runnerMovePick .runnerChoiceRunner{
-  width:100%!important;
-  min-width:0!important;
-  min-height:62px!important;
-  height:62px!important;
-  box-sizing:border-box!important;
-  padding:8px 6px!important;
-  font-size:15px!important;
-  white-space:nowrap!important;
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
-}
-#runnerMoveModal .runnerMoveDest{
-  display:block!important;
-}
-#runnerMoveModal .runnerMoveDest > .hint{
-  margin:0 0 8px!important;
-}
-#runnerMoveModal .runnerMoveDest .runnerActions,
-#runnerMoveModal .runnerMoveDest .runnerDestinationGrid{
-  display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:8px!important;
-  width:100%!important;
-  box-sizing:border-box!important;
-  margin-top:8px!important;
-}
-#runnerMoveModal .runnerMoveDest .runnerActions button,
-#runnerMoveModal .runnerMoveDest .runnerDestinationGrid .runnerDestinationBtn{
-  width:100%!important;
-  min-width:0!important;
-  min-height:76px!important;
-  height:76px!important;
-  box-sizing:border-box!important;
-  margin:0!important;
-  padding:8px 6px!important;
-  font-size:18px!important;
-  line-height:1.15!important;
-  white-space:normal!important;
-}
-#runnerMoveModal .runnerMoveDest .runnerActions button{
-  font-size:20px!important;
-  font-weight:900!important;
-}
-#runnerMoveModal .runnerHomeBtn{font-size:17px!important;}
-@media(max-width:430px){
-  #runnerMoveModal.runnerModal{padding:6px 6px max(6px,env(safe-area-inset-bottom))!important;}
-  #runnerMoveModal .runnerCard{padding:13px 10px calc(13px + env(safe-area-inset-bottom))!important;}
-  #runnerMoveModal .runnerMovePick{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;}
-  #runnerMoveModal .runnerMovePick .runnerChoiceRunner{min-height:58px!important;height:58px!important;font-size:14px!important;}
-  #runnerMoveModal .runnerMoveDest .runnerActions,
-  #runnerMoveModal .runnerMoveDest .runnerDestinationGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;}
-  #runnerMoveModal .runnerMoveDest .runnerActions button,
-  #runnerMoveModal .runnerMoveDest .runnerDestinationGrid .runnerDestinationBtn{min-height:68px!important;height:68px!important;font-size:17px!important;}
-  #runnerMoveModal .runnerHomeBtn{font-size:15px!important;}
 }
 </style>
 </body>
@@ -4430,7 +4317,6 @@ input[type="date"]{min-width:0!important;overflow:hidden!important}
 }
 </style>
 
-<style id="v3_00_cold_game_fix">
 /* v3.00.0: 試合終了データのコールドゲーム表示 */
 #gameResultView .coldGameBanner{
  display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;
@@ -4445,7 +4331,6 @@ input[type="date"]{min-width:0!important;overflow:hidden!important}
  #gameResultView .coldGameBanner .coldGameReason{font-size:11px!important;width:100%!important;}
 }
 
-</style>
 
 <style id="v3_01_layout_restore_and_subheader_fix">
 /* v3.01: 基本画面設定を復元。
@@ -4524,7 +4409,7 @@ html,body{
 <style id="v3_02_launch_home_background">
 /* v3.02: 起動時ホーム画面にユーザー指定の野球写真を背景設定 */
 #launchScreen.launchScreen{
-  background-image:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.40)),url('home-launch-bg.jpg')!important;
+  background-image:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.40)),url('home-launch-bg.png')!important;
   background-size:cover!important;
   background-position:center center!important;
   background-repeat:no-repeat!important;
@@ -4549,4 +4434,36 @@ html,body{
 }
 #launchScreen .launchInner h1{font-size:34px!important}
 #launchScreen .launchInner .launchSub{font-weight:700!important}
+</style>
+
+<style id="v3_02_3_launch_button_hit_fix">
+/* v3.02.3: 背景画像追加後も起動画面のボタンを確実にタップできるようヒット領域を明示 */
+#launchScreen.launchScreen{
+  pointer-events:auto!important;
+  isolation:isolate!important;
+  touch-action:manipulation!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+#launchScreen .launchInner,
+#launchScreen .launchActions,
+#launchScreen .launchActions button,
+#launchScreen #installArea,
+#launchScreen #homeInstallBtn{
+  pointer-events:auto!important;
+}
+#launchScreen .launchInner{
+  position:relative!important;
+  z-index:10000!important;
+  -webkit-backdrop-filter:none!important;
+}
+#launchScreen .launchActions{
+  position:relative!important;
+  z-index:10001!important;
+}
+#launchScreen .launchActions button{
+  position:relative!important;
+  z-index:10002!important;
+  touch-action:manipulation!important;
+  cursor:pointer!important;
+}
 </style>
