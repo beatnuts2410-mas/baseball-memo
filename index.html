@@ -4418,6 +4418,93 @@ html,body{background:#08111c!important;}
 .orderConfirmCard{padding:10px!important;}
 .orderConfirmBtn{min-height:54px!important;font-size:16px!important;font-weight:900!important;}
 </style>
+
+<style id="homeLayout-v3013">
+/* v3.01.3 HOME LAYOUT ONLY
+   Match the approved portrait mock: icon on upper-right, title/subtitle upper area,
+   functional buttons remain HTML controls. No game/runner/scoring/tap logic changed. */
+#launchScreen.homePhotoLaunch{
+  background:#08111c url("home-bg.png") center center / cover no-repeat!important;
+}
+#launchScreen.homePhotoLaunch::before{
+  background:linear-gradient(180deg,rgba(0,0,0,.03) 0%,rgba(0,0,0,.02) 48%,rgba(0,0,0,.28) 100%)!important;
+}
+#launchScreen.homePhotoLaunch .launchInner{
+  width:min(100%,430px)!important;
+  height:100%!important;
+  max-height:none!important;
+  padding:clamp(28px,5.5vh,54px) 20px calc(22px + env(safe-area-inset-bottom))!important;
+  justify-content:flex-start!important;
+  position:relative!important;
+  text-align:center!important;
+}
+#launchScreen.homePhotoLaunch .launchIcon{
+  position:absolute!important;
+  top:clamp(28px,6vh,62px)!important;
+  right:20px!important;
+  width:78px!important;
+  height:78px!important;
+  margin:0!important;
+  border-radius:21px!important;
+  z-index:3!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.40)!important;
+}
+#launchScreen.homePhotoLaunch .launchInner h1{
+  margin:clamp(20px,7vh,74px) 72px 4px 0!important;
+  text-align:left!important;
+  font-size:clamp(34px,9vw,44px)!important;
+  line-height:1.08!important;
+  letter-spacing:.04em!important;
+  white-space:nowrap!important;
+}
+#launchScreen.homePhotoLaunch .launchSub{
+  margin:0 66px 0 0!important;
+  text-align:right!important;
+  font-size:14px!important;
+  line-height:1.45!important;
+  white-space:nowrap!important;
+}
+#launchScreen.homePhotoLaunch .launchActions{
+  position:absolute!important;
+  left:20px!important;
+  right:20px!important;
+  bottom:clamp(82px,12vh,122px)!important;
+  display:grid!important;
+  gap:12px!important;
+  z-index:4!important;
+}
+#launchScreen.homePhotoLaunch .launchPrimary,
+#launchScreen.homePhotoLaunch .launchSecondary{
+  min-height:58px!important;
+  border-radius:19px!important;
+  font-size:18px!important;
+  font-weight:950!important;
+}
+#launchScreen.homePhotoLaunch .installArea{
+  position:absolute!important;
+  left:20px!important;
+  right:20px!important;
+  bottom:calc(30px + env(safe-area-inset-bottom))!important;
+  margin:0!important;
+  z-index:4!important;
+}
+@media(max-width:430px){
+  #launchScreen.homePhotoLaunch .launchInner{padding-left:16px!important;padding-right:16px!important;}
+  #launchScreen.homePhotoLaunch .launchIcon{right:16px!important;width:72px!important;height:72px!important;top:24px!important;}
+  #launchScreen.homePhotoLaunch .launchInner h1{margin-right:62px!important;font-size:clamp(31px,9.5vw,41px)!important;}
+  #launchScreen.homePhotoLaunch .launchSub{margin-right:54px!important;font-size:13px!important;}
+  #launchScreen.homePhotoLaunch .launchActions{left:16px!important;right:16px!important;bottom:clamp(78px,11vh,108px)!important;}
+  #launchScreen.homePhotoLaunch .installArea{left:16px!important;right:16px!important;bottom:calc(24px + env(safe-area-inset-bottom))!important;}
+}
+@media(max-height:700px){
+  #launchScreen.homePhotoLaunch .launchIcon{width:64px!important;height:64px!important;top:18px!important;}
+  #launchScreen.homePhotoLaunch .launchInner h1{margin-top:18px!important;font-size:30px!important;}
+  #launchScreen.homePhotoLaunch .launchSub{font-size:12px!important;}
+  #launchScreen.homePhotoLaunch .launchActions{bottom:76px!important;}
+  #launchScreen.homePhotoLaunch .launchPrimary,
+  #launchScreen.homePhotoLaunch .launchSecondary{min-height:50px!important;padding:12px 16px!important;}
+}
+</style>
 <style id="homeVisualOnly-v3011">
 /* HOME VISUAL ONLY — v3.01.1
    This block intentionally changes only the launch/home screen appearance.
