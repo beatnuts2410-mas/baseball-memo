@@ -5878,3 +5878,73 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 })();
 </script>
+<style id="v3_01_34_defensive_grid_footer_fix">
+/* v3.01.34: 守備交代の選手表示を見やすく調整。グランド内・交代選手とも3×3、最終操作は常時表示。 */
+#defSubTargets.defSubPickGrid,
+#defSubReplacements.defSubPickGrid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:6px!important;
+}
+#defSubTargets .defSubPick,
+#defSubReplacements .defSubPick{
+  min-height:52px!important;
+  height:52px!important;
+  padding:6px 5px!important;
+  border-radius:9px!important;
+  font-size:13px!important;
+  line-height:1.2!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#defSubTargets .defSubPick b,
+#defSubReplacements .defSubPick b{
+  font-size:13px!important;
+  line-height:1.2!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#defSubTargets .defSubPick small,
+#defSubReplacements .defSubPick small{
+  font-size:10px!important;
+  line-height:1.1!important;
+  margin-top:2px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#defSubTargets .defSubPick.active,
+#defSubReplacements .defSubPick.active{
+  padding:4px 3px!important;
+}
+/* 確定操作はスクロールしても常に画面下部に残す。 */
+#defSubModal .defSubPreview + .subActions{
+  position:sticky!important;
+  bottom:-10px!important;
+  z-index:20!important;
+  margin:10px -12px -12px!important;
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom))!important;
+  background:rgba(255,255,255,.98)!important;
+  border-top:1px solid #ddd!important;
+  box-shadow:0 -5px 14px rgba(0,0,0,.08)!important;
+}
+#defSubModal .defSubPreview + .subActions .secondaryBtn,
+#defSubModal .defSubPreview + .subActions #defSubApplyBtn{
+  min-height:52px!important;
+  height:52px!important;
+  font-size:16px!important;
+  font-weight:900!important;
+}
+@media(max-width:420px){
+  #defSubModal .defSubCard{padding:10px!important;}
+  #defSubTargets.defSubPickGrid,
+  #defSubReplacements.defSubPickGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;}
+  #defSubTargets .defSubPick,
+  #defSubReplacements .defSubPick{min-height:50px!important;height:50px!important;font-size:12px!important;padding:5px 3px!important;}
+  #defSubTargets .defSubPick b,
+  #defSubReplacements .defSubPick b{font-size:12px!important;}
+  #defSubTargets .defSubPick.active,
+  #defSubReplacements .defSubPick.active{padding:3px 1px!important;}
+  #defSubModal .defSubPreview + .subActions{margin:10px -10px -10px!important;padding:9px 10px calc(9px + env(safe-area-inset-bottom))!important;}
+}
+</style>
