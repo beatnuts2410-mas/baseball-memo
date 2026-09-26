@@ -1976,11 +1976,15 @@ function selectStealJudge(judge){
  document.querySelectorAll('#stealStepJudgeList .stealStepOption').forEach(b=>b.classList.toggle('active',b.dataset.judge===judge));
  const g=db.current,i=stealStepFrom;
  if(judge==='アウト'){
-   // 盗塁失敗（アウト）は②の判定だけで確定できる。③進塁先は表示しない。
+   // 盗塁失敗（アウト）は②の「アウト」を押した時点で即確定。③と「決定」は不要。
    stealStepDest=0;
    document.getElementById('stealStepDestList').parentElement.style.display='none';
-   document.getElementById('stealStepConfirmBtn').disabled=false;
-   document.getElementById('stealStepTarget').textContent='② アウトを選択。進塁先は不要です。「決定」を押してください。';
+   document.getElementById('stealStepConfirmBtn').disabled=true;
+   runnerMoveMode='盗塁';
+   runnerMoveFrom=i;
+   runnerMoveJudged=true;
+   closeStealSteps();
+   return judgeSteal('アウト');
  }else{
    const dests=[1,2,3,4].filter(d=>d>i+1&&(d===4||!g.runners[d-1]));
    document.getElementById('stealStepDestList').innerHTML=dests.length?dests.map(d=>`<button type="button" class="stealStepOption" data-dest="${d}" onclick="selectStealDest(${d})">${d===4?'本塁・得点':d+'塁へ'}</button>`).join(''):'<div class="stealStepHint">選択できる進塁先がありません。</div>';
@@ -2001,8 +2005,9 @@ function confirmStealSteps(){
  if(stealStepJudgeValue==='セーフ'&&stealStepDest==null)return toast('③進塁先を選択してください');
  const from=stealStepFrom,judge=stealStepJudgeValue,dest=stealStepDest;
  closeStealSteps(false);
- if(judge==='アウト')return judgeSteal('アウト');
+ // 別画面の盗塁ステップから既存の盗塁処理へ渡すため、走者情報を共通状態へ引き継ぐ。
  runnerMoveMode='盗塁';runnerMoveFrom=from;runnerMoveJudged=true;
+ if(judge==='アウト')return judgeSteal('アウト');
  return applyRunnerMove(dest);
 }
 function closeStealSteps(hide=true){
