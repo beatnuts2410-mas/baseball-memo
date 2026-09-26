@@ -1713,6 +1713,23 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   .passedBallStepActions button{min-height:50px;font-size:15px;}
 }
 </style>
+
+<style id="v3_01_20_passed_ball_individual_multi_select_fix">
+/* v3.01.20: 捕逸の「全ランナー進塁 / 個別に選択」を確実に操作できるよう明示的な2段階UIへ固定 */
+#passedBallStepModal .passedBallStepCard{display:flex!important;flex-direction:column!important;max-height:calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;overflow:hidden!important;}
+#passedBallStepModal .passedBallStepSection{flex:0 0 auto!important;}
+#passedBallStepModal #passedBallStepDestList{max-height:min(34dvh,360px)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;}
+#passedBallStepModal .passedBallStepActions{flex:0 0 auto!important;background:#fff!important;position:relative!important;z-index:10!important;padding-top:8px!important;}
+#passedBallStepModal .passedBallStepOption{cursor:pointer!important;touch-action:manipulation!important;}
+#passedBallStepModal #passedBallStepRunnerList{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+#passedBallStepModal .passedBallStepHint{font-weight:700!important;}
+@media(max-width:520px){
+ #passedBallStepModal .passedBallStepCard{width:100%!important;padding:10px!important;}
+ #passedBallStepModal #passedBallStepRunnerList{grid-template-columns:1fr!important;}
+ #passedBallStepModal #passedBallStepDestList{max-height:32dvh!important;}
+ #passedBallStepModal .passedBallStepActions button{min-height:48px!important;font-size:15px!important;}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -2173,17 +2190,18 @@ function openPassedBallSteps(){
  const g=db.current;if(!g||!g.runners.some(Boolean))return toast('走者がいません');
  passedBallAll=false;passedBallSelected=new Set();passedBallDest={};
  const modal=document.getElementById('passedBallStepModal');
- document.getElementById('passedBallStepModeList').innerHTML=`<button type="button" class="passedBallStepOption" id="passedBallAllBtn" onclick="selectPassedBallAll()">全ランナー進塁</button><button type="button" class="passedBallStepOption" id="passedBallIndividualBtn" onclick="selectPassedBallIndividual()">走者を個別に選択</button>`;
+ document.getElementById('passedBallStepModeList').innerHTML=`<button type="button" class="passedBallStepOption" id="passedBallAllBtn" onclick="selectPassedBallAll()">全ランナー進塁</button><button type="button" class="passedBallStepOption" id="passedBallIndividualBtn" onclick="selectPassedBallIndividual()">個別に選択</button>`;
  document.getElementById('passedBallStepRunnerList').innerHTML=[0,1,2].filter(i=>g.runners[i]).map(i=>`<button type="button" class="passedBallStepOption" data-runner="${i}" onclick="togglePassedBallRunner(${i})">${i+1}塁　${esc(g.runnerNames?.[i]||'走者')}</button>`).join('');
- document.getElementById('passedBallStepRunnerList').style.display='grid';
- document.getElementById('passedBallStepDestList').innerHTML='<div class="passedBallStepHint">①で「全ランナー進塁」または「個別に選択」を選びます。</div>';
+ document.getElementById('passedBallStepRunnerList').style.display='none';
+ document.getElementById('passedBallStepDestList').innerHTML='<div class="passedBallStepHint">①「全ランナー進塁」または「個別に選択」を選んでください。</div>';
  document.getElementById('passedBallStepConfirmBtn').disabled=true;
  document.getElementById('passedBallStepTarget').textContent='① 進塁する走者を確認 → ② 進塁先を確認 → 「決定」';
  modal.style.display='flex';
  updatePassedBallUI();
 }
 function selectPassedBallAll(){
- passedBallAll=true;passedBallSelected=new Set([0,1,2].filter(i=>db.current?.runners?.[i]));passedBallDest={};
+ const g=db.current;if(!g)return;
+ passedBallAll=true;passedBallSelected=new Set([0,1,2].filter(i=>g.runners[i]));passedBallDest={};
  updatePassedBallUI();
 }
 function selectPassedBallIndividual(){
@@ -2191,9 +2209,9 @@ function selectPassedBallIndividual(){
  updatePassedBallUI();
 }
 function togglePassedBallRunner(i){
- if(passedBallAll)return;
- if(!db.current?.runners?.[i])return;
- if(passedBallSelected.has(i)){passedBallSelected.delete(i);delete passedBallDest[i];}else{passedBallSelected.add(i);}
+ const g=db.current;if(!g?.runners?.[i]||passedBallAll)return;
+ if(passedBallSelected.has(i)){passedBallSelected.delete(i);delete passedBallDest[i];}
+ else passedBallSelected.add(i);
  updatePassedBallUI();
 }
 function getPassedBallDests(i){
@@ -2208,9 +2226,10 @@ function selectPassedBallDest(i,dest){
 }
 function updatePassedBallUI(){
  const g=db.current;if(!g)return;
- const allBtn=document.getElementById('passedBallAllBtn'),indBtn=document.getElementById('passedBallIndividualBtn');
+ const allBtn=document.getElementById('passedBallAllBtn'),indBtn=document.getElementById('passedBallIndividualBtn'),runnerList=document.getElementById('passedBallStepRunnerList');
  if(allBtn)allBtn.classList.toggle('active',passedBallAll);
  if(indBtn)indBtn.classList.toggle('active',!passedBallAll);
+ if(runnerList)runnerList.style.display=passedBallAll?'none':'grid';
  document.querySelectorAll('#passedBallStepRunnerList .passedBallStepOption').forEach(b=>{const i=Number(b.dataset.runner);b.classList.toggle('active',!passedBallAll&&passedBallSelected.has(i));});
  const destBox=document.getElementById('passedBallStepDestList');
  if(passedBallAll){
@@ -2218,8 +2237,8 @@ function updatePassedBallUI(){
    destBox.innerHTML=rows||'<div class="passedBallStepHint">進塁する走者がいません。</div>';
    document.getElementById('passedBallStepTarget').textContent='全ランナー進塁を選択中。内容を確認して「決定」してください。';
  }else if(!passedBallSelected.size){
-   destBox.innerHTML='<div class="passedBallStepHint">進塁する走者を選択すると、走者ごとに進塁先を選べます。</div>';
-   document.getElementById('passedBallStepTarget').textContent='① 進塁する走者を選択してください。';
+   destBox.innerHTML='<div class="passedBallStepHint">進塁する走者を1人以上選択してください。複数選択できます。</div>';
+   document.getElementById('passedBallStepTarget').textContent='① 個別に進塁する走者を選択してください。';
  }else{
    destBox.innerHTML=[...passedBallSelected].sort((a,b)=>a-b).map(i=>{
      const name=esc(g.runnerNames?.[i]||'走者');
@@ -2227,7 +2246,8 @@ function updatePassedBallUI(){
      return `<div class="passedBallRunnerRow"><div class="passedBallRunnerName">${i+1}塁 ${name}</div><div class="passedBallDestGrid">${btns}</div></div>`;
    }).join('');
    const ready=[...passedBallSelected].every(i=>passedBallDest[i]!=null);
-   document.getElementById('passedBallStepTarget').textContent=ready?'進塁する走者と進塁先を確認しました。「決定」してください。':'② 各走者の進塁先を選択してください。';
+   const selectedNames=[...passedBallSelected].sort((a,b)=>a-b).map(i=>`${i+1}塁 ${g.runnerNames?.[i]||'走者'}`).join('・');
+   document.getElementById('passedBallStepTarget').textContent=ready?`${selectedNames} の進塁先を確認しました。「決定」してください。`:`② 選択した走者それぞれの進塁先を選択してください。`;
  }
  const ready=passedBallAll?passedBallSelected.size>0:(passedBallSelected.size>0&&[...passedBallSelected].every(i=>passedBallDest[i]!=null));
  document.getElementById('passedBallStepConfirmBtn').disabled=!ready;
@@ -2239,10 +2259,9 @@ function confirmPassedBallSteps(){
  const destMap={};
  if(passedBallAll){selected.forEach(i=>destMap[i]=i===2?4:i+2);}
  else{for(const i of selected){const d=Number(passedBallDest[i]);if(!d)return toast('各走者の進塁先を選択してください');destMap[i]=d;}}
- // 最終配置を先に検証。選択されていない走者がいる塁へ入ること、同一塁への重複を禁止。
  const occupiedUnselected=new Set([0,1,2].filter(i=>g.runners[i]&&!selected.includes(i)));
  const destinations=new Set();
- for(const i of selected){const d=destMap[i];if(d!==4){const di=d-1;if(occupiedUnselected.has(di))return toast(`${d}塁には別の走者がいるため選択できません`);if(destinations.has(di))return toast('同じ塁に複数の走者は進めません');destinations.add(di);}}
+ for(const i of selected){const d=destMap[i];if(d!==4){const di=d-1;if(occupiedUnselected.has(di))return toast(`${d}塁には別の走者がいるため、その走者も進塁対象にしてください`);if(destinations.has(di))return toast('同じ塁に複数の走者は進めません');destinations.add(di);}}
  const before=cloneRunners(g.runners),beforeNames=cloneRunnerNames(g.runnerNames),after=cloneRunners(g.runners),afterNames=cloneRunnerNames(g.runnerNames);
  selected.forEach(i=>{after[i]=0;afterNames[i]=null;});
  let runs=0;
