@@ -2188,6 +2188,146 @@ html,body{max-width:100%;overflow-x:hidden!important;}
 }
 </style>
 
+
+<style id="v3_01_42_iphone_se_runner_modal_final">
+/* v3.01.42: iPhone SEで盗塁・暴投・捕逸を個別に3名選択した場合も、上端から表示し、カード全体を上下スクロールして「戻る・決定」まで操作可能にする。 */
+#stealStepModal,
+#passedBallStepModal,
+#runnerEventStepModal{
+  position:fixed!important;
+  inset:0!important;
+  z-index:200!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  overflow-x:hidden!important;
+  overflow-y:hidden!important;
+  padding:0!important;
+  box-sizing:border-box!important;
+}
+#stealStepModal .stealStepCard,
+#passedBallStepModal .passedBallStepCard,
+#runnerEventStepModal .runnerEventStepCard{
+  width:min(680px,100%)!important;
+  max-width:680px!important;
+  height:auto!important;
+  max-height:100dvh!important;
+  min-height:0!important;
+  margin:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-y:contain!important;
+  touch-action:pan-y!important;
+  box-sizing:border-box!important;
+  border-radius:0 0 14px 14px!important;
+  padding:10px 10px calc(10px + env(safe-area-inset-bottom))!important;
+}
+#stealStepModal .stealStepActions,
+#passedBallStepModal .passedBallStepActions,
+#runnerEventStepModal .runnerEventStepActions{
+  position:static!important;
+  z-index:auto!important;
+  margin-top:10px!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+  background:transparent!important;
+}
+#stealStepModal .stealStepActions button,
+#passedBallStepModal .passedBallStepActions button,
+#runnerEventStepModal .runnerEventStepActions button{
+  touch-action:manipulation!important;
+  pointer-events:auto!important;
+}
+@media(max-width:420px){
+  #stealStepModal .stealStepCard,
+  #passedBallStepModal .passedBallStepCard,
+  #runnerEventStepModal .runnerEventStepCard{
+    width:100%!important;
+    max-width:100%!important;
+    max-height:100dvh!important;
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom))!important;
+    border-radius:0 0 12px 12px!important;
+  }
+  #stealStepModal .stealStepSection,
+  #passedBallStepModal .passedBallStepSection,
+  #runnerEventStepModal .runnerEventStepSection{
+    margin-top:8px!important;
+    padding:8px!important;
+  }
+  #passedBallStepModal .passedBallStepRunnerRow{
+    min-width:0!important;
+  }
+  #passedBallStepModal .passedBallStepActions,
+  #stealStepModal .stealStepActions,
+  #runnerEventStepModal .runnerEventStepActions{
+    margin-top:8px!important;
+    padding-bottom:calc(2px + env(safe-area-inset-bottom))!important;
+  }
+}
+</style>
+
+<style id="v3_01_43_batting_replacement_and_red_frame_fix">
+/* v3.01.43: 打撃成績の代打・選手交代を左固定、名前を省略せず、打席列を通常選手と完全に揃える。スタメン交代枠は赤。 */
+#gameResultView .resultStatsTable tr.battingSubHeader .battingSubHeaderCell,
+#gameResultView .resultStatsTable tr.battingReplacementRow .battingReplacementName{
+  position:sticky!important;
+  left:0!important;
+  right:auto!important;
+  z-index:60!important;
+  box-sizing:border-box!important;
+  width:calc(3.2em + var(--batting-player-col, 11em))!important;
+  min-width:calc(3.2em + var(--batting-player-col, 11em))!important;
+  max-width:none!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  white-space:nowrap!important;
+  text-align:left!important;
+  background:#fff!important;
+  color:#111!important;
+  box-shadow:3px 0 0 #c8c8c3!important;
+}
+#gameResultView .resultStatsTable tr.battingReplacementRow .battingReplacementName .subName{
+  display:inline!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  max-width:none!important;
+}
+#gameResultView .resultStatsTable tr.battingReplacementRow td:nth-child(3){
+  width:4.2em!important;
+  min-width:4.2em!important;
+  text-align:center!important;
+}
+#gameResultView .resultStatsTable tr.battingReplacementRow .subMark{
+  vertical-align:middle!important;
+}
+#gameResultView .resultStatsTable tr.battingSubHeader .battingSubHeaderFill{
+  position:static!important;
+}
+#gameResultView .resultDefenseCard .defPos.changedDef,
+#gameResultView .resultDefenseCard .defDh.changedDef{
+  border-color:#dc2626!important;
+  box-shadow:0 0 0 2px rgba(220,38,38,.20)!important;
+}
+@media(max-width:430px){
+  #gameResultView .resultStatsTable tr.battingSubHeader .battingSubHeaderCell,
+  #gameResultView .resultStatsTable tr.battingReplacementRow .battingReplacementName{
+    width:calc(40px + var(--batting-player-col, 11em))!important;
+    min-width:calc(40px + var(--batting-player-col, 11em))!important;
+    max-width:none!important;
+    padding-left:2px!important;
+    padding-right:6px!important;
+    font-size:11px!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+  #gameResultView .resultStatsTable tr.battingReplacementRow .subName{
+    display:inline!important;
+    white-space:nowrap!important;
+  }
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -3397,7 +3537,7 @@ function renderResultDefenseGrounds(g){
  // 試合終了画面ではこのグラウンドを1個だけ表示し、交代選手のみ枠線色を変更する。
  const starters=getInitialLineup(g);
  const ground=renderLineupDefenseGround(g,starters,changed);
- return `<div class="resultDefenseCard"><div class="title">本日のスターティングメンバー</div>${ground}</div><div class="defenseGroundNote">本日のスターティングメンバーを青枠にて表示。選手交代が発生した場合は、選手の枠色が変化します。</div>`;
+ return `<div class="resultDefenseCard"><div class="title">本日のスターティングメンバー</div>${ground}</div><div class="defenseGroundNote">本日のスターティングメンバーを青枠にて表示。選手交代が発生した場合は、選手の枠色を赤色で表示します。</div>`;
 }
 function renderOrderDefenseGround(g){
  const starters=getInitialLineup(g);
@@ -3742,7 +3882,7 @@ function renderGameResult(g){
  if(battingData.rest.length) battingRows.push(...battingData.rest.map(s=>statRow(s,null)));
  const allBattingNames=[...battingData.starters,...battingData.replacements.map(r=>r.stat),...battingData.rest].map(s=>displayPlayerName(s?.name)||'');
  const longestPlayerName=Math.max(4,...allBattingNames.map(n=>Array.from(String(n)).length));
- const playerColEm=Math.min(18,Math.max(9,longestPlayerName+2));
+ const playerColEm=Math.max(9,longestPlayerName+4);
  const batting=battingRows.length?`<div class="resultStatsWrap"><table class="resultStatsTable" style="--batting-player-col:${playerColEm}em"><thead><tr><th>打順</th><th>選手</th><th>打席</th><th>打数</th><th>安打</th><th>二塁打</th><th>三塁打</th><th>本塁打</th><th>打点</th><th>四球</th><th>死球</th><th>三振</th><th>犠打</th><th>犠飛</th><th>打率</th></tr></thead><tbody>${battingRows.join('')}</tbody></table></div>`:`<div class="empty">打席記録はありません</div>`;
  const pitchingRows=(g.pitching?.history||[]).map((p,i)=>`<tr><td>${esc(p.name)}</td><td>${i===0?'先発':'途中登板'}</td><td>${pitcherInningsText(p)}</td><td>${p.enteredInning}回${p.enteredHalf||''}</td><td>${pitcherExitText(g.pitching.history,i,g)}</td></tr>`).join('');
   const pitchingHtml=(g.pitching?.history||[]).length?`<div class="resultStatsWrap pitchingTableWrap"><table class="resultStatsTable pitchingResultTable"><thead><tr><th>投手</th><th>登板</th><th>投球回</th><th>登板開始</th><th>降板回</th></tr></thead><tbody>${pitchingRows}</tbody></table></div>`:`<div class="empty">投手記録はありません</div>`; const max=Math.max(1,g.innings?.length||0);
