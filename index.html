@@ -1321,7 +1321,8 @@ let db=JSON.parse(localStorage.getItem(KEY)||"null")||{
 team:{name:"西春高校",players:[...sampleNames.map((name,i)=>({name,num:i+1,role:"player"})),...sampleManagers.map(name=>({name,num:"",role:"manager"}))]},
 games:[],
 current:null,
-lastLineup:[]
+lastLineup:[],
+lastOrder:null
 };
 let tab="record";
 let resultGameId=null;
@@ -2159,19 +2160,22 @@ function renderOrderDefenseGround(g){
 function lineupView(){
  ensureGame();let g=db.current;
  const activePlayers=db.team.players.filter(p=>p.role!=='manager'); if(activePlayers.length<9)return `<div class="card"><div class="title">選手を9人以上登録してください</div><button class="btn" onclick="tab='team';render()">チーム登録へ</button></div>`;
- let opts=activePlayers.map(p=>`<option value="${esc(p.name)}">${esc(p.name)}</option>`).join('');
+ const savedPitcher=g.pitcher?.name||db.lastOrder?.pitcher?.name||'';
+ let opts=activePlayers.map(p=>`<option value="${esc(p.name)}" ${p.name===savedPitcher?'selected':''}>${esc(p.name)}</option>`).join('');
  let rows='';
  for(let i=0;i<9;i++){
-   let v=g.lineup[i]?.name||db.lastLineup[i]?.name||db.team.players[i]?.name||'';
+   let v=g.lineup[i]?.name||db.lastOrder?.lineup?.[i]?.name||db.lastLineup[i]?.name||db.team.players[i]?.name||'';
    let pos=g.lineup[i]?.pos||'';
    rows+=`<div class="playerrow"><div class="num">${i+1}</div><select class="select" data-li="${i}"><option value="">選手を選択</option>${opts.replace(/<option value="([^"]+)">/g,(m,n)=>`<option value="${n}" ${n===v?'selected':''}>`)}</select><select class="select" data-pos="${i}" onchange="syncDHFromPosition(${i},this.value)"><option value="">守備位置を選択</option>${DEF_POSITIONS.map(([v,l])=>`<option value="${v}" ${normalizeDefPos(pos)===v?'selected':''}>${l}</option>`).join('')}</select><button class="btn small" onclick="moveLine(${i},-1)">↑</button></div>`
  }
- return gameHeader()+`<div class="card"><div class="row between"><div class="title">試合情報</div><button class="btn small" onclick="copyPrev()">前回オーダー</button></div><div class="grid2"><input id="date" class="input" type="date" value="${g.date}"><input id="opp" class="input" value="${esc(g.opponent)}" placeholder="相手校"></div><div style="height:8px"></div><div class="grid2"><input id="tour" class="input" value="${esc(g.tournament)}" placeholder="大会名・回戦"><input id="stad" class="input" value="${esc(g.stadium)}" placeholder="球場"></div></div>
+ const savedDh=g.dh?.name||db.lastOrder?.dh?.name||((g.lineup||[]).find(p=>normalizeDefPos(p?.pos)==='指名打者')?.name||'');
+ return gameHeader()+`<div class="card"><div class="title">試合情報</div><div class="grid2"><input id="date" class="input" type="date" value="${g.date}"><input id="opp" class="input" value="${esc(g.opponent)}" placeholder="相手校"></div><div style="height:8px"></div><div class="grid2"><input id="tour" class="input" value="${esc(g.tournament)}" placeholder="大会名・回戦"><input id="stad" class="input" value="${esc(g.stadium)}" placeholder="球場"></div></div>
+ <div class="card"><button class="btn primary" style="width:100%;min-height:58px;font-size:17px;font-weight:900" onclick="copyPrev()">📋 前回オーダー読み込み</button><div class="muted" style="text-align:center;margin-top:7px">前回確定した打順・守備位置・投手・DHをそのまま読み込みます。</div></div>
  <div class="card"><div class="title">打順・守備</div><div class="lineup">${rows}</div>
- <div style="height:10px"></div><div class="grid2"><div><div class="muted">投手</div><select id="pitcher" class="select"><option value="">選手を選択</option>${opts}</select></div><div><div class="muted">指名打者</div><input id="dh" class="input" value="${esc(g.dh?.name||((g.lineup||[]).find(p=>normalizeDefPos(p?.pos)==='指名打者')?.name||''))}" placeholder="打順で指名打者を選択" readonly></div></div>
- <button class="btn primary" style="width:100%;margin-top:10px" onclick="saveLineup()">オーダー・守備を確定</button></div>
- <div class="card"><div class="title">守備配置イメージ（確定前プレビュー）</div>${renderLineupDefenseGround(g,g.lineup||[],new Set())}<div class="hint" style="text-align:center">オーダーで決定した守備位置と配置選手を表示しています。</div></div>`;
+ <div style="height:10px"></div><div class="grid2"><div><div class="muted">投手</div><select id="pitcher" class="select"><option value="">選手を選択</option>${opts}</select></div><div><div class="muted">指名打者</div><input id="dh" class="input" value="${esc(savedDh)}" placeholder="打順で指名打者を選択" readonly></div></div></div>
+ <div class="card"><div class="title">守備配置イメージ</div>${renderLineupDefenseGround(g,g.lineup||[],new Set())}<div class="hint" style="text-align:center">決定した打順・守備位置をグラウンド上で確認できます。</div><button class="btn primary" style="width:100%;min-height:58px;margin-top:12px;font-size:17px;font-weight:900" onclick="saveLineup()">✓ オーダー・守備位置を確定</button></div>`;
 }
+
 function syncDHFromPosition(index,pos){
  const dh=document.getElementById('dh');
  if(!dh)return;
@@ -2190,7 +2194,17 @@ function syncDHFromCurrentLineup(){
  const idx=row?.dataset?.pos;
  if(idx!=null)dh.value=document.querySelector(`[data-li="${idx}"]`)?.value||'';
 }
-function copyPrev(){if(!db.lastLineup.length)return toast("前回オーダーがありません");document.querySelectorAll("[data-li]").forEach((s,i)=>s.value=db.lastLineup[i]?.name||"");document.querySelectorAll("[data-pos]").forEach((s,i)=>s.value=normalizeDefPos(db.lastLineup[i]?.pos||''));syncDHFromCurrentLineup();toast("前回オーダーを読み込みました")}
+function copyPrev(){
+ const prev=db.lastOrder?.lineup?.length?db.lastOrder.lineup:db.lastLineup;
+ if(!Array.isArray(prev)||!prev.length)return toast("前回オーダーがありません");
+ document.querySelectorAll("[data-li]").forEach((s,i)=>s.value=prev[i]?.name||"");
+ document.querySelectorAll("[data-pos]").forEach((s,i)=>s.value=normalizeDefPos(prev[i]?.pos||""));
+ const pitcher=document.getElementById("pitcher");
+ if(pitcher) pitcher.value=db.lastOrder?.pitcher?.name||"";
+ syncDHFromCurrentLineup();
+ if(document.getElementById("dh") && db.lastOrder?.dh?.name) document.getElementById("dh").value=db.lastOrder.dh.name;
+ toast("前回オーダー・守備位置を読み込みました");
+}
 function saveLineup(){
  let g=db.current;g.date=document.getElementById('date').value;g.opponent=document.getElementById('opp').value.trim()||'相手校';g.tournament=document.getElementById('tour').value.trim();g.stadium=document.getElementById('stad').value.trim();
  let sels=[...document.querySelectorAll('[data-li]')];let arr=sels.map(s=>s.value);let poss=[...document.querySelectorAll('[data-pos]')].map(s=>normalizeDefPos(s.value));
@@ -2206,7 +2220,7 @@ function saveLineup(){
  // 試合開始時の9人を固定保存。途中交代後も打撃成績ではこの9人を上段に残す。
  g.initialLineup=JSON.parse(JSON.stringify(g.lineup));
  g.pitcher=pitcher?db.team.players.find(p=>p.name===pitcher):null;g.dh=dh?db.team.players.find(p=>p.name===dh):null;
- g.innings=g.innings||[];g.lastLineup=g.lineup;db.lastLineup=g.lineup;g.pitching={current:null,history:[]};if(g.pitcher?.name)registerPitcher(g,g.pitcher.name,'先発');save();tab='record';render();toast('オーダーを確定しました')
+ g.innings=g.innings||[];g.lastLineup=JSON.parse(JSON.stringify(g.lineup));db.lastLineup=JSON.parse(JSON.stringify(g.lineup));db.lastOrder={lineup:JSON.parse(JSON.stringify(g.lineup)),pitcher:g.pitcher?JSON.parse(JSON.stringify(g.pitcher)):null,dh:g.dh?JSON.parse(JSON.stringify(g.dh)):null,savedAt:new Date().toISOString()};g.pitching={current:null,history:[]};if(g.pitcher?.name)registerPitcher(g,g.pitcher.name,'先発');save();tab='record';render();toast('オーダーを確定しました')
 }
 function finishGame(){
  let g=db.current;if(!g)return;
