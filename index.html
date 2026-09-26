@@ -1361,6 +1361,65 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   }
 }
 </style>
+
+<style id="v3_01_9_runner_click_home_layout_fix">
+/* v3.01.9: 走塁・確定モーダルを下部固定タブより前面へ。タップ不能を防止。 */
+#runnerMoveModal,
+#runnerConfirmModal{
+  z-index:200!important;
+  pointer-events:auto!important;
+}
+#runnerMoveModal .runnerCard,
+#runnerConfirmModal .runnerCard{
+  position:relative!important;
+  z-index:201!important;
+  pointer-events:auto!important;
+}
+#runnerMoveModal button,
+#runnerConfirmModal button,
+#runnerMoveModal select,
+#runnerConfirmModal select{
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+#runnerMoveModal .runnerDestinationGrid,
+#runnerMoveModal .runnerActions{
+  position:relative!important;
+  z-index:202!important;
+}
+#runnerConfirmModal .runnerConfirmBtns{
+  position:sticky!important;
+  z-index:203!important;
+}
+
+/* HOME: 右上アイコンとタイトル領域を整理し、文字との重なりを防止。 */
+#launchScreen.homePhotoLaunch .launchIcon{
+  top:clamp(22px,5vh,48px)!important;
+  right:clamp(16px,4vw,24px)!important;
+  width:68px!important;
+  height:68px!important;
+  border-radius:18px!important;
+}
+#launchScreen.homePhotoLaunch .launchInner h1{
+  margin:clamp(24px,6vh,60px) 88px 6px 0!important;
+  max-width:calc(100% - 88px)!important;
+  font-size:clamp(30px,8vw,40px)!important;
+  line-height:1.1!important;
+}
+#launchScreen.homePhotoLaunch .launchSub{
+  margin:0 88px 0 0!important;
+  max-width:calc(100% - 88px)!important;
+  text-align:left!important;
+  font-size:13px!important;
+  line-height:1.45!important;
+  white-space:normal!important;
+}
+@media(max-width:430px){
+  #launchScreen.homePhotoLaunch .launchIcon{width:62px!important;height:62px!important;right:16px!important;top:20px!important;border-radius:16px!important;}
+  #launchScreen.homePhotoLaunch .launchInner h1{margin-top:22px!important;margin-right:78px!important;max-width:calc(100% - 78px)!important;font-size:30px!important;}
+  #launchScreen.homePhotoLaunch .launchSub{margin-right:78px!important;max-width:calc(100% - 78px)!important;font-size:12px!important;}
+}
+</style>
 </head>
 <body>
 <div class="app">
