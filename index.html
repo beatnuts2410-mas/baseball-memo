@@ -1301,6 +1301,91 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   position:static!important;
 }
 </style>
+<style id="v3_01_4_steal_modal_top_fixed">
+/* v3.01.4: 盗塁選択時だけ走塁プレーを画面上部固定・スマホ全体表示。その他UIは変更しない。 */
+#runnerMoveModal.runnerMoveStealModal{
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:calc(8px + env(safe-area-inset-top)) 8px 8px!important;
+}
+#runnerMoveModal.runnerMoveStealModal .runnerCard{
+  width:min(680px,100%)!important;
+  max-width:680px!important;
+  max-height:calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+  overflow-y:auto!important;
+  border-radius:0 0 18px 18px!important;
+  padding:12px 12px calc(12px + env(safe-area-inset-bottom))!important;
+  box-sizing:border-box!important;
+}
+#runnerMoveModal.runnerMoveStealModal #moveTarget{
+  font-size:16px!important;
+  line-height:1.25!important;
+  margin-top:4px!important;
+  margin-bottom:6px!important;
+}
+#runnerMoveModal.runnerMoveStealModal .title{
+  margin-top:7px!important;
+  margin-bottom:5px!important;
+  font-size:13px!important;
+}
+#runnerMoveModal.runnerMoveStealModal .runnerMovePick,
+#runnerMoveModal.runnerMoveStealModal .runnerMoveDest{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:7px!important;
+  margin-top:5px!important;
+}
+#runnerMoveModal.runnerMoveStealModal .runnerMovePick button{
+  min-height:54px!important;
+  height:54px!important;
+  padding:8px 7px!important;
+  border-radius:11px!important;
+  font-size:15px!important;
+  line-height:1.1!important;
+}
+#runnerMoveModal.runnerMoveStealModal .runnerMoveDest .hint{
+  padding:5px 4px!important;
+  font-size:12px!important;
+  line-height:1.25!important;
+}
+#runnerMoveModal.runnerMoveStealModal .runnerMoveDest .runnerActions{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:7px!important;
+  width:100%!important;
+  margin-top:5px!important;
+}
+#runnerMoveModal.runnerMoveStealModal .runnerMoveDest .runnerActions button{
+  min-height:64px!important;
+  height:64px!important;
+  padding:8px 6px!important;
+  border-radius:11px!important;
+  font-size:18px!important;
+  line-height:1.1!important;
+}
+#runnerMoveModal.runnerMoveStealModal .runnerMoveDest .runnerDestinationGrid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:7px!important;
+}
+#runnerMoveModal.runnerMoveStealModal .secondaryBtn{
+  margin-top:7px!important;
+  min-height:42px!important;
+  height:42px!important;
+  padding:6px 10px!important;
+}
+@media(max-width:430px){
+  #runnerMoveModal.runnerMoveStealModal{padding:calc(5px + env(safe-area-inset-top)) 5px 5px!important;}
+  #runnerMoveModal.runnerMoveStealModal .runnerCard{
+    max-height:calc(100dvh - 10px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+    padding:9px 9px calc(9px + env(safe-area-inset-bottom))!important;
+  }
+  #runnerMoveModal.runnerMoveStealModal .runnerMovePick button{
+    min-height:50px!important;height:50px!important;font-size:14px!important;
+  }
+  #runnerMoveModal.runnerMoveStealModal .runnerMoveDest .runnerActions button{
+    min-height:58px!important;height:58px!important;font-size:17px!important;
+  }
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1758,6 +1843,7 @@ function openRunnerMove(mode){
  const g=db.current;if(!g||!g.runners.some(Boolean))return toast('走者がいません');
  if(mode==='ボーク')return applyBalk();
  runnerMoveMode=mode;runnerMoveFrom=null;runnerMoveJudged=false;
+ document.getElementById('runnerMoveModal').classList.toggle('runnerMoveStealModal',mode==='盗塁');
  document.getElementById('moveTarget').textContent=`${mode}：まず走者を選択してください`;
  document.getElementById('moveRunnerList').className='runnerScore runnerMovePick'; document.getElementById('moveRunnerList').innerHTML=[0,1,2].filter(i=>g.runners[i]).map(i=>`<button type="button" class="runnerChoice runnerChoiceRunner" onclick="selectRunnerToMove(${i})">${i+1}塁　${esc(g.runnerNames?.[i]||'走者')}</button>`).join('');
  document.getElementById('moveDest').className='runnerScore runnerMoveDest'; document.getElementById('moveDest').innerHTML='<div class="hint">先に走者を選択してください。</div>';
@@ -1792,7 +1878,7 @@ function judgeSteal(judgement){
  document.getElementById('moveTarget').textContent=`盗塁：${name} → セーフ。進塁先を選択`;
  renderRunnerDestinations();
 }
-function closeRunnerMove(){document.getElementById('runnerMoveModal').style.display='none';runnerMoveMode=null;runnerMoveFrom=null;runnerMoveJudged=false}
+function closeRunnerMove(){document.getElementById('runnerMoveModal').style.display='none';document.getElementById('runnerMoveModal').classList.remove('runnerMoveStealModal');runnerMoveMode=null;runnerMoveFrom=null;runnerMoveJudged=false}
 function applyRunnerMove(dest){
  const g=db.current;if(runnerMoveFrom==null||!g?.runners[runnerMoveFrom])return closeRunnerMove();
  if(runnerMoveMode==='盗塁'&&!runnerMoveJudged)return toast('先にアウト・セーフを選択してください');
