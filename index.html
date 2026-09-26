@@ -2009,6 +2009,7 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 </style>
 <style id="v3_01_37_ui_and_cold_x_fix">
 /* v3.01.37: 投手欄の列順、代打・選手交代の左揃え、走者イベントの上部表示＋縦スクロール、5/7回コールドX。 */
+/* v3.01.48: 高野連X表記を延長サヨナラまで統一。全国大会3種は得点差コールドを除外。 */
 #gameResultView .pitchingResultTable th:first-child,
 #gameResultView .pitchingResultTable td:first-child{min-width:7em!important;text-align:left!important;}
 #gameResultView .pitchingResultTable th:nth-child(2),
@@ -2539,17 +2540,24 @@ function gameHeader(){
  return renderSportsScoreCard(g);
 }
 
+function isJHBFNationalNoCold(g){
+ const t=String(g?.tournament||'');
+ return /選抜高等学校野球大会|全国高等学校野球選手権大会|全国高等学校軟式野球選手権大会/.test(t);
+}
 function getScoreboardX(g){
  if(!g)return null;
- if(g.scoreboardX&&(Number(g.scoreboardX.inning)===9||Number(g.scoreboardX.inning)===5||Number(g.scoreboardX.inning)===7)&&(g.scoreboardX.key==='us'||g.scoreboardX.key==='opp'))return g.scoreboardX;
+ // 高校野球連盟系の結果表示では、未実施の後攻側イニングをXで表示。
+ // 延長のサヨナラを含め、9回以降のXも保持できるようにする。
+ if(g.scoreboardX&&Number(g.scoreboardX.inning)>=9&&(g.scoreboardX.key==='us'||g.scoreboardX.key==='opp'))return g.scoreboardX;
+ if(g.scoreboardX&&(Number(g.scoreboardX.inning)===5||Number(g.scoreboardX.inning)===7)&&(g.scoreboardX.key==='us'||g.scoreboardX.key==='opp'))return g.scoreboardX;
  // 共有データなど旧形式でscoreboardXを持たない試合も、高校野球のX表記を再現する。
  if(!g.finished)return null;
  const inning=Number(g.inning)||0;
  const homeKey=g.order==='後攻'?'us':'opp';
  const homeScore=homeKey==='us'?Number(g.scoreUs)||0:Number(g.scoreOpp)||0;
  const awayScore=homeKey==='us'?Number(g.scoreOpp)||0:Number(g.scoreUs)||0;
- if(inning===9)return homeScore>awayScore?{inning:9,key:homeKey}:null;
- if((inning===5||inning===7)&&String(g.finishReason||'').includes('コールド')){
+ if(inning>=9)return homeScore>awayScore?{inning,key:homeKey}:null;
+ if((inning===5||inning===7)&&String(g.finishReason||'').includes('コールド')&&!isJHBFNationalNoCold(g)){
    const threshold=inning===5?10:7;
    return homeScore-awayScore>=threshold?{inning,key:homeKey}:null;
  }
@@ -2563,11 +2571,16 @@ function ensureInning(g,index){
 }
 function autoFinishGame(g,result){
  if(!g||g.finished)return false;
- // 高校野球のスコアボード表記：9回裏を行わず後攻が勝っている場合、後攻側の9回をX表示。
+ // 高校野球のスコアボード表記：後攻側の未実施イニングはX。
+ // サヨナラの場合は、その回の得点を「得点 X」として保持する（例：1 X）。
  const homeKey=g.order==='後攻'?'us':'opp';
  const awayKey=homeKey==='us'?'opp':'us';
- if(Number(g.inning)===9 && Number(g.scoreUs||0) !== Number(g.scoreOpp||0) && Number(g[homeKey==='us'?'scoreUs':'scoreOpp']||0) > Number(g[awayKey==='us'?'scoreUs':'scoreOpp']||0)){
-   g.scoreboardX={inning:9,key:homeKey};
+ const inning=Number(g.inning)||0;
+ const homeScore=Number(g[homeKey==='us'?'scoreUs':'scoreOpp']||0);
+ const awayScore=Number(g[awayKey==='us'?'scoreUs':'scoreOpp']||0);
+ if(inning>=9 && homeScore>awayScore){
+   const inningScore=Number(g.innings?.[inning-1]?.[homeKey])||0;
+   g.scoreboardX={inning,key:homeKey,appendScore:inningScore>0};
  }
  g.finished=true;
  g.finishedAt=new Date().toISOString();
@@ -2600,6 +2613,9 @@ function markColdGameScoreboardX(g,endedHalf){
 }
 function checkColdGame(g,mode='during'){
  if(!g||g.finished)return false;
+ // 高野連特別規則：得点差コールドは採用大会で5回10点・7回7点。
+ // 選抜・選手権・全国軟式選手権では適用しない。
+ if(isJHBFNationalNoCold(g))return false;
  const inning=Math.max(1,Number(g.inning)||1);
  const diff=Math.abs((Number(g.scoreUs)||0)-(Number(g.scoreOpp)||0));
  const threshold=inning===5?10:(inning===7?7:0);
@@ -2636,8 +2652,9 @@ function checkGameEndAfterHalf(g,endedHalf){
  const inning=Math.max(1,Number(g.inning)||1);
  const us=Number(g.scoreUs)||0, os=Number(g.scoreOpp)||0;
  const diff=Math.abs(us-os);
- // 5回終了時10点差、7回終了時7点差ならゲームセット。
- if((inning===5&&diff>=10)||(inning===7&&diff>=7)){
+ // 高野連特別規則：採用大会では5回10点・7回7点差でコールド。
+ // 選抜・選手権・全国軟式選手権では得点差コールドを適用しない。
+ if(!isJHBFNationalNoCold(g) && ((inning===5&&diff>=10)||(inning===7&&diff>=7))){
    const threshold=inning===5?10:7;
    // 表終了時に後攻（ホーム）が規定点差でリードしていれば、未実施の裏をX表示。
    markColdGameScoreboardX(g,endedHalf);
@@ -2650,9 +2667,10 @@ function checkGameEndAfterHalf(g,endedHalf){
    // 先攻チームが9回表の攻撃を終えて負けている場合も、9回裏は行わずゲームセット。
    if(own==='裏' && endedHalf===opp && us>os)return autoFinishGame(g,'9回表終了・自チーム勝利');
    if(own==='表' && endedHalf===own && us<os)return autoFinishGame(g,'9回表終了・敗戦');
-   // 9回終了時に同点なら延長へ自動移行。10回以降は innings を自動追加して表示する。
-   // 9回裏終了後に同点の場合も、ゲームセットにはせず10回表へ進める。
-   if(endedHalf===opp || (own==='裏' && endedHalf===own)){
+   // 9回裏（後攻の最終攻撃）終了後だけ勝敗を確定する。
+   // 9回表終了時は、後攻がリードしている場合だけ上の条件でゲームセットし、
+   // 後攻が負けている場合は必ず9回裏へ進む。
+   if(endedHalf==='裏'){
      if(us===os)return false;
      return autoFinishGame(g, us>os ? '9回終了・勝利' : '9回終了・敗戦');
    }
