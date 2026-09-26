@@ -1680,6 +1680,39 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 }
 </style>
 
+
+<style id="v3_01_19_passed_ball_steps">
+/* v3.01.19: 捕逸（パスボール）専用の複数走者確認・決定画面。盗塁の操作思想を転用。 */
+#passedBallStepModal{align-items:flex-start!important;justify-content:center!important;padding:calc(8px + env(safe-area-inset-top)) 8px 8px!important;}
+#passedBallStepModal .passedBallStepCard{width:min(680px,100%)!important;max-width:680px!important;max-height:calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;overflow-y:auto!important;border-radius:0 0 18px 18px!important;padding:14px!important;box-sizing:border-box;background:#fff!important;color:#172033!important;}
+.passedBallStepHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.passedBallStepHeader span{font-size:12px;font-weight:900;color:#14532d;background:#dcfce7;border:1px solid #86efac;border-radius:999px;padding:5px 9px;}
+.passedBallStepSection{margin-top:12px;padding:11px;border:1px solid #a8c9ad;border-radius:13px;background:#f3f8f3;}
+.passedBallStepTitle{font-size:14px;font-weight:950;color:#111;margin-bottom:8px;}
+.passedBallStepGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.passedBallStepOption{min-height:50px;padding:10px 8px;border-radius:11px;border:2px solid #8dbb95;background:#fff;color:#111;font-weight:900;font-size:14px;}
+.passedBallStepOption.active{background:#c9f5d4!important;border-color:#16a34a!important;box-shadow:0 0 0 2px rgba(22,163,74,.12) inset;}
+.passedBallStepHint{font-size:12px;color:#44564a;padding:8px 2px;line-height:1.4;}
+.passedBallRunnerRow{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,44%);gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #dbe7dd;}
+.passedBallRunnerRow:last-child{border-bottom:0;}
+.passedBallRunnerName{font-weight:900;color:#334155;}
+.passedBallDestGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+.passedBallDestBtn{min-height:44px;padding:7px 5px;border-radius:10px;border:2px solid #8dbb95;background:#fff;color:#111;font-weight:900;font-size:13px;}
+.passedBallDestBtn.active{background:#c9f5d4!important;border-color:#16a34a!important;}
+.passedBallStepActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.passedBallStepActions button{min-height:54px;font-size:16px;font-weight:950;}
+#passedBallStepConfirmBtn:disabled{opacity:.45;cursor:not-allowed;}
+@media(max-width:420px){
+  #passedBallStepModal{padding:calc(5px + env(safe-area-inset-top)) 5px 5px!important;}
+  #passedBallStepModal .passedBallStepCard{padding:10px!important;}
+  .passedBallStepSection{margin-top:9px;padding:9px;}
+  .passedBallStepTitle{font-size:12px;}
+  .passedBallStepOption{min-height:46px;font-size:13px;padding:8px 6px;}
+  .passedBallRunnerRow{grid-template-columns:minmax(0,1fr) minmax(145px,48%);gap:6px;}
+  .passedBallDestBtn{min-height:42px;font-size:12px;}
+  .passedBallStepActions button{min-height:50px;font-size:15px;}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1976,7 +2009,7 @@ function recordView(){
    return gameHeader()+renderOrderDefenseGround(g)+ruleEndAlert(g)+`<div class="card"><div class="row between"><div class="title" style="margin:0">選手交代</div><button class="btn small" onclick="openInGameSub()">交代</button></div><div class="muted">${(g.subs||[]).slice(-2).map(x=>`${x.type}：${x.from?.name||''} → ${x.to?.name||''}`).join('<br>')||'交代なし'}</div></div>
  <div class="card current"><div class="muted">${g.inning}回${g.half}・自チーム攻撃</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${slot+1}番</span></div><div class="recordOutCount"><div class="recordOutValue">${Math.min(3,Number(g.outs)||0)}<span>アウト</span></div><button class="btn small" onclick="adjustOuts()">✎ アウト修正</button></div></div></div>
  <div class="card"><div class="title">打席結果を選択</div><div class="hint" style="margin-bottom:8px">・盗塁などの走塁が発生した場合は、下の「走塁プレー」または「走者・グラウンド」で操作して下さい。</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="latePA('${t}')">${t}</button>`).join('')}</div></div>
- <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→アウト/セーフ→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div><div class="runnerChoiceGrid" style="margin-top:10px"><button type="button" class="runnerChoice runnerChoiceSteal runnerChoiceStealSteps" onclick="openStealSteps()" ${g.runners.some(Boolean)?'':'disabled'} aria-label="盗塁：3ステップ画面を開く"><span class="runnerChoiceIcon">🏃</span><span>盗塁</span></button><button type="button" class="runnerChoice runnerChoicePB" onclick="openRunnerEventSteps('捕逸')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚾</span><span>捕逸（パスボール）</span></button><button type="button" class="runnerChoice runnerChoiceWP" onclick="openRunnerEventSteps('暴投')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">🥎</span><span>暴投（ワイルドピッチ）</span></button><button type="button" class="runnerChoice runnerChoiceBalk" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚠</span><span>ボーク</span></button></div></div>
+ <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→アウト/セーフ→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div><div class="runnerChoiceGrid" style="margin-top:10px"><button type="button" class="runnerChoice runnerChoiceSteal runnerChoiceStealSteps" onclick="openStealSteps()" ${g.runners.some(Boolean)?'':'disabled'} aria-label="盗塁：3ステップ画面を開く"><span class="runnerChoiceIcon">🏃</span><span>盗塁</span></button><button type="button" class="runnerChoice runnerChoicePB" onclick="openPassedBallSteps()" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚾</span><span>捕逸（パスボール）</span></button><button type="button" class="runnerChoice runnerChoiceWP" onclick="openRunnerEventSteps('暴投')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">🥎</span><span>暴投（ワイルドピッチ）</span></button><button type="button" class="runnerChoice runnerChoiceBalk" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚠</span><span>ボーク</span></button></div></div>
  <div class="card"><div class="row between"><div class="title" style="margin:0">走者・グランド</div><button class="btn small" onclick="openRunnerCorrection()">✎ 走者修正</button></div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div><div class="corrNote" style="margin-top:8px">ヒット・四死球後の打者も現在の塁に表示。盗塁は「走者→アウト/セーフ→進塁先」。その他は「走者→進塁先」。ボークは全走者を自動で1つ進めます。</div></div>
  <div class="card"><button class="btn primary" style="width:100%" onclick="finishGame()">試合終了</button></div>`;
  }
@@ -2133,6 +2166,101 @@ function renderBaseDiamond(g){
  </div>`;
 }
 let runnerMoveMode=null,runnerMoveFrom=null,runnerMoveJudged=false;
+
+
+let passedBallAll=false, passedBallSelected=new Set(), passedBallDest={};
+function openPassedBallSteps(){
+ const g=db.current;if(!g||!g.runners.some(Boolean))return toast('走者がいません');
+ passedBallAll=false;passedBallSelected=new Set();passedBallDest={};
+ const modal=document.getElementById('passedBallStepModal');
+ document.getElementById('passedBallStepModeList').innerHTML=`<button type="button" class="passedBallStepOption" id="passedBallAllBtn" onclick="selectPassedBallAll()">全ランナー進塁</button><button type="button" class="passedBallStepOption" id="passedBallIndividualBtn" onclick="selectPassedBallIndividual()">走者を個別に選択</button>`;
+ document.getElementById('passedBallStepRunnerList').innerHTML=[0,1,2].filter(i=>g.runners[i]).map(i=>`<button type="button" class="passedBallStepOption" data-runner="${i}" onclick="togglePassedBallRunner(${i})">${i+1}塁　${esc(g.runnerNames?.[i]||'走者')}</button>`).join('');
+ document.getElementById('passedBallStepRunnerList').style.display='grid';
+ document.getElementById('passedBallStepDestList').innerHTML='<div class="passedBallStepHint">①で「全ランナー進塁」または「個別に選択」を選びます。</div>';
+ document.getElementById('passedBallStepConfirmBtn').disabled=true;
+ document.getElementById('passedBallStepTarget').textContent='① 進塁する走者を確認 → ② 進塁先を確認 → 「決定」';
+ modal.style.display='flex';
+ updatePassedBallUI();
+}
+function selectPassedBallAll(){
+ passedBallAll=true;passedBallSelected=new Set([0,1,2].filter(i=>db.current?.runners?.[i]));passedBallDest={};
+ updatePassedBallUI();
+}
+function selectPassedBallIndividual(){
+ passedBallAll=false;passedBallSelected=new Set();passedBallDest={};
+ updatePassedBallUI();
+}
+function togglePassedBallRunner(i){
+ if(passedBallAll)return;
+ if(!db.current?.runners?.[i])return;
+ if(passedBallSelected.has(i)){passedBallSelected.delete(i);delete passedBallDest[i];}else{passedBallSelected.add(i);}
+ updatePassedBallUI();
+}
+function getPassedBallDests(i){
+ const g=db.current;if(!g?.runners?.[i])return [];
+ return [1,2,3,4].filter(d=>d>i+1);
+}
+function selectPassedBallDest(i,dest){
+ if(passedBallAll)return;
+ if(!passedBallSelected.has(i))return toast('先に進塁する走者を選択してください');
+ passedBallDest[i]=dest;
+ updatePassedBallUI();
+}
+function updatePassedBallUI(){
+ const g=db.current;if(!g)return;
+ const allBtn=document.getElementById('passedBallAllBtn'),indBtn=document.getElementById('passedBallIndividualBtn');
+ if(allBtn)allBtn.classList.toggle('active',passedBallAll);
+ if(indBtn)indBtn.classList.toggle('active',!passedBallAll);
+ document.querySelectorAll('#passedBallStepRunnerList .passedBallStepOption').forEach(b=>{const i=Number(b.dataset.runner);b.classList.toggle('active',!passedBallAll&&passedBallSelected.has(i));});
+ const destBox=document.getElementById('passedBallStepDestList');
+ if(passedBallAll){
+   const rows=[0,1,2].filter(i=>g.runners[i]).map(i=>`<div class="passedBallRunnerRow"><div class="passedBallRunnerName">${i+1}塁 ${esc(g.runnerNames?.[i]||'走者')}</div><div>${i===2?'本塁・得点':(i+2)+'塁へ'}</div></div>`).join('');
+   destBox.innerHTML=rows||'<div class="passedBallStepHint">進塁する走者がいません。</div>';
+   document.getElementById('passedBallStepTarget').textContent='全ランナー進塁を選択中。内容を確認して「決定」してください。';
+ }else if(!passedBallSelected.size){
+   destBox.innerHTML='<div class="passedBallStepHint">進塁する走者を選択すると、走者ごとに進塁先を選べます。</div>';
+   document.getElementById('passedBallStepTarget').textContent='① 進塁する走者を選択してください。';
+ }else{
+   destBox.innerHTML=[...passedBallSelected].sort((a,b)=>a-b).map(i=>{
+     const name=esc(g.runnerNames?.[i]||'走者');
+     const btns=getPassedBallDests(i).map(d=>`<button type="button" class="passedBallDestBtn ${Number(passedBallDest[i])===d?'active':''}" onclick="selectPassedBallDest(${i},${d})">${d===4?'本塁・得点':d+'塁へ'}</button>`).join('');
+     return `<div class="passedBallRunnerRow"><div class="passedBallRunnerName">${i+1}塁 ${name}</div><div class="passedBallDestGrid">${btns}</div></div>`;
+   }).join('');
+   const ready=[...passedBallSelected].every(i=>passedBallDest[i]!=null);
+   document.getElementById('passedBallStepTarget').textContent=ready?'進塁する走者と進塁先を確認しました。「決定」してください。':'② 各走者の進塁先を選択してください。';
+ }
+ const ready=passedBallAll?passedBallSelected.size>0:(passedBallSelected.size>0&&[...passedBallSelected].every(i=>passedBallDest[i]!=null));
+ document.getElementById('passedBallStepConfirmBtn').disabled=!ready;
+}
+function confirmPassedBallSteps(){
+ const g=db.current;if(!g)return closePassedBallSteps();
+ const selected=[...passedBallSelected].filter(i=>g.runners[i]);
+ if(!selected.length)return toast('進塁する走者を選択してください');
+ const destMap={};
+ if(passedBallAll){selected.forEach(i=>destMap[i]=i===2?4:i+2);}
+ else{for(const i of selected){const d=Number(passedBallDest[i]);if(!d)return toast('各走者の進塁先を選択してください');destMap[i]=d;}}
+ // 最終配置を先に検証。選択されていない走者がいる塁へ入ること、同一塁への重複を禁止。
+ const occupiedUnselected=new Set([0,1,2].filter(i=>g.runners[i]&&!selected.includes(i)));
+ const destinations=new Set();
+ for(const i of selected){const d=destMap[i];if(d!==4){const di=d-1;if(occupiedUnselected.has(di))return toast(`${d}塁には別の走者がいるため選択できません`);if(destinations.has(di))return toast('同じ塁に複数の走者は進めません');destinations.add(di);}}
+ const before=cloneRunners(g.runners),beforeNames=cloneRunnerNames(g.runnerNames),after=cloneRunners(g.runners),afterNames=cloneRunnerNames(g.runnerNames);
+ selected.forEach(i=>{after[i]=0;afterNames[i]=null;});
+ let runs=0;
+ selected.forEach(i=>{const d=destMap[i],name=beforeNames[i]||'走者';if(d===4){runs++;}else{after[d-1]=1;afterNames[d-1]=name;}});
+ pushGameHistory();
+ g.runners=after;g.runnerNames=afterNames;g.scoreUs=(Number(g.scoreUs)||0)+runs;
+ const detail=passedBallAll?`捕逸（パスボール）：全ランナー進塁${runs?`・${runs}点追加`:''}`:`捕逸（パスボール）：${selected.map(i=>`${beforeNames[i]||'走者'}→${destMap[i]===4?'本塁・得点':destMap[i]+'塁'}`).join('、')}${runs?`・${runs}点追加`:''}`;
+ g.runnerMoves=g.runnerMoves||[];
+ selected.forEach(i=>{const d=destMap[i],name=beforeNames[i]||'走者';g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:'捕逸',judgement:null,inning:g.inning,half:g.half,from:i,dest:d,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(after),afterNames:cloneRunnerNames(afterNames),runs:d===4?1:0,detail:`捕逸（パスボール）で${d===4?'本塁・得点':d+'塁へ'}進塁`});});
+ storeAdvanceResult(g,buildAdvanceResult({type:'捕逸',result:'捕逸（パスボール）',beforeRunners:before,beforeNames,afterRunners:after,afterNames,runs,inning:g.inning,half:g.half,detail,scoredByRunner:Object.fromEntries(selected.map(i=>[i,destMap[i]===4]))}));
+ updateInningScore(g);
+ if(checkColdGame(g,'during')){closePassedBallSteps();return;}
+ save();closePassedBallSteps();render();toast(detail);
+}
+function closePassedBallSteps(){
+ passedBallAll=false;passedBallSelected=new Set();passedBallDest={};
+ const modal=document.getElementById('passedBallStepModal');if(modal)modal.style.display='none';
+}
 
 let runnerEventStepMode=null, runnerEventStepFrom=null, runnerEventStepDest=null;
 function openRunnerEventSteps(mode){
@@ -3465,6 +3593,24 @@ document.addEventListener('DOMContentLoaded', ()=>{
   <div class="runnerEventStepSection"><div class="runnerEventStepTitle">① 走者を選択してください。</div><div id="runnerEventStepRunnerList" class="runnerEventStepGrid"></div></div>
   <div class="runnerEventStepSection"><div class="runnerEventStepTitle">② 進塁先を選択してください。</div><div id="runnerEventStepDestList" class="runnerEventStepGrid"></div></div>
   <div class="runnerEventStepActions"><button type="button" class="secondaryBtn" onclick="closeRunnerEventSteps()">キャンセル</button><button type="button" id="runnerEventStepConfirmBtn" class="primaryBtn" onclick="confirmRunnerEventSteps()" disabled>決定</button></div>
+ </div>
+</div>
+
+
+<div id="passedBallStepModal" class="runnerModal" style="display:none" onclick="if(event.target===this)closePassedBallSteps()">
+ <div class="runnerCard passedBallStepCard">
+  <div class="passedBallStepHeader"><h3 id="passedBallStepTitle" style="margin:0">捕逸（パスボール）プレー</h3><span>複数走者対応</span></div>
+  <div id="passedBallStepTarget" class="muted" style="margin-top:6px">進塁する走者を確認して決定してください。</div>
+  <div class="passedBallStepSection">
+   <div class="passedBallStepTitle">① 進塁する走者を選択してください。</div>
+   <div id="passedBallStepModeList" class="passedBallStepGrid"></div>
+   <div id="passedBallStepRunnerList" class="passedBallStepGrid" style="margin-top:8px"></div>
+  </div>
+  <div class="passedBallStepSection">
+   <div class="passedBallStepTitle">② 進塁先を確認してください。</div>
+   <div id="passedBallStepDestList"></div>
+  </div>
+  <div class="passedBallStepActions"><button type="button" class="secondaryBtn" onclick="closePassedBallSteps()">戻る</button><button type="button" id="passedBallStepConfirmBtn" class="primaryBtn" onclick="confirmPassedBallSteps()" disabled>決定</button></div>
  </div>
 </div>
 
