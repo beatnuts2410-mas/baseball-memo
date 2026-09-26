@@ -1321,8 +1321,7 @@ let db=JSON.parse(localStorage.getItem(KEY)||"null")||{
 team:{name:"西春高校",players:[...sampleNames.map((name,i)=>({name,num:i+1,role:"player"})),...sampleManagers.map(name=>({name,num:"",role:"manager"}))]},
 games:[],
 current:null,
-lastLineup:[],
-lastOrder:null
+lastLineup:[]
 };
 let tab="record";
 let resultGameId=null;
@@ -2160,22 +2159,19 @@ function renderOrderDefenseGround(g){
 function lineupView(){
  ensureGame();let g=db.current;
  const activePlayers=db.team.players.filter(p=>p.role!=='manager'); if(activePlayers.length<9)return `<div class="card"><div class="title">選手を9人以上登録してください</div><button class="btn" onclick="tab='team';render()">チーム登録へ</button></div>`;
- const savedPitcher=g.pitcher?.name||db.lastOrder?.pitcher?.name||'';
- let opts=activePlayers.map(p=>`<option value="${esc(p.name)}" ${p.name===savedPitcher?'selected':''}>${esc(p.name)}</option>`).join('');
+ let opts=activePlayers.map(p=>`<option value="${esc(p.name)}">${esc(p.name)}</option>`).join('');
  let rows='';
  for(let i=0;i<9;i++){
-   let v=g.lineup[i]?.name||db.lastOrder?.lineup?.[i]?.name||db.lastLineup[i]?.name||db.team.players[i]?.name||'';
+   let v=g.lineup[i]?.name||db.lastLineup[i]?.name||db.team.players[i]?.name||'';
    let pos=g.lineup[i]?.pos||'';
    rows+=`<div class="playerrow"><div class="num">${i+1}</div><select class="select" data-li="${i}"><option value="">選手を選択</option>${opts.replace(/<option value="([^"]+)">/g,(m,n)=>`<option value="${n}" ${n===v?'selected':''}>`)}</select><select class="select" data-pos="${i}" onchange="syncDHFromPosition(${i},this.value)"><option value="">守備位置を選択</option>${DEF_POSITIONS.map(([v,l])=>`<option value="${v}" ${normalizeDefPos(pos)===v?'selected':''}>${l}</option>`).join('')}</select><button class="btn small" onclick="moveLine(${i},-1)">↑</button></div>`
  }
- const savedDh=g.dh?.name||db.lastOrder?.dh?.name||((g.lineup||[]).find(p=>normalizeDefPos(p?.pos)==='指名打者')?.name||'');
- return gameHeader()+`<div class="card"><div class="title">試合情報</div><div class="grid2"><input id="date" class="input" type="date" value="${g.date}"><input id="opp" class="input" value="${esc(g.opponent)}" placeholder="相手校"></div><div style="height:8px"></div><div class="grid2"><input id="tour" class="input" value="${esc(g.tournament)}" placeholder="大会名・回戦"><input id="stad" class="input" value="${esc(g.stadium)}" placeholder="球場"></div></div>
- <div class="card"><button class="btn primary" style="width:100%;min-height:58px;font-size:17px;font-weight:900" onclick="copyPrev()">📋 前回オーダー読み込み</button><div class="muted" style="text-align:center;margin-top:7px">前回確定した打順・守備位置・投手・DHをそのまま読み込みます。</div></div>
+ return gameHeader()+`<div class="card"><div class="row between"><div class="title">試合情報</div><button class="btn small" onclick="copyPrev()">前回オーダー</button></div><div class="grid2"><input id="date" class="input" type="date" value="${g.date}"><input id="opp" class="input" value="${esc(g.opponent)}" placeholder="相手校"></div><div style="height:8px"></div><div class="grid2"><input id="tour" class="input" value="${esc(g.tournament)}" placeholder="大会名・回戦"><input id="stad" class="input" value="${esc(g.stadium)}" placeholder="球場"></div></div>
  <div class="card"><div class="title">打順・守備</div><div class="lineup">${rows}</div>
- <div style="height:10px"></div><div class="grid2"><div><div class="muted">投手</div><select id="pitcher" class="select"><option value="">選手を選択</option>${opts}</select></div><div><div class="muted">指名打者</div><input id="dh" class="input" value="${esc(savedDh)}" placeholder="打順で指名打者を選択" readonly></div></div></div>
- <div class="card"><div class="title">守備配置イメージ</div>${renderLineupDefenseGround(g,g.lineup||[],new Set())}<div class="hint" style="text-align:center">決定した打順・守備位置をグラウンド上で確認できます。</div><button class="btn primary" style="width:100%;min-height:58px;margin-top:12px;font-size:17px;font-weight:900" onclick="saveLineup()">✓ オーダー・守備位置を確定</button></div>`;
+ <div style="height:10px"></div><div class="grid2"><div><div class="muted">投手</div><select id="pitcher" class="select"><option value="">選手を選択</option>${opts}</select></div><div><div class="muted">指名打者</div><input id="dh" class="input" value="${esc(g.dh?.name||((g.lineup||[]).find(p=>normalizeDefPos(p?.pos)==='指名打者')?.name||''))}" placeholder="打順で指名打者を選択" readonly></div></div>
+ <button class="btn primary" style="width:100%;margin-top:10px" onclick="saveLineup()">オーダー・守備を確定</button></div>
+ <div class="card"><div class="title">守備配置イメージ（確定前プレビュー）</div>${renderLineupDefenseGround(g,g.lineup||[],new Set())}<div class="hint" style="text-align:center">オーダーで決定した守備位置と配置選手を表示しています。</div></div>`;
 }
-
 function syncDHFromPosition(index,pos){
  const dh=document.getElementById('dh');
  if(!dh)return;
@@ -2194,17 +2190,7 @@ function syncDHFromCurrentLineup(){
  const idx=row?.dataset?.pos;
  if(idx!=null)dh.value=document.querySelector(`[data-li="${idx}"]`)?.value||'';
 }
-function copyPrev(){
- const prev=db.lastOrder?.lineup?.length?db.lastOrder.lineup:db.lastLineup;
- if(!Array.isArray(prev)||!prev.length)return toast("前回オーダーがありません");
- document.querySelectorAll("[data-li]").forEach((s,i)=>s.value=prev[i]?.name||"");
- document.querySelectorAll("[data-pos]").forEach((s,i)=>s.value=normalizeDefPos(prev[i]?.pos||""));
- const pitcher=document.getElementById("pitcher");
- if(pitcher) pitcher.value=db.lastOrder?.pitcher?.name||"";
- syncDHFromCurrentLineup();
- if(document.getElementById("dh") && db.lastOrder?.dh?.name) document.getElementById("dh").value=db.lastOrder.dh.name;
- toast("前回オーダー・守備位置を読み込みました");
-}
+function copyPrev(){if(!db.lastLineup.length)return toast("前回オーダーがありません");document.querySelectorAll("[data-li]").forEach((s,i)=>s.value=db.lastLineup[i]?.name||"");document.querySelectorAll("[data-pos]").forEach((s,i)=>s.value=normalizeDefPos(db.lastLineup[i]?.pos||''));syncDHFromCurrentLineup();toast("前回オーダーを読み込みました")}
 function saveLineup(){
  let g=db.current;g.date=document.getElementById('date').value;g.opponent=document.getElementById('opp').value.trim()||'相手校';g.tournament=document.getElementById('tour').value.trim();g.stadium=document.getElementById('stad').value.trim();
  let sels=[...document.querySelectorAll('[data-li]')];let arr=sels.map(s=>s.value);let poss=[...document.querySelectorAll('[data-pos]')].map(s=>normalizeDefPos(s.value));
@@ -2220,7 +2206,7 @@ function saveLineup(){
  // 試合開始時の9人を固定保存。途中交代後も打撃成績ではこの9人を上段に残す。
  g.initialLineup=JSON.parse(JSON.stringify(g.lineup));
  g.pitcher=pitcher?db.team.players.find(p=>p.name===pitcher):null;g.dh=dh?db.team.players.find(p=>p.name===dh):null;
- g.innings=g.innings||[];g.lastLineup=JSON.parse(JSON.stringify(g.lineup));db.lastLineup=JSON.parse(JSON.stringify(g.lineup));db.lastOrder={lineup:JSON.parse(JSON.stringify(g.lineup)),pitcher:g.pitcher?JSON.parse(JSON.stringify(g.pitcher)):null,dh:g.dh?JSON.parse(JSON.stringify(g.dh)):null,savedAt:new Date().toISOString()};g.pitching={current:null,history:[]};if(g.pitcher?.name)registerPitcher(g,g.pitcher.name,'先発');save();tab='record';render();toast('オーダーを確定しました')
+ g.innings=g.innings||[];g.lastLineup=g.lineup;db.lastLineup=g.lineup;g.pitching={current:null,history:[]};if(g.pitcher?.name)registerPitcher(g,g.pitcher.name,'先発');save();tab='record';render();toast('オーダーを確定しました')
 }
 function finishGame(){
  let g=db.current;if(!g)return;
@@ -4384,3 +4370,120 @@ html,body{
   box-shadow:3px 0 0 #c8c8c3!important;
 }
 </style>
+
+<style id="homeVisualOnly-v3011">
+/* HOME VISUAL ONLY — v3.01.1
+   This block intentionally changes only the launch/home screen appearance.
+   No game state, scoring, runner, event, storage, or tap logic is modified. */
+#launchScreen.homePhotoLaunch{
+  position:fixed!important;
+  inset:0!important;
+  z-index:9999!important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0!important;
+  overflow:hidden;
+  background:#08111c url("home-bg.png") center center / cover no-repeat!important;
+}
+#launchScreen.homePhotoLaunch::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.12) 0%,rgba(0,0,0,.05) 36%,rgba(0,0,0,.48) 100%),
+    linear-gradient(90deg,rgba(0,0,0,.16),rgba(0,0,0,0) 48%,rgba(0,0,0,.10));
+  pointer-events:none;
+}
+#launchScreen.homePhotoLaunch .launchInner{
+  position:relative;
+  z-index:1;
+  width:min(430px,calc(100% - 28px));
+  max-height:100%;
+  padding:clamp(26px,6vh,54px) 0 calc(24px + env(safe-area-inset-bottom));
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+}
+#launchScreen.homePhotoLaunch .launchIcon{
+  width:92px!important;
+  height:92px!important;
+  margin:0 auto 12px!important;
+  border-radius:24px!important;
+  box-shadow:0 12px 32px rgba(0,0,0,.42)!important;
+}
+#launchScreen.homePhotoLaunch .launchInner h1{
+  color:#fff!important;
+  font-size:clamp(34px,9vw,46px)!important;
+  line-height:1.05!important;
+  margin:0 0 8px!important;
+  font-weight:950!important;
+  letter-spacing:.06em!important;
+  text-shadow:0 3px 14px rgba(0,0,0,.72),0 1px 2px rgba(0,0,0,.9)!important;
+}
+#launchScreen.homePhotoLaunch .launchSub{
+  color:#fff!important;
+  font-size:14px!important;
+  font-weight:800!important;
+  margin:0 0 26px!important;
+  text-shadow:0 2px 8px rgba(0,0,0,.82)!important;
+}
+#launchScreen.homePhotoLaunch .launchActions{
+  display:grid!important;
+  gap:12px!important;
+}
+#launchScreen.homePhotoLaunch .launchPrimary,
+#launchScreen.homePhotoLaunch .launchSecondary{
+  width:100%!important;
+  min-height:58px!important;
+  padding:15px 18px!important;
+  border-radius:18px!important;
+  font-size:18px!important;
+  font-weight:950!important;
+  color:#fff!important;
+  box-shadow:0 10px 26px rgba(0,0,0,.26)!important;
+  backdrop-filter:blur(8px)!important;
+  -webkit-backdrop-filter:blur(8px)!important;
+  text-shadow:0 2px 5px rgba(0,0,0,.55)!important;
+}
+/* No white button panels/borders. */
+#launchScreen.homePhotoLaunch .launchPrimary{
+  background:rgba(18,111,221,.88)!important;
+  border:1px solid rgba(255,255,255,.38)!important;
+}
+#launchScreen.homePhotoLaunch .launchSecondary{
+  background:rgba(12,22,36,.68)!important;
+  border:1px solid rgba(255,255,255,.30)!important;
+}
+#launchScreen.homePhotoLaunch .launchPrimary:active,
+#launchScreen.homePhotoLaunch .launchSecondary:active{
+  transform:translateY(1px) scale(.99);
+  filter:brightness(.94);
+}
+#launchScreen.homePhotoLaunch .installArea{
+  margin-top:16px!important;
+  color:#fff!important;
+  text-shadow:0 2px 7px rgba(0,0,0,.75)!important;
+}
+#launchScreen.homePhotoLaunch .installBtn{
+  background:rgba(10,20,32,.66)!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.28)!important;
+}
+@media (max-height:700px){
+  #launchScreen.homePhotoLaunch .launchInner{justify-content:flex-start;padding-top:18px}
+  #launchScreen.homePhotoLaunch .launchIcon{width:64px!important;height:64px!important;margin-bottom:8px!important}
+  #launchScreen.homePhotoLaunch .launchInner h1{font-size:32px!important}
+  #launchScreen.homePhotoLaunch .launchSub{margin-bottom:14px!important}
+  #launchScreen.homePhotoLaunch .launchPrimary,
+  #launchScreen.homePhotoLaunch .launchSecondary{min-height:50px!important;padding:12px 16px!important}
+}
+</style>
+<script>
+// HOME VISUAL ONLY: add a CSS hook; existing launch behavior remains unchanged.
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('launchScreen')?.classList.add('homePhotoLaunch');
+});
+</script>
