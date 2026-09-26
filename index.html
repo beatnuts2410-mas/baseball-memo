@@ -1331,6 +1331,24 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   .runnerChoiceStealSteps .runnerStealStep b{min-width:18px!important;font-size:12px!important;}
 }
 </style>
+<style id="v3_01_6_steal_separate_step_tab">
+/* v3.01.6: 盗塁だけを別画面（3ステップ）で選択・決定。既存エンジンは再利用。 */
+#stealStepModal{align-items:flex-start!important;justify-content:center!important;padding:calc(8px + env(safe-area-inset-top)) 8px 8px!important;}
+#stealStepModal .stealStepCard{width:min(680px,100%)!important;max-width:680px!important;max-height:calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;overflow-y:auto!important;border-radius:0 0 18px 18px!important;padding:14px!important;box-sizing:border-box;}
+.stealStepHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.stealStepHeader span{font-size:12px;font-weight:900;color:#14532d;background:#dcfce7;border:1px solid #86efac;border-radius:999px;padding:5px 9px;}
+.stealStepSection{margin-top:12px;padding:11px;border:1px solid #a8c9ad;border-radius:13px;background:#f3f8f3;}
+.stealStepTitle{font-size:14px;font-weight:950;color:#111;margin-bottom:8px;}
+.stealStepGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.stealStepOption{min-height:50px;padding:10px 8px;border-radius:11px;border:2px solid #8dbb95;background:#fff;color:#111;font-weight:900;font-size:14px;}
+.stealStepOption.active{background:#c9f5d4!important;border-color:#16a34a!important;box-shadow:0 0 0 2px rgba(22,163,74,.12) inset;}
+.stealStepOption:disabled{opacity:.45;}
+.stealStepHint{font-size:12px;color:#44564a;padding:8px 2px;line-height:1.4;}
+.stealStepActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.stealStepActions button{min-height:54px;font-size:16px;font-weight:950;}
+#stealStepConfirmBtn:disabled{opacity:.45;cursor:not-allowed;}
+@media(max-width:420px){#stealStepModal{padding:calc(5px + env(safe-area-inset-top)) 5px 5px!important;}#stealStepModal .stealStepCard{padding:10px!important;} .stealStepSection{margin-top:9px;padding:9px;} .stealStepTitle{font-size:12px;} .stealStepOption{min-height:46px;font-size:13px;padding:8px 6px;} .stealStepActions button{min-height:50px;font-size:15px;}}
+</style>
 <style id="v3_01_4_steal_modal_top_fixed">
 /* v3.01.4: 盗塁選択時だけ走塁プレーを画面上部固定・スマホ全体表示。その他UIは変更しない。 */
 #runnerMoveModal.runnerMoveStealModal{
@@ -1712,7 +1730,7 @@ function recordView(){
    return gameHeader()+renderOrderDefenseGround(g)+ruleEndAlert(g)+`<div class="card"><div class="row between"><div class="title" style="margin:0">選手交代</div><button class="btn small" onclick="openInGameSub()">交代</button></div><div class="muted">${(g.subs||[]).slice(-2).map(x=>`${x.type}：${x.from?.name||''} → ${x.to?.name||''}`).join('<br>')||'交代なし'}</div></div>
  <div class="card current"><div class="muted">${g.inning}回${g.half}・自チーム攻撃</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${slot+1}番</span></div><div class="recordOutCount"><div class="recordOutValue">${Math.min(3,Number(g.outs)||0)}<span>アウト</span></div><button class="btn small" onclick="adjustOuts()">✎ アウト修正</button></div></div></div>
  <div class="card"><div class="title">打席結果を選択</div><div class="hint" style="margin-bottom:8px">・盗塁などの走塁が発生した場合は、下の「走塁プレー」または「走者・グラウンド」で操作して下さい。</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="latePA('${t}')">${t}</button>`).join('')}</div></div>
- <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→アウト/セーフ→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div><div class="runnerChoiceGrid" style="margin-top:10px"><button type="button" class="runnerChoice runnerChoiceSteal runnerChoiceStealSteps" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'} aria-label="盗塁：走者プレー3ステップ"><span class="runnerStealStep"><b>①</b> 走者を選択してください。</span><span class="runnerStealStep"><b>②</b> 盗塁の判定を選択してください。</span><span class="runnerStealStep"><b>③</b> 進塁先を選択してください。</span></button><button type="button" class="runnerChoice runnerChoicePB" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚾</span><span>捕逸（パスボール）</span></button><button type="button" class="runnerChoice runnerChoiceWP" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">🥎</span><span>暴投（ワイルドピッチ）</span></button><button type="button" class="runnerChoice runnerChoiceBalk" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚠</span><span>ボーク</span></button></div></div>
+ <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→アウト/セーフ→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div><div class="runnerChoiceGrid" style="margin-top:10px"><button type="button" class="runnerChoice runnerChoiceSteal runnerChoiceStealSteps" onclick="openStealSteps()" ${g.runners.some(Boolean)?'':'disabled'} aria-label="盗塁：3ステップ別画面"><span class="runnerStealStep"><b>①</b> 走者を選択してください。</span><span class="runnerStealStep"><b>②</b> 盗塁の判定を選択してください。</span><span class="runnerStealStep"><b>③</b> 進塁先を選択してください。</span></button><button type="button" class="runnerChoice runnerChoicePB" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚾</span><span>捕逸（パスボール）</span></button><button type="button" class="runnerChoice runnerChoiceWP" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">🥎</span><span>暴投（ワイルドピッチ）</span></button><button type="button" class="runnerChoice runnerChoiceBalk" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚠</span><span>ボーク</span></button></div></div>
  <div class="card"><div class="row between"><div class="title" style="margin:0">走者・グランド</div><button class="btn small" onclick="openRunnerCorrection()">✎ 走者修正</button></div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div><div class="corrNote" style="margin-top:8px">ヒット・四死球後の打者も現在の塁に表示。盗塁は「走者→アウト/セーフ→進塁先」。その他は「走者→進塁先」。ボークは全走者を自動で1つ進めます。</div></div>
  <div class="card"><button class="btn primary" style="width:100%" onclick="finishGame()">試合終了</button></div>`;
  }
@@ -1727,7 +1745,7 @@ function recordView(){
 
  <div class="card"><div class="row between"><div class="title" style="margin:0">選手交代</div><button class="btn small" onclick="openInGameSub()">交代</button></div><div class="muted">${(g.subs||[]).slice(-2).map(x=>`${x.type}：${x.from?.name||''} → ${x.to?.name||''}`).join('<br>')||'交代なし'}</div></div>
   <div class="card"><div class="title">打席結果を選択</div><div class="hint" style="margin-bottom:8px">・盗塁などの走塁が発生した場合は、下の「走塁プレー」または「走者・グラウンド」で操作して下さい。</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="pa('${t}')">${t}</button>`).join('')}</div></div>
- <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→アウト/セーフ→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div><div class="runnerChoiceGrid" style="margin-top:10px"><button type="button" class="runnerChoice runnerChoiceSteal runnerChoiceStealSteps" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'} aria-label="盗塁：走者プレー3ステップ"><span class="runnerStealStep"><b>①</b> 走者を選択してください。</span><span class="runnerStealStep"><b>②</b> 盗塁の判定を選択してください。</span><span class="runnerStealStep"><b>③</b> 進塁先を選択してください。</span></button><button type="button" class="runnerChoice runnerChoicePB" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚾</span><span>捕逸（パスボール）</span></button><button type="button" class="runnerChoice runnerChoiceWP" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">🥎</span><span>暴投（ワイルドピッチ）</span></button><button type="button" class="runnerChoice runnerChoiceBalk" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚠</span><span>ボーク</span></button></div></div>
+ <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→アウト/セーフ→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div><div class="runnerChoiceGrid" style="margin-top:10px"><button type="button" class="runnerChoice runnerChoiceSteal runnerChoiceStealSteps" onclick="openStealSteps()" ${g.runners.some(Boolean)?'':'disabled'} aria-label="盗塁：3ステップ別画面"><span class="runnerStealStep"><b>①</b> 走者を選択してください。</span><span class="runnerStealStep"><b>②</b> 盗塁の判定を選択してください。</span><span class="runnerStealStep"><b>③</b> 進塁先を選択してください。</span></button><button type="button" class="runnerChoice runnerChoicePB" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚾</span><span>捕逸（パスボール）</span></button><button type="button" class="runnerChoice runnerChoiceWP" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">🥎</span><span>暴投（ワイルドピッチ）</span></button><button type="button" class="runnerChoice runnerChoiceBalk" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚠</span><span>ボーク</span></button></div></div>
  <div class="card"><div class="row between"><div class="title" style="margin:0">走者・グランド</div><button class="btn small" onclick="openRunnerCorrection()">✎ 走者修正</button></div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div><div class="corrNote" style="margin-top:8px">ヒット・四死球後の打者も現在の塁に表示。盗塁は「走者→アウト/セーフ→進塁先」。その他は「走者→進塁先」。ボークは全走者を自動で1つ進めます。</div></div>
  <div class="card"><button class="btn primary" style="width:100%" onclick="finishGame()">試合終了</button></div>`;
 }
@@ -1869,6 +1887,63 @@ function renderBaseDiamond(g){
  </div>`;
 }
 let runnerMoveMode=null,runnerMoveFrom=null,runnerMoveJudged=false;
+let stealStepFrom=null, stealStepJudgeValue=null, stealStepDest=null;
+function openStealSteps(){
+ const g=db.current;if(!g||!g.runners.some(Boolean))return toast('走者がいません');
+ stealStepFrom=null;stealStepJudgeValue=null;stealStepDest=null;
+ const modal=document.getElementById('stealStepModal');
+ const target=document.getElementById('stealStepTarget');
+ const list=document.getElementById('stealStepRunnerList');
+ list.innerHTML=[0,1,2].filter(i=>g.runners[i]).map(i=>`<button type="button" class="stealStepOption" data-runner="${i}" onclick="selectStealRunner(${i})">${i+1}塁　${esc(g.runnerNames?.[i]||'走者')}</button>`).join('');
+ document.querySelectorAll('#stealStepJudgeList .stealStepOption').forEach(b=>b.classList.remove('active'));
+ document.getElementById('stealStepDestList').innerHTML='<div class="stealStepHint">①と②を選択すると進塁先を選べます。</div>';
+ document.getElementById('stealStepConfirmBtn').disabled=true;
+ target.textContent='① 走者 → ② 判定 → ③ 進塁先を選択して「決定」';
+ modal.style.display='flex';
+}
+function selectStealRunner(i){
+ const g=db.current;if(!g?.runners[i])return;
+ stealStepFrom=i;stealStepJudgeValue=null;stealStepDest=null;
+ document.querySelectorAll('#stealStepRunnerList .stealStepOption').forEach(b=>b.classList.toggle('active',Number(b.dataset.runner)===i));
+ document.querySelectorAll('#stealStepJudgeList .stealStepOption').forEach(b=>b.classList.remove('active'));
+ document.getElementById('stealStepDestList').innerHTML='<div class="stealStepHint">② 盗塁の判定を選択してください。</div>';
+ document.getElementById('stealStepConfirmBtn').disabled=true;
+ document.getElementById('stealStepTarget').textContent=`① ${i+1}塁 ${g.runnerNames?.[i]||'走者'} を選択中`;
+}
+function selectStealJudge(judge){
+ if(stealStepFrom==null)return toast('先に走者を選択してください');
+ stealStepJudgeValue=judge;stealStepDest=null;
+ document.querySelectorAll('#stealStepJudgeList .stealStepOption').forEach(b=>b.classList.toggle('active',b.dataset.judge===judge));
+ const g=db.current,i=stealStepFrom;
+ if(judge==='アウト'){
+   document.getElementById('stealStepDestList').innerHTML='<button type="button" class="stealStepOption active" data-dest="0" onclick="selectStealDest(0)">進塁なし（盗塁失敗）</button>';
+ }else{
+   const dests=[1,2,3,4].filter(d=>d>i+1&&(d===4||!g.runners[d-1]));
+   document.getElementById('stealStepDestList').innerHTML=dests.length?dests.map(d=>`<button type="button" class="stealStepOption" data-dest="${d}" onclick="selectStealDest(${d})">${d===4?'本塁・得点':d+'塁へ'}</button>`).join(''):'<div class="stealStepHint">選択できる進塁先がありません。</div>';
+ }
+ document.getElementById('stealStepConfirmBtn').disabled=true;
+ document.getElementById('stealStepTarget').textContent=`② ${judge} を選択。③ 進塁先を選択してください。`;
+}
+function selectStealDest(dest){
+ if(stealStepFrom==null||!stealStepJudgeValue)return;
+ stealStepDest=dest;
+ document.querySelectorAll('#stealStepDestList .stealStepOption').forEach(b=>b.classList.toggle('active',Number(b.dataset.dest)===dest));
+ document.getElementById('stealStepConfirmBtn').disabled=false;
+ const g=db.current;document.getElementById('stealStepTarget').textContent=`${g.runnerNames?.[stealStepFrom]||'走者'}：${stealStepJudgeValue} → ${dest===0?'進塁なし（盗塁失敗）':dest===4?'本塁・得点':dest+'塁へ'}。決定してください。`;
+}
+function confirmStealSteps(){
+ const g=db.current;if(stealStepFrom==null||!stealStepJudgeValue||stealStepDest==null||!g?.runners[stealStepFrom])return toast('①〜③をすべて選択してください');
+ const from=stealStepFrom,judge=stealStepJudgeValue,dest=stealStepDest;
+ closeStealSteps(false);
+ if(judge==='アウト')return judgeSteal('アウト');
+ runnerMoveMode='盗塁';runnerMoveFrom=from;runnerMoveJudged=true;
+ return applyRunnerMove(dest);
+}
+function closeStealSteps(hide=true){
+ stealStepFrom=null;stealStepJudgeValue=null;stealStepDest=null;
+ const modal=document.getElementById('stealStepModal');if(modal&&hide!==false)modal.style.display='none';else if(modal)modal.style.display='none';
+}
+
 function openRunnerMove(mode){
  const g=db.current;if(!g||!g.runners.some(Boolean))return toast('走者がいません');
  if(mode==='ボーク')return applyBalk();
@@ -3068,6 +3143,16 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <div id="defSubModal" class="subPanel" style="display:none" onclick="if(event.target===this)closeDefensiveSub()"><div class="subCard"><h3 style="margin:0">自チームの守備交代</h3><div class="muted" style="margin-top:6px">相手攻撃中に守備位置だけを交代します。</div><div id="defSubCurrent" class="hint" style="margin-top:10px"></div><div style="margin-top:12px"><div class="muted">交代対象</div><select id="defSubPosition" class="subSelect" onchange="refreshDefReplacement()"></select></div><div style="margin-top:10px"><div class="muted">交代選手</div><select id="defSubReplacement" class="subSelect"></select></div><div class="subActions"><button class="secondaryBtn" onclick="closeDefensiveSub()">キャンセル</button><button class="primaryBtn" onclick="applyDefensiveSub()">守備交代する</button></div></div></div>
 <div id="runnerConfirmModal" class="runnerModal" style="display:none" onclick="if(event.target===this)closeRunnerConfirm()"><div class="runnerCard"><h3 style="margin:0">打者・走者・アウト・得点を選択・確認</h3><div id="runnerConfirmTarget" class="muted" style="margin-top:6px"></div><div id="runnerConfirmSummary" class="runnerConfirmSummary"></div><div class="runnerConfirmBtns"><button class="btn primary" onclick="confirmRunnerAdvance()">すべて確認して確定 → 次の打順へ</button><button class="secondaryBtn" onclick="closeRunnerConfirm()">戻る</button></div></div></div>
 <div id="runnerMoveModal" class="runnerModal" style="display:none" onclick="if(event.target===this)closeRunnerMove()"><div class="runnerCard"><h3 style="margin:0">走者プレー</h3><div id="moveTarget" class="muted" style="margin-top:6px"></div><div class="title" style="margin-top:14px">① 走者を選択</div><div id="moveRunnerList" class="runnerScore runnerMovePick"></div><div class="title" style="margin-top:14px">② 進塁先を選択</div><div id="moveDest" class="runnerScore runnerMoveDest"><div class="hint">先に走者を選択してください。</div></div><button class="secondaryBtn" style="width:100%;margin-top:12px" onclick="closeRunnerMove()">キャンセル</button></div></div>
+<div id="stealStepModal" class="runnerModal stealStepModal" style="display:none" onclick="if(event.target===this)closeStealSteps()">
+ <div class="runnerCard stealStepCard">
+  <div class="stealStepHeader"><h3 style="margin:0">盗塁プレー</h3><span>3ステップ</span></div>
+  <div id="stealStepTarget" class="muted" style="margin-top:6px">選択して決定してください。</div>
+  <div class="stealStepSection"><div class="stealStepTitle">① 走者を選択してください。</div><div id="stealStepRunnerList" class="stealStepGrid"></div></div>
+  <div class="stealStepSection"><div class="stealStepTitle">② 盗塁の判定を選択してください。</div><div id="stealStepJudgeList" class="stealStepGrid"><button type="button" class="stealStepOption" data-judge="アウト" onclick="selectStealJudge('アウト')">アウト</button><button type="button" class="stealStepOption" data-judge="セーフ" onclick="selectStealJudge('セーフ')">セーフ</button></div></div>
+  <div class="stealStepSection"><div class="stealStepTitle">③ 進塁先を選択してください。</div><div id="stealStepDestList" class="stealStepGrid"></div></div>
+  <div class="stealStepActions"><button type="button" class="secondaryBtn" onclick="closeStealSteps()">キャンセル</button><button type="button" id="stealStepConfirmBtn" class="primaryBtn" onclick="confirmStealSteps()" disabled>決定</button></div>
+ </div>
+</div>
 
 <div id="launchScreen" class="launchScreen" style="display:none">
   <div class="launchInner">
