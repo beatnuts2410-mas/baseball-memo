@@ -1930,54 +1930,107 @@ function renderRunnerConfirmEditor(){
 function openRunnerConfirm(){renderRunnerConfirmEditor()}
 function closeRunnerConfirm(){document.getElementById('runnerConfirmModal').style.display='none'}
 function confirmRunnerAdvance(){
- const g=db.current,p=g?.pendingRunnerConfirm;if(!g||!p)return;
+ const g=db.current,p=g?.pendingRunnerConfirm;
+ if(!g||!p)return;
  if(!p.manual)return;
- const before=cloneRunners(p.beforeRunners),beforeNames=cloneRunnerNames(p.beforeNames);
- if(!p.batterDest || p.afterOuts==null || p.scored==null)return toast('打者進塁先・アウト・得点をすべて選択してください');
- const after=[0,0,0],afterNames=[null,null,null];let scored=Number(p.scored)||0;
- const runnerDest=p.runnerDest||[null,null,null];
- for(let i=0;i<3;i++){
-   if(!before[i])continue;
-   const d=String(runnerDest[i]||i+1),name=beforeNames[i]||'走者';
-   if(d==='4'){continue;}
-   if(d==='out')continue;
-   const base=Number(d)-1;
-   if(base<0||base>2)return toast('走者の進塁先を確認してください');
-   if(after[base])return toast('同じ塁に2人の走者が入っています。進塁先を確認してください');
-   after[base]=1;afterNames[base]=name;
+ try{
+   const before=cloneRunners(p.beforeRunners),beforeNames=cloneRunnerNames(p.beforeNames);
+   if(!p.batterDest || p.afterOuts==null || p.scored==null){
+     return toast('打者進塁先・アウト・得点をすべて選択してください');
+   }
+   const after=[0,0,0],afterNames=[null,null,null];
+   const scored=Number(p.scored)||0;
+   const runnerDest=Array.isArray(p.runnerDest)?p.runnerDest.slice(0,3):[null,null,null];
+   while(runnerDest.length<3)runnerDest.push(null);
+
+   for(let i=0;i<3;i++){
+     if(!before[i])continue;
+     const d=String(runnerDest[i]||i+1),name=beforeNames[i]||'走者';
+     if(d==='4'||d==='out')continue;
+     const base=Number(d)-1;
+     if(base<0||base>2)return toast('走者の進塁先を確認してください');
+     if(after[base])return toast('同じ塁に2人の走者が入っています。進塁先を確認してください');
+     after[base]=1;afterNames[base]=name;
+   }
+
+   let batterOut=false,batterBase=null;
+   if(p.batterDest==='out'){
+     batterOut=true;
+   }else{
+     batterBase=Number(p.batterDest)-1;
+     if(batterBase<0||batterBase>2)return toast('打者進塁先を確認してください');
+     if(after[batterBase])return toast('打者と走者が同じ塁になっています。進塁先を確認してください');
+     after[batterBase]=1;afterNames[batterBase]=p.batter;
+   }
+
+   const beforeOuts=Number(p.beforeOuts)||0;
+   const afterOuts=Number(p.afterOuts);
+   if(!Number.isFinite(afterOuts)||afterOuts<beforeOuts||afterOuts>3)return toast('アウトカウントを確認してください');
+   if(afterOuts===beforeOuts&&batterOut)return toast('打者をアウトにする場合はアウトカウントを増やしてください');
+   const runnerOuts=runnerDest.filter((d,i)=>before[i]&&String(d)==='out').length;
+   const expectedOuts=runnerOuts+(batterOut?1:0);
+   if(afterOuts-beforeOuts!==expectedOuts)return toast('打者・走者のアウトとアウトカウントが一致していません');
+
+   // ここから先は1回の確定処理として状態を更新する。
+   pushGameHistory();
+   const beforeScore=Number(p.beforeScoreUs)||0;
+   g.runners=after;
+   g.runnerNames=afterNames;
+   g.scoreUs=(Number(g.scoreUs)||0)+scored;
+   g.outs=afterOuts;
+   g.eventSeq=(Number(g.eventSeq)||0)+1;
+   g.pa=Array.isArray(g.pa)?g.pa:[];
+   g.innings=Array.isArray(g.innings)?g.innings:[];
+
+   g.pa.push({
+     seq:g.eventSeq,inning:g.inning,half:g.half,batter:p.batter,
+     batterOrder:(Number(p.batterIndex)%9)+1,result:p.result,rbi:scored,runs:scored,
+     beforeRunners:before,beforeRunnerNames:beforeNames,
+     afterRunners:cloneRunners(after),afterRunnerNames:cloneRunnerNames(afterNames),
+     outsAfter:g.outs,beforeScoreUs:beforeScore,beforeScoreUsSnapshot:beforeScore,
+     beforeInning:g.inning,beforeHalf:g.half,beforeOuts:beforeOuts,
+     beforeBatterIndex:p.batterIndex,detail:p.detail||''
+   });
+
+   const outByRunner={};
+   runnerDest.forEach((d,i)=>{if(before[i]&&String(d)==='out')outByRunner[i]=true});
+   storeAdvanceResult(g,buildAdvanceResult({
+     type:'打席',result:p.result,batterName:p.batter,batterOut,
+     beforeRunners:before,beforeNames,afterRunners:after,afterNames:afterNames,
+     runs:scored,outsDelta:afterOuts-beforeOuts,inning:g.inning,half:g.half,
+     detail:p.detail||p.result,outByRunner
+   }));
+   updateInningScore(g);
+
+   if(checkColdGame(g,'during'))return;
+   if(g.inning===9 && g.half===ownHalf(g) && ownHalf(g)==='裏' && Number(g.scoreUs)>Number(g.scoreOpp)){
+     autoFinishGame(g,'9回裏・サヨナラ勝ち');
+     return;
+   }
+
+   g.batterIndex=Number(g.batterIndex)||0;
+   g.batterIndex++;
+   if(g.startedLate && g.batterIndex<9)g.lateSetupStep=g.batterIndex;
+   const threeOuts=g.outs>=3;
+   if(g.startedLate && g.batterIndex>=9){g.startedLate=false;g.lateSetupStep=null;g.batterIndex=0}
+   g.pendingRunnerConfirm=null;
+
+   if(threeOuts)endHalfOnThreeOuts(g);
+   if(g.finished)return;
+
+   // モーダルを先に閉じてから保存・再描画する。画面側の再描画失敗で
+   // 「確定ボタンがフリーズした」ように見える状態を残さない。
+   closeRunnerConfirm();
+   save();
+   render();
+   toast(threeOuts
+     ? `${p.batter}：${p.result} → 3アウト・攻守交代`
+     : `${p.batter}：${p.result}${scored?` ${scored}点`:''} → 次の打者へ`);
+ }catch(e){
+   console.error('confirmRunnerAdvance failed',e);
+   // 画面を無反応にせず、現在の確定待ち状態を保持したまま原因を通知する。
+   toast(`確定処理でエラーが発生しました：${e?.message||'再確認してください'}`);
  }
- let batterOut=false,batterBase=null;
- if(p.batterDest==='out'){batterOut=true}else{batterBase=Number(p.batterDest)-1;if(batterBase<0||batterBase>2)return toast('打者進塁先を確認してください');if(after[batterBase])return toast('打者と走者が同じ塁になっています。進塁先を確認してください');after[batterBase]=1;afterNames[batterBase]=p.batter;}
- const afterOuts=Number(p.afterOuts);
- if(afterOuts<Number(p.beforeOuts)||afterOuts>3)return toast('アウトカウントを確認してください');
- if(afterOuts===Number(p.beforeOuts) && batterOut)return toast('打者をアウトにする場合はアウトカウントを増やしてください');
- const runnerOuts=runnerDest.filter((d,i)=>before[i]&&String(d)==='out').length;
- const expectedOuts=runnerOuts+(batterOut?1:0);
- if(afterOuts-Number(p.beforeOuts)!==expectedOuts)return toast('打者・走者のアウトとアウトカウントが一致していません');
- pushGameHistory();
- g.runners=after;g.runnerNames=afterNames;g.scoreUs=(Number(g.scoreUs)||0)+scored;g.outs=afterOuts;
- g.eventSeq=(Number(g.eventSeq)||0)+1;
- const paIndex=g.pa.length;
- const beforeScore=Number(p.beforeScoreUs)||0;
- const rbi=scored;
- g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:p.batter,batterOrder:(Number(p.batterIndex)%9)+1,result:p.result,rbi,runs:scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(after),afterRunnerNames:cloneRunnerNames(afterNames),outsAfter:g.outs,beforeScoreUs:beforeScore,beforeScoreUsSnapshot:beforeScore,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:Number(p.beforeOuts),beforeBatterIndex:p.batterIndex,detail:p.detail||''});
- const outByRunner={}; runnerDest.forEach((d,i)=>{if(before[i]&&String(d)==='out')outByRunner[i]=true});
- storeAdvanceResult(g,buildAdvanceResult({type:'打席',result:p.result,batterName:p.batter,batterOut:batterOut,beforeRunners:before,beforeNames,afterRunners:after,afterNames:afterNames,runs:scored,outsDelta:afterOuts-Number(p.beforeOuts),inning:g.inning,half:g.half,detail:p.detail||p.result,outByRunner}));
- updateInningScore(g);
- if(checkColdGame(g,'during'))return;
- if(g.inning===9 && g.half===ownHalf(g) && ownHalf(g)==='裏' && Number(g.scoreUs)>Number(g.scoreOpp)){
-   autoFinishGame(g,'9回裏・サヨナラ勝ち');
-   return;
- }
- g.batterIndex++;
- if(g.startedLate && g.batterIndex<9)g.lateSetupStep=g.batterIndex;
- g.pendingRunnerConfirm=null;
- const threeOuts=g.outs>=3;
- if(g.startedLate && g.batterIndex>=9){g.startedLate=false;g.lateSetupStep=null;g.batterIndex=0}
- if(threeOuts)endHalfOnThreeOuts(g);
- if(g.finished)return;
- save();closeRunnerConfirm();render();
- toast(threeOuts?`${p.batter}：${p.result} → 3アウト・攻守交代`:`${p.batter}：${p.result}${scored?` ${scored}点`:''} → 次の打者へ`);
 }
 
 function openSteal(i){openRunnerMove('盗塁');selectRunnerToMove(i)}
