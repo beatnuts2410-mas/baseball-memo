@@ -1301,6 +1301,10 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   position:static!important;
 }
 </style>
+<style id="v3_01_5_modal_initial_state_fix">
+/* v3.01.5: preserve initial inline display:none until JavaScript explicitly opens a modal. */
+.runnerModal[style*="display:none"]{display:none!important;}
+</style>
 </head>
 <body>
 <div class="app">
