@@ -1792,10 +1792,39 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   #inGameSubModal{padding:calc(5px + env(safe-area-inset-top)) 5px 5px!important;}
   #inGameSubModal .subCard{padding:10px!important;}
 }
+</style>
 
 <style id="v3_01_26_steal_same_as_wildpitch_and_sub_button_unified">
-/* v3.01.26: 盗塁の選択方式を暴投・捕逸と完全統一。選手交代ボタンは打席結果ボタンと同寸法へ。 */
+/* v3.01.26: 盗塁の選択方式を暴投・捕逸と完全統一。 */
 </style>
+<style id="v3_01_27_sub_button_same_size_as_result">
+/* v3.01.27: 「交代」ボタンを打席結果3列グリッドの1ボタンと同じサイズ感に統一。動作は変更しない。 */
+.subOpenBtn{
+  flex:0 0 calc((100% - 16px) / 3)!important;
+  width:calc((100% - 16px) / 3)!important;
+  min-width:0!important;
+  min-height:62px!important;
+  height:62px!important;
+  box-sizing:border-box!important;
+  padding:0 12px!important;
+  border:4px solid #16a34a!important;
+  border-radius:12px!important;
+  background:#fff!important;
+  color:#111!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  line-height:1.15!important;
+}
+@media(max-width:480px){
+  .subOpenBtn{
+    flex-basis:calc((100% - 16px) / 3)!important;
+    width:calc((100% - 16px) / 3)!important;
+    min-height:62px!important;
+    height:62px!important;
+    padding:0 8px!important;
+    font-size:16px!important;
+  }
+}
 </style>
 </head>
 <body>
