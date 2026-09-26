@@ -1755,21 +1755,21 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 }
 /* 記録画面の「交代」ボタンを打席結果ボタンと同じ高さ・タップ感に統一 */
 .subOpenBtn{
-  min-height:50px!important;
-  height:50px!important;
-  padding:6px 14px!important;
+  min-height:62px!important;
+  height:62px!important;
+  padding:12px 14px!important;
   border-radius:12px!important;
   border:3px solid #3aaa5f!important;
   background:#fff!important;
   color:#111!important;
-  font-size:14px!important;
+  font-size:16px!important;
   font-weight:900!important;
   line-height:1.15!important;
   box-sizing:border-box!important;
 }
 .subOpenBtn:active{background:#e8f5e9!important;transform:translateY(1px)!important;}
 @media(max-width:480px){
-  .subOpenBtn{min-height:50px!important;height:50px!important;font-size:13px!important;padding:6px 12px!important;}
+  .subOpenBtn{min-height:64px!important;height:64px!important;font-size:16px!important;padding:12px!important;}
 }
 </style>
 <style id="v3_01_25_substitution_top_display">
@@ -1792,6 +1792,10 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   #inGameSubModal{padding:calc(5px + env(safe-area-inset-top)) 5px 5px!important;}
   #inGameSubModal .subCard{padding:10px!important;}
 }
+
+<style id="v3_01_26_steal_same_as_wildpitch_and_sub_button_unified">
+/* v3.01.26: 盗塁の選択方式を暴投・捕逸と完全統一。選手交代ボタンは打席結果ボタンと同寸法へ。 */
+</style>
 </style>
 </head>
 <body>
@@ -2251,7 +2255,7 @@ let runnerMoveMode=null,runnerMoveFrom=null,runnerMoveJudged=false;
 let passedBallAll=false, passedBallSelected=new Set(), passedBallDest={}, passedBallEventType='捕逸';
 function openPassedBallSteps(eventType='捕逸'){
  const g=db.current;if(!g||!g.runners.some(Boolean))return toast('走者がいません');
- passedBallEventType=eventType==='暴投'?'暴投':'捕逸';
+ passedBallEventType=eventType==='盗塁'?'盗塁':eventType==='暴投'?'暴投':'捕逸';
  passedBallAll=false;passedBallSelected=new Set();passedBallDest={};
  const modal=document.getElementById('passedBallStepModal');
  document.getElementById('passedBallStepModeList').innerHTML=`<button type="button" class="passedBallStepOption" id="passedBallAllBtn" onclick="selectPassedBallAll()">全ランナー進塁</button><button type="button" class="passedBallStepOption" id="passedBallIndividualBtn" onclick="selectPassedBallIndividual()">個別に選択</button>`;
@@ -2259,7 +2263,7 @@ function openPassedBallSteps(eventType='捕逸'){
  document.getElementById('passedBallStepRunnerList').style.display='none';
  document.getElementById('passedBallStepDestList').innerHTML='<div class="passedBallStepHint">①「全ランナー進塁」または「個別に選択」を選んでください。</div>';
  document.getElementById('passedBallStepConfirmBtn').disabled=true;
- document.getElementById('passedBallStepTitle').textContent=passedBallEventType==='暴投'?'内野手暴投後の走者進塁先を選択してください。':'捕手捕逸時の走者進塁先を選択してください。';
+ document.getElementById('passedBallStepTitle').textContent=passedBallEventType==='盗塁'?'盗塁後の走者進塁先を選択してください。':passedBallEventType==='暴投'?'内野手暴投後の走者進塁先を選択してください。':'捕手捕逸時の走者進塁先を選択してください。';
  document.getElementById('passedBallStepTarget').textContent='① 進塁する走者を確認 → ② 進塁先を確認 → 「決定」';
  modal.style.display='flex';
  updatePassedBallUI();
@@ -2333,7 +2337,7 @@ function confirmPassedBallSteps(){
  selected.forEach(i=>{const d=destMap[i],name=beforeNames[i]||'走者';if(d===4){runs++;}else{after[d-1]=1;afterNames[d-1]=name;}});
  pushGameHistory();
  g.runners=after;g.runnerNames=afterNames;g.scoreUs=(Number(g.scoreUs)||0)+runs;
- const eventLabel=passedBallEventType==='暴投'?'暴投（ワイルドピッチ）':'捕逸（パスボール）';
+ const eventLabel=passedBallEventType==='盗塁'?'盗塁':passedBallEventType==='暴投'?'暴投（ワイルドピッチ）':'捕逸（パスボール）';
  const detail=passedBallAll?`${eventLabel}：全ランナー進塁${runs?`・${runs}点追加`:''}`:`${eventLabel}：${selected.map(i=>`${beforeNames[i]||'走者'}→${destMap[i]===4?'本塁・得点':destMap[i]+'塁'}`).join('、')}${runs?`・${runs}点追加`:''}`;
  g.runnerMoves=g.runnerMoves||[];
  selected.forEach(i=>{const d=destMap[i],name=beforeNames[i]||'走者';g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:passedBallEventType,judgement:null,inning:g.inning,half:g.half,from:i,dest:d,name,beforeRunners:before,beforeNames,afterRunners:cloneRunners(after),afterNames:cloneRunnerNames(afterNames),runs:d===4?1:0,detail:`${eventLabel}で${d===4?'本塁・得点':d+'塁へ'}進塁`});});
@@ -2389,18 +2393,8 @@ function closeRunnerEventSteps(){
 
 let stealStepFrom=null, stealStepJudgeValue=null, stealStepDest=null;
 function openStealSteps(){
- const g=db.current;if(!g||!g.runners.some(Boolean))return toast('走者がいません');
- stealStepFrom=null;stealStepJudgeValue=null;stealStepDest=null;
- const modal=document.getElementById('stealStepModal');
- const target=document.getElementById('stealStepTarget');
- const list=document.getElementById('stealStepRunnerList');
- list.innerHTML=[0,1,2].filter(i=>g.runners[i]).map(i=>`<button type="button" class="stealStepOption" data-runner="${i}" onclick="selectStealRunner(${i})">${i+1}塁　${esc(g.runnerNames?.[i]||'走者')}</button>`).join('');
- document.querySelectorAll('#stealStepJudgeList .stealStepOption').forEach(b=>b.classList.remove('active'));
- document.getElementById('stealStepDestList').innerHTML='<div class="stealStepHint">①と②を選択すると進塁先を選べます。</div>';
- document.getElementById('stealStepDestList').parentElement.style.display='block';
- document.getElementById('stealStepConfirmBtn').disabled=true;
- target.textContent='① 走者 → ② 判定 → ③ 進塁先を選択して「決定」';
- modal.style.display='flex';
+ // v3.01.26: 盗塁も暴投・捕逸と同じ「全ランナー進塁 / 個別に選択 → 進塁先 → 決定」方式へ統一。
+ return openPassedBallSteps('盗塁');
 }
 function selectStealRunner(i){
  const g=db.current;if(!g?.runners[i])return;
