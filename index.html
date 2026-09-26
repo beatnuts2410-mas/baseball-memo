@@ -5948,3 +5948,46 @@ document.addEventListener('DOMContentLoaded',()=>{
   #defSubModal .defSubPreview + .subActions{margin:10px -10px -10px!important;padding:9px 10px calc(9px + env(safe-area-inset-bottom))!important;}
 }
 </style>
+<style id="v3_01_35_defensive_top_scroll">
+/* v3.01.35: 自チーム守備交代を他の上部表示モーダルと同じく最前面・上端表示。内容が長い場合はモーダル内を上下スクロール。 */
+#defSubModal{
+  z-index:200!important;
+  inset:0!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  overflow-x:hidden!important;
+  overflow-y:hidden!important;
+  padding:0!important;
+  box-sizing:border-box!important;
+}
+#defSubModal .defSubCard{
+  width:min(560px,100%)!important;
+  height:100dvh!important;
+  max-height:100dvh!important;
+  min-height:0!important;
+  margin:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-y:contain!important;
+  box-sizing:border-box!important;
+  border-radius:0 0 18px 18px!important;
+  padding:12px!important;
+}
+/* 下部のキャンセル・確定はスクロールしても常に画面下端で操作可能。 */
+#defSubModal .defSubPreview + .subActions{
+  position:sticky!important;
+  bottom:0!important;
+  z-index:30!important;
+  margin:10px -12px -12px!important;
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom))!important;
+  background:rgba(255,255,255,.98)!important;
+  border-top:1px solid #ddd!important;
+  box-shadow:0 -5px 14px rgba(0,0,0,.10)!important;
+}
+@media(max-width:420px){
+  #defSubModal .defSubCard{width:100%!important;height:100dvh!important;max-height:100dvh!important;padding:10px!important;border-radius:0 0 14px 14px!important;}
+  #defSubModal .defSubPreview + .subActions{margin:10px -10px -10px!important;padding:9px 10px calc(9px + env(safe-area-inset-bottom))!important;}
+}
+</style>
