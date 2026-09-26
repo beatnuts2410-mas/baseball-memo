@@ -1386,6 +1386,49 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   }
 }
 </style>
+<style id="v3_01_5_inline_steal_panel">
+.inlineStealPanel{
+  position:sticky!important;
+  top:0!important;
+  z-index:55!important;
+  margin:0 -2px 10px!important;
+  padding:10px!important;
+  border:2px solid #2d7fe8!important;
+  border-radius:14px!important;
+  background:rgba(255,255,255,.97)!important;
+  color:#111!important;
+  box-shadow:0 5px 18px rgba(0,0,0,.18)!important;
+}
+.inlineStealTitle{font-size:17px!important;font-weight:950!important;margin-bottom:7px!important;color:#12355d!important}
+.inlineStealStep{padding:7px 0;border-top:1px solid #d9e1e8!important}
+.inlineStealStepLabel{font-size:13px!important;font-weight:900!important;color:#111!important;margin-bottom:5px!important;line-height:1.25!important}
+.inlineStealGrid{display:grid!important;gap:6px!important;width:100%!important}
+.inlineStealGrid.runner{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.inlineStealGrid.judge{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.inlineStealGrid.dest{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.inlineStealBtn,.inlineStealJudge,.inlineStealDest{
+  min-height:46px!important;height:auto!important;padding:8px 6px!important;border-radius:10px!important;
+  border:2px solid #9bb1c8!important;background:#fff!important;color:#111!important;font-size:14px!important;font-weight:900!important;
+  box-sizing:border-box!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+}
+.inlineStealBtn.active{background:#dbeafe!important;border-color:#1976d2!important;box-shadow:0 0 0 2px rgba(25,118,210,.12)!important}
+.inlineStealBtn:disabled,.inlineStealJudge:disabled,.inlineStealDest:disabled{opacity:.42!important;background:#eee!important;color:#555!important}
+.inlineStealJudge.out{background:#fee2e2!important;border-color:#ef4444!important}
+.inlineStealJudge.safe{background:#dcfce7!important;border-color:#22c55e!important}
+.inlineStealDest{background:#e8f3ff!important;border-color:#4d91dc!important}
+.inlineStealDest.home{background:#fff0f0!important;border-color:#ef4444!important}
+.inlineStealDestHint{grid-column:1/-1!important}
+.inlineStealHint{min-height:46px!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:7px!important;border:1px dashed #aeb9c5!important;border-radius:10px!important;color:#555!important;font-size:12px!important;font-weight:700!important;box-sizing:border-box!important}
+/* 盗塁ボタンだけを重複表示しない。捕逸・暴投・ボークの既存ボタンはそのまま。 */
+.runnerChoiceSteal{display:none!important}
+@media(max-width:430px){
+  .inlineStealPanel{padding:8px!important;border-radius:12px!important}
+  .inlineStealTitle{font-size:16px!important}
+  .inlineStealStepLabel{font-size:12px!important}
+  .inlineStealBtn,.inlineStealJudge,.inlineStealDest{min-height:42px!important;font-size:12px!important;padding:7px 4px!important}
+  .inlineStealHint{min-height:42px!important;font-size:11px!important}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1682,7 +1725,7 @@ function recordView(){
    return gameHeader()+renderOrderDefenseGround(g)+ruleEndAlert(g)+`<div class="card"><div class="row between"><div class="title" style="margin:0">選手交代</div><button class="btn small" onclick="openInGameSub()">交代</button></div><div class="muted">${(g.subs||[]).slice(-2).map(x=>`${x.type}：${x.from?.name||''} → ${x.to?.name||''}`).join('<br>')||'交代なし'}</div></div>
  <div class="card current"><div class="muted">${g.inning}回${g.half}・自チーム攻撃</div><div class="row between"><div><div class="batter">${esc(b.name)}</div><span class="badge">${slot+1}番</span></div><div class="recordOutCount"><div class="recordOutValue">${Math.min(3,Number(g.outs)||0)}<span>アウト</span></div><button class="btn small" onclick="adjustOuts()">✎ アウト修正</button></div></div></div>
  <div class="card"><div class="title">打席結果を選択</div><div class="hint" style="margin-bottom:8px">・盗塁などの走塁が発生した場合は、下の「走塁プレー」または「走者・グラウンド」で操作して下さい。</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="latePA('${t}')">${t}</button>`).join('')}</div></div>
- <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→アウト/セーフ→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div><div class="runnerChoiceGrid" style="margin-top:10px"><button type="button" class="runnerChoice runnerChoiceSteal" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">🏃</span><span>盗塁</span></button><button type="button" class="runnerChoice runnerChoicePB" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚾</span><span>捕逸（パスボール）</span></button><button type="button" class="runnerChoice runnerChoiceWP" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">🥎</span><span>暴投（ワイルドピッチ）</span></button><button type="button" class="runnerChoice runnerChoiceBalk" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚠</span><span>ボーク</span></button></div></div>
+ <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→アウト/セーフ→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div>${renderInlineStealPanel(g)}<div class="runnerChoiceGrid" style="margin-top:10px"><button type="button" class="runnerChoice runnerChoiceSteal" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">🏃</span><span>盗塁</span></button><button type="button" class="runnerChoice runnerChoicePB" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚾</span><span>捕逸（パスボール）</span></button><button type="button" class="runnerChoice runnerChoiceWP" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">🥎</span><span>暴投（ワイルドピッチ）</span></button><button type="button" class="runnerChoice runnerChoiceBalk" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚠</span><span>ボーク</span></button></div></div>
  <div class="card"><div class="row between"><div class="title" style="margin:0">走者・グランド</div><button class="btn small" onclick="openRunnerCorrection()">✎ 走者修正</button></div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div><div class="corrNote" style="margin-top:8px">ヒット・四死球後の打者も現在の塁に表示。盗塁は「走者→アウト/セーフ→進塁先」。その他は「走者→進塁先」。ボークは全走者を自動で1つ進めます。</div></div>
  <div class="card"><button class="btn primary" style="width:100%" onclick="finishGame()">試合終了</button></div>`;
  }
@@ -1697,7 +1740,7 @@ function recordView(){
 
  <div class="card"><div class="row between"><div class="title" style="margin:0">選手交代</div><button class="btn small" onclick="openInGameSub()">交代</button></div><div class="muted">${(g.subs||[]).slice(-2).map(x=>`${x.type}：${x.from?.name||''} → ${x.to?.name||''}`).join('<br>')||'交代なし'}</div></div>
   <div class="card"><div class="title">打席結果を選択</div><div class="hint" style="margin-bottom:8px">・盗塁などの走塁が発生した場合は、下の「走塁プレー」または「走者・グラウンド」で操作して下さい。</div><div class="resultgrid">${labels.map(([t,c])=>`<button class="result ${c}" onclick="pa('${t}')">${t}</button>`).join('')}</div></div>
- <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→アウト/セーフ→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div><div class="runnerChoiceGrid" style="margin-top:10px"><button type="button" class="runnerChoice runnerChoiceSteal" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">🏃</span><span>盗塁</span></button><button type="button" class="runnerChoice runnerChoicePB" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚾</span><span>捕逸（パスボール）</span></button><button type="button" class="runnerChoice runnerChoiceWP" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">🥎</span><span>暴投（ワイルドピッチ）</span></button><button type="button" class="runnerChoice runnerChoiceBalk" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚠</span><span>ボーク</span></button></div></div>
+ <div class="card runnerPlayCard"><div class="row between"><div class="title" style="margin:0">走者プレー</div><span class="muted">盗塁：走者→アウト/セーフ→進塁先</span></div><div class="hint" style="margin-top:6px">盗塁・捕逸(パスボール)・暴投(ワイルドピッチ)・ボークをタップで記録できます。</div>${renderInlineStealPanel(g)}<div class="runnerChoiceGrid" style="margin-top:10px"><button type="button" class="runnerChoice runnerChoiceSteal" onclick="openRunnerMove('盗塁')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">🏃</span><span>盗塁</span></button><button type="button" class="runnerChoice runnerChoicePB" onclick="openRunnerMove('パスボール')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚾</span><span>捕逸（パスボール）</span></button><button type="button" class="runnerChoice runnerChoiceWP" onclick="openRunnerMove('暴投')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">🥎</span><span>暴投（ワイルドピッチ）</span></button><button type="button" class="runnerChoice runnerChoiceBalk" onclick="openRunnerMove('ボーク')" ${g.runners.some(Boolean)?'':'disabled'}><span class="runnerChoiceIcon">⚠</span><span>ボーク</span></button></div></div>
  <div class="card"><div class="row between"><div class="title" style="margin:0">走者・グランド</div><button class="btn small" onclick="openRunnerCorrection()">✎ 走者修正</button></div>${renderBaseDiamond(g)}<div class="row" style="margin-top:10px">${['1塁','2塁','3塁'].map((x,i)=>`<button class="btn ${g.runners[i]?'green':''}" onclick="toggleRunner(${i})">${x} ${g.runners[i]?'●':'○'}</button>`).join('')}</div><div class="corrNote" style="margin-top:8px">ヒット・四死球後の打者も現在の塁に表示。盗塁は「走者→アウト/セーフ→進塁先」。その他は「走者→進塁先」。ボークは全走者を自動で1つ進めます。</div></div>
  <div class="card"><button class="btn primary" style="width:100%" onclick="finishGame()">試合終了</button></div>`;
 }
@@ -2826,6 +2869,54 @@ function deleteSelectedData(){
  save();render();toast(`${ids.length}試合を削除しました`);
 }
 function resetAll(){if(!confirm("全データを削除します。よろしいですか？"))return;localStorage.removeItem(KEY);location.reload()}
+/* v3.01.5: 盗塁の走者プレーを常時一覧表示。現走者状態と連動し、モーダルを開かずに選択できる。 */
+function renderInlineStealPanel(g){
+  if(!g) return '';
+  const occupied=[0,1,2].filter(i=>g.runners?.[i]);
+  if(runnerMoveFrom!=null && !g.runners?.[runnerMoveFrom]){ runnerMoveFrom=null; runnerMoveJudged=false; }
+  const selected=runnerMoveFrom;
+  const runnerButtons=[0,1,2].map(i=>{
+    const on=!!g.runners?.[i], active=selected===i;
+    const name=g.runnerNames?.[i]||'走者';
+    return `<button type="button" class="inlineStealBtn ${active?'active':''}" ${on?'':'disabled'} onclick="inlineSelectStealRunner(${i})">${i+1}塁 ${esc(name)}</button>`;
+  }).join('');
+  const judgmentButtons=`<button type="button" class="inlineStealJudge out" ${selected==null?'disabled':''} onclick="inlineJudgeSteal('アウト')">アウト</button><button type="button" class="inlineStealJudge safe" ${selected==null?'disabled':''} onclick="inlineJudgeSteal('セーフ')">セーフ</button>`;
+  let destHtml='<div class="inlineStealHint">①で走者を選択すると進塁先を一覧表示します。</div>';
+  if(selected!=null){
+    const possible=[1,2,3,4].filter(d=>d>selected+1 && (d===4 || !g.runners?.[d-1]));
+    destHtml=possible.length?possible.map(d=>`<button type="button" class="inlineStealDest ${d===4?'home':''}" ${runnerMoveJudged?'':'disabled'} onclick="inlineApplySteal(${d})">${d===4?'本塁・得点':d+'塁へ'}</button>`).join(''):'<div class="inlineStealHint">進塁できる空き塁がありません。</div>';
+    if(!runnerMoveJudged) destHtml += '<div class="inlineStealHint inlineStealDestHint">②で「セーフ」を選択すると進塁先を確定できます。</div>';
+  }
+  return `<div class="inlineStealPanel" aria-label="走者プレー・盗塁">
+    <div class="inlineStealTitle">走者プレー</div>
+    <div class="inlineStealStep"><div class="inlineStealStepLabel">① 走者を選択してください。</div><div class="inlineStealGrid runner">${runnerButtons||'<div class="inlineStealHint">走者がいません。</div>'}</div></div>
+    <div class="inlineStealStep"><div class="inlineStealStepLabel">② 盗塁の判定を選択してください。</div><div class="inlineStealGrid judge">${judgmentButtons}</div></div>
+    <div class="inlineStealStep"><div class="inlineStealStepLabel">③ 進塁先を選択してください。</div><div class="inlineStealGrid dest">${destHtml}</div></div>
+  </div>`;
+}
+function inlineSelectStealRunner(i){
+  const g=db.current;if(!g?.runners?.[i])return;
+  runnerMoveMode='盗塁';runnerMoveFrom=i;runnerMoveJudged=false;
+  const host=document.querySelector('.inlineStealPanel');
+  if(host)host.outerHTML=renderInlineStealPanel(g);
+}
+function inlineJudgeSteal(judgement){
+  const g=db.current;if(runnerMoveFrom==null||!g?.runners?.[runnerMoveFrom])return;
+  runnerMoveMode='盗塁';
+  judgeSteal(judgement);
+  if(judgement==='セーフ' && db.current){
+    const host=document.querySelector('.inlineStealPanel');
+    if(host)host.outerHTML=renderInlineStealPanel(db.current);
+  }
+}
+function inlineApplySteal(dest){
+  const g=db.current;if(runnerMoveFrom==null||!g?.runners?.[runnerMoveFrom])return;
+  runnerMoveMode='盗塁';runnerMoveJudged=true;
+  applyRunnerMove(dest);
+}
+
+
+
 function render(){
  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
  document.getElementById("app").innerHTML=tab==="record"?recordView():tab==="team"?teamView():tab==="lineup"?lineupView():dataView();
