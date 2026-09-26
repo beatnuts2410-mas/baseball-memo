@@ -2330,7 +2330,7 @@ html,body{max-width:100%;overflow-x:hidden!important;}
 </style>
 
 <style id="v3_01_44_display_alignment_fix">
-/* v3.01.44: 打撃成績と代打・選手交代を同一列構造に統一。交代枠の赤を明確化。投手記録は登板→投手の順。 */
+/* v3.01.45: 代打・選手交代の◆を打順列へ移動。選手列は名前＋交代情報に統一。 */
 #gameResultView .resultStatsTable tr.battingReplacementRow .battingReplacementOrder{
   position:sticky!important;left:0!important;z-index:61!important;
   width:48px!important;min-width:48px!important;max-width:48px!important;
@@ -3922,7 +3922,7 @@ function renderGameResult(g){
      const when=r.inning?`${r.inning}回${typeLabel}`:'';
      const suffix=when?`（${when}）`:'';
      const s=r.stat||{};
-     battingRows.push(`<tr class="battingReplacementRow"><td class="battingReplacementOrder">—</td><td class="battingReplacementName"><span class="subMark" aria-label="選手交代">◆</span><span class="subName">${esc(s.name||'')}</span>${suffix}</td><td>${s.pa}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.d2}</td><td>${s.d3}</td><td>${s.hr}</td><td>${s.rbi}</td><td>${s.bb}</td><td>${s.hbp}</td><td>${s.so}</td><td>${s.sh}</td><td>${s.sf}</td><td class="avg">${s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'}</td></tr>`);
+     battingRows.push(`<tr class="battingReplacementRow"><td class="battingReplacementOrder"><span class="subMark" aria-label="選手交代">◆</span></td><td class="battingReplacementName"><span class="subName">${esc(s.name||'')}</span>${suffix}</td><td>${s.pa}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.d2}</td><td>${s.d3}</td><td>${s.hr}</td><td>${s.rbi}</td><td>${s.bb}</td><td>${s.hbp}</td><td>${s.so}</td><td>${s.sh}</td><td>${s.sf}</td><td class="avg">${s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'}</td></tr>`);
    });
  }
  if(battingData.rest.length) battingRows.push(...battingData.rest.map(s=>statRow(s,null)));
