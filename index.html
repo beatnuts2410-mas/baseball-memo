@@ -1884,6 +1884,19 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   .subOpenBtn{min-width:100px!important;min-height:50px!important;height:50px!important;padding:0 14px!important;font-size:16px!important;}
 }
 </style>
+
+<style id="v3_01_31_defensive_multi_substitution">
+/* v3.01.31: 自チーム守備交代を複数人＋守備位置確定方式へ。投手は対象外。 */
+.defSubPickGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.defSubPick{min-height:58px;padding:9px 10px;border:1px solid #bdbdb7;border-radius:12px;background:#fff;color:#111;text-align:left;font-weight:800;cursor:pointer}
+.defSubPick b,.defSubPick small,.defSubPick span{display:block}.defSubPick small{font-size:12px;font-weight:700;color:#666;margin-top:3px}.defSubPick.active{border:3px solid #16a34a;background:#e8f5e9;padding:7px 8px}
+.defSubPositionRow{border:1px solid #d9d9d4;border-radius:12px;padding:9px 10px;margin-top:8px;background:#fff}
+.defSubPositionPlayer{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:14px;margin-bottom:4px}.defSubPositionPlayer span{font-size:12px;color:#666}
+.defSubPositionRow .subSelect{margin:4px 0 0}
+.defSubPreviewTitle{font-weight:900;margin-top:14px}.defSubPreview{border:1px solid #d9d9d4;border-radius:12px;background:#f7f7f4;padding:10px;margin-top:7px;line-height:1.7}
+#defSubApplyBtn:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:420px){.defSubPickGrid{grid-template-columns:1fr}.defSubPositionPlayer{align-items:flex-start;flex-direction:column;gap:2px}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -2120,33 +2133,100 @@ function setOutsAdjusted(n){
  if(g.outs===3){const endedHalf=g.half;if(checkGameEndAfterHalf(g,endedHalf)){closeOutsAdjust();return;}advanceHalf(g);save();closeOutsAdjust();render();toast(`${g.inning}回${g.half}へ`);return;}
  save();closeOutsAdjust();render();toast(`アウトを${g.outs}に修正しました`);
 }
+let defSubTargets=[],defSubReplacements=[],defSubPositions={};
 function openDefensiveSub(){
  const g=db.current;if(!g||!g.lineup.length)return;
- const sel=document.getElementById('defSubPosition');
- if(!sel)return;
- sel.innerHTML=(g.lineup||[]).map((p,i)=>`<option value="${i}">${i+1}番・${esc(p?.name||'未登録')}（${esc(p?.pos||'守備位置未設定')}）</option>`).join('');
- refreshDefReplacement();document.getElementById('defSubModal').style.display='flex';
+ defSubTargets=[];defSubReplacements=[];defSubPositions={};
+ renderDefSubModal();
+ document.getElementById('defSubModal').style.display='flex';
 }
-function closeDefensiveSub(){document.getElementById('defSubModal').style.display='none'}
-function refreshDefReplacement(){
- const g=db.current,sel=document.getElementById('defSubReplacement');if(!g||!sel)return;
- const idx=Number(document.getElementById('defSubPosition')?.value||0);
- const current=g.lineup[idx];
- const active=new Set((g.lineup||[]).map(p=>p?.name));
- const roster=(db.team.players||[]).filter(p=>!active.has(p.name));
- sel.innerHTML=roster.length?roster.map(p=>`<option value="${esc(p.name)}">${esc(p.name)}${p.num?' #'+p.num:''}</option>`).join(''):'<option value="">交代可能な選手がいません</option>';
- document.getElementById('defSubCurrent').textContent=`現在：${current?.name||'未登録'}　守備：${current?.pos||'未設定'}`;
+function closeDefensiveSub(){
+ document.getElementById('defSubModal').style.display='none';
+ defSubTargets=[];defSubReplacements=[];defSubPositions={};
 }
+function defSubCurrentPitcherName(){
+ const g=db.current;return g?.pitching?.current?.name||g?.pitcher?.name||'';
+}
+function defSubAvailableTargets(){
+ const g=db.current;if(!g)return [];
+ const pitcher=defSubCurrentPitcherName();
+ return (g.lineup||[]).map((p,i)=>({p,i})).filter(x=>x.p?.name&&normalizeDefPos(x.p?.pos)!=='投手'&&x.p.name!==pitcher);
+}
+function defSubAvailableReplacements(){
+ const g=db.current;if(!g)return [];
+ const pitcher=defSubCurrentPitcherName();
+ const active=new Set((g.lineup||[]).map(p=>p?.name).filter(Boolean));
+ return (db.team.players||[]).filter(p=>p?.role!=='manager'&&p?.name&&!active.has(p.name)&&p.name!==pitcher);
+}
+function toggleDefSubTarget(i){
+ if(defSubTargets.includes(i))defSubTargets=defSubTargets.filter(x=>x!==i);else defSubTargets.push(i);
+ renderDefSubModal();
+}
+function toggleDefSubReplacement(name){
+ if(defSubReplacements.includes(name)){
+   defSubReplacements=defSubReplacements.filter(x=>x!==name);
+   delete defSubPositions[name];
+ }else defSubReplacements.push(name);
+ renderDefSubModal();
+}
+function setDefSubPosition(name,pos){
+ defSubPositions[name]=pos;
+ renderDefSubModal();
+}
+function renderDefSubModal(){
+ const g=db.current;if(!g)return;
+ const targetBox=document.getElementById('defSubTargets');
+ const replBox=document.getElementById('defSubReplacements');
+ const posBox=document.getElementById('defSubPositions');
+ if(!targetBox||!replBox||!posBox)return;
+ const targets=defSubAvailableTargets();
+ const replacements=defSubAvailableReplacements();
+ targetBox.innerHTML=targets.length?targets.map(({p,i})=>`<button type="button" class="defSubPick ${defSubTargets.includes(i)?'active':''}" onclick="toggleDefSubTarget(${i})"><span>${i+1}番</span><b>${esc(p.name)}</b><small>${esc(normalizeDefPos(p.pos)||'守備位置未設定')}</small></button>`).join(''):'<div class="hint">選択できる守備選手がいません。</div>';
+ replBox.innerHTML=replacements.length?replacements.map(p=>`<button type="button" class="defSubPick ${defSubReplacements.includes(p.name)?'active':''}" onclick="toggleDefSubReplacement('${esc(p.name).replace(/'/g,"\\'")}')"><b>${esc(p.name)}</b>${p.num?`<small>#${esc(p.num)}</small>`:''}</button>`).join(''):'<div class="hint">交代可能な選手がいません。</div>';
+ if(defSubTargets.length!==defSubReplacements.length){
+   posBox.innerHTML=`<div class="hint">交代対象 ${defSubTargets.length}人 ／ 交代選手 ${defSubReplacements.length}人。<br>人数を同じにしてから守備位置を選択してください。</div>`;
+ }else if(!defSubReplacements.length){
+   posBox.innerHTML='<div class="hint">交代選手を選択してください。</div>';
+ }else{
+   const used=new Set(Object.entries(defSubPositions).filter(([n])=>defSubReplacements.includes(n)).map(([,v])=>v).filter(Boolean));
+   posBox.innerHTML=defSubReplacements.map((name,idx)=>{
+     const currentPos=defSubPositions[name]||'';
+     const target=targets.find(x=>x.i===defSubTargets[idx]);
+     const posOptions=DEF_POSITIONS.filter(([v])=>v!=='投手').map(([v,l])=>`<option value="${v}" ${currentPos===v?'selected':''} ${used.has(v)&&currentPos!==v?'disabled':''}>${l}</option>`).join('');
+     return `<div class="defSubPositionRow"><div class="defSubPositionPlayer"><b>${idx+1}. ${esc(name)}</b><span>→ ${esc(target?.p?.name||'交代対象未選択')}</span></div><select class="subSelect" onchange="setDefSubPosition('${esc(name).replace(/'/g,"\\'")}',this.value)"><option value="">守備位置を選択</option>${posOptions}</select></div>`;
+   }).join('');
+ }
+ const preview=document.getElementById('defSubPreview');
+ if(preview){
+   if(defSubTargets.length===defSubReplacements.length&&defSubReplacements.length){
+     preview.innerHTML=defSubReplacements.map((name,i)=>{const target=(g.lineup||[])[defSubTargets[i]];return `<div><b>${esc(target?.name||'未選択')}</b> → <b>${esc(name)}</b>　<span>${esc(defSubPositions[name]||'守備位置未確定')}</span></div>`}).join('');
+   }else preview.innerHTML='<span class="hint">選択後、ここに交代内容と守備位置を表示します。</span>';
+ }
+ const count=document.getElementById('defSubCount');
+ if(count)count.textContent=`交代対象 ${defSubTargets.length}人 ／ 交代選手 ${defSubReplacements.length}人`;
+ const btn=document.getElementById('defSubApplyBtn');
+ if(btn)btn.disabled=!(defSubTargets.length>0&&defSubTargets.length===defSubReplacements.length&&defSubReplacements.every(n=>defSubPositions[n])&&new Set(defSubTargets).size===defSubTargets.length&&new Set(defSubReplacements).size===defSubReplacements.length);
+}
+function refreshDefReplacement(){renderDefSubModal()}
 function applyDefensiveSub(){
  const g=db.current;if(!g)return;
- const idx=Number(document.getElementById('defSubPosition').value),name=document.getElementById('defSubReplacement').value;
- const replacement=db.team.players.find(p=>p.name===name),before=g.lineup[idx];
- if(!before)return toast('交代対象を選択してください'); if(!replacement)return toast('交代選手を選択してください');
- if(before.name===replacement.name)return toast('同じ選手です');
- pushGameHistory();g.subs=g.subs||[];g.eventSeq=Number(g.eventSeq)||0;g.eventSeq++;g.subs.push({seq:g.eventSeq,time:new Date().toISOString(),type:'守備交代',slot:idx,position:before.pos||'',inning:g.inning,half:g.half,from:before,to:replacement,defenseOnly:true});
- if(g.pitching?.current?.name===before.name){registerPitcher(g,replacement.name,'投手交代',before.name);}
- g.lineup[idx]=Object.assign({},replacement,{pos:before.pos||''});
- save();closeDefensiveSub();render();toast(`守備交代：${before.pos||'守備'} ${replacement.name}`);
+ if(!defSubTargets.length||defSubTargets.length!==defSubReplacements.length)return toast('交代対象と交代選手を同じ人数で選択してください');
+ if(defSubReplacements.some(n=>!defSubPositions[n]))return toast('すべての交代選手の守備位置を選択してください');
+ if(new Set(defSubTargets).size!==defSubTargets.length||new Set(defSubReplacements).size!==defSubReplacements.length)return toast('同じ選手を重複して選択できません');
+ const pitcher=defSubCurrentPitcherName();
+ const plans=defSubTargets.map((slot,i)=>({slot,replacement:db.team.players.find(p=>p.name===defSubReplacements[i]),position:defSubPositions[defSubReplacements[i]]}));
+ if(plans.some(x=>!x.replacement))return toast('交代選手を確認してください');
+ if(plans.some(x=>normalizeDefPos(g.lineup[x.slot]?.pos)==='投手'||g.lineup[x.slot]?.name===pitcher))return toast('投手は自チームの守備交代から除外されています');
+ if(new Set(plans.map(x=>x.position)).size!==plans.length)return toast('守備位置が重複しています');
+ const activeBefore=new Set((g.lineup||[]).map(p=>p?.name));
+ if(plans.some(x=>activeBefore.has(x.replacement.name)))return toast('現在守備中の選手は交代選手にできません');
+ pushGameHistory();g.subs=g.subs||[];g.eventSeq=Number(g.eventSeq)||0;
+ plans.forEach(({slot,replacement,position})=>{
+   const before=g.lineup[slot];g.eventSeq++;
+   g.subs.push({seq:g.eventSeq,time:new Date().toISOString(),type:'守備交代',slot,position,inning:g.inning,half:g.half,from:before,to:replacement,defenseOnly:true});
+   g.lineup[slot]=Object.assign({},replacement,{pos:position});
+ });
+ save();closeDefensiveSub();render();toast(`守備交代：${plans.length}人を確定しました`);
 }
 function ensurePitching(g){
  if(!g)return; g.pitching=g.pitching||{current:null,history:[]}; g.pitching.history=g.pitching.history||[];
@@ -3739,7 +3819,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 </div>
 
 <div id="outsAdjustModal" class="runnerModal" style="display:none" onclick="if(event.target===this)closeOutsAdjust()"><div class="runnerCard"><h3 style="margin:0">アウトカウント修正</h3><div id="outsAdjustTarget" class="muted" style="margin-top:6px"></div><div class="corrNote" style="margin-top:8px">走者が突然アウトになった場合など、実際のアウト数に合わせて修正できます。3アウトを選ぶと自動で攻守交代します。</div><div id="outsAdjustButtons" class="runnerScore" style="margin-top:12px"></div><button class="secondaryBtn" style="width:100%;margin-top:12px" onclick="closeOutsAdjust()">キャンセル</button></div></div>
-<div id="defSubModal" class="subPanel" style="display:none" onclick="if(event.target===this)closeDefensiveSub()"><div class="subCard"><h3 style="margin:0">自チームの守備交代</h3><div class="muted" style="margin-top:6px">相手攻撃中に守備位置だけを交代します。</div><div id="defSubCurrent" class="hint" style="margin-top:10px"></div><div style="margin-top:12px"><div class="muted">交代対象</div><select id="defSubPosition" class="subSelect" onchange="refreshDefReplacement()"></select></div><div style="margin-top:10px"><div class="muted">交代選手</div><select id="defSubReplacement" class="subSelect"></select></div><div class="subActions"><button class="secondaryBtn" onclick="closeDefensiveSub()">キャンセル</button><button class="primaryBtn" onclick="applyDefensiveSub()">守備交代する</button></div></div></div>
+<div id="defSubModal" class="subPanel" style="display:none" onclick="if(event.target===this)closeDefensiveSub()"><div class="subCard"><h3 style="margin:0">自チームの守備交代</h3><div class="muted" style="margin-top:6px">投手を除き、複数人を同時に守備交代できます。交代選手は元の守備位置と異なる位置にも配置できます。</div><div id="defSubCount" class="hint" style="margin-top:10px">交代対象 0人 ／ 交代選手 0人</div><div style="margin-top:14px"><div class="muted"><b>① 交代対象を選択（複数人）</b></div><div id="defSubTargets" class="defSubPickGrid"></div></div><div style="margin-top:14px"><div class="muted"><b>② 交代選手を選択（複数人）</b></div><div id="defSubReplacements" class="defSubPickGrid"></div></div><div style="margin-top:14px"><div class="muted"><b>③ 守備位置を選択（複数人）</b></div><div id="defSubPositions"></div></div><div class="defSubPreviewTitle">確定前の守備位置</div><div id="defSubPreview" class="defSubPreview"><span class="hint">選択後、ここに交代内容と守備位置を表示します。</span></div><div class="subActions"><button class="secondaryBtn" onclick="closeDefensiveSub()">キャンセル</button><button id="defSubApplyBtn" class="primaryBtn" onclick="applyDefensiveSub()" disabled>守備交代する</button></div></div></div>
 <div id="runnerConfirmModal" class="runnerModal" style="display:none" onclick="if(event.target===this)closeRunnerConfirm()"><div class="runnerCard"><h3 style="margin:0">打者・走者・アウト・得点を選択・確認</h3><div id="runnerConfirmTarget" class="muted" style="margin-top:6px"></div><div id="runnerConfirmSummary" class="runnerConfirmSummary"></div><div class="runnerConfirmBtns"><button class="btn primary" onclick="confirmRunnerAdvance()">すべて確認して確定 → 次の打順へ</button><button class="secondaryBtn" onclick="closeRunnerConfirm()">戻る</button></div></div></div>
 <div id="runnerMoveModal" class="runnerModal" style="display:none" onclick="if(event.target===this)closeRunnerMove()"><div class="runnerCard"><h3 style="margin:0">走者プレー</h3><div id="moveTarget" class="muted" style="margin-top:6px"></div><div class="title" style="margin-top:14px">① 走者を選択</div><div id="moveRunnerList" class="runnerScore runnerMovePick"></div><div class="title" style="margin-top:14px">② 進塁先を選択</div><div id="moveDest" class="runnerScore runnerMoveDest"><div class="hint">先に走者を選択してください。</div></div><button class="secondaryBtn" style="width:100%;margin-top:12px" onclick="closeRunnerMove()">キャンセル</button></div></div>
 <div id="stealStepModal" class="runnerModal stealStepModal" style="display:none" onclick="if(event.target===this)closeStealSteps()">
