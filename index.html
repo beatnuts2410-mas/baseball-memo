@@ -1852,6 +1852,38 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   #defSubModal .subCard{padding:10px!important;}
 }
 </style>
+<style id="v3_01_30_substitution_button_pitcher_style">
+/* v3.01.30: 選手交代の「交代」ボタンを投手交代ボタンと同じ表示方式へ。守備交代ボタンも同じ緑色の表示に統一。処理ロジックは変更しない。 */
+.subOpenBtn{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:100px!important;
+  min-height:50px!important;
+  height:50px!important;
+  padding:0 16px!important;
+  box-sizing:border-box!important;
+  border:0!important;
+  border-radius:14px!important;
+  background:#16a34a!important;
+  color:#fff!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  line-height:1.15!important;
+  box-shadow:0 6px 14px rgba(22,163,74,.18)!important;
+}
+.subOpenBtn:active{background:#15803d!important;transform:translateY(1px)!important;}
+#app button[onclick="openDefensiveSub()"]{
+  background:#16a34a!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 6px 14px rgba(22,163,74,.18)!important;
+  font-weight:900!important;
+}
+#app button[onclick="openDefensiveSub()"]:active{background:#15803d!important;transform:translateY(1px)!important;}
+@media(max-width:480px){
+  .subOpenBtn{min-width:100px!important;min-height:50px!important;height:50px!important;padding:0 14px!important;font-size:16px!important;}
+}
+</style>
 </head>
 <body>
 <div class="app">
