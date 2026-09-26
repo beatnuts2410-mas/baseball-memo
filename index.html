@@ -3941,9 +3941,20 @@ function resultEvents(g){
    const combined=runnerSuffix?`${p.text} ｜ ${runnerSuffix}`:p.text; return Object.assign({},p,{text:combined,html:runnerSuffix?`${esc(p.text)} ｜ ${esc(runnerSuffix)}`:esc(p.text),commentary:build実況Text(Object.assign({},p,{text:combined}))});
  });
  const standaloneRunner=runnerRaw.filter(r=>!usedRunner.has(r.seq)).map(r=>Object.assign({},r,{commentary:build実況Text(r)}));
- const substitutionEvents=[];
+ const substitutionEvents=(g.subs||[]).filter(s=>['代打','代走','守備交代'].includes(s?.type)).map(s=>{
+   const type=s.type==='代打'?'代打':s.type==='代走'?'代走':'守備交代';
+   const fromName=displayPlayerName(s.from);
+   const toName=displayPlayerName(s.to);
+   const when=Number(s.inning)?`${Number(s.inning)}回～`:'交代';
+   let detail=`${when} ${type}：${toName||'交代選手'}`;
+   if(fromName) detail+=`（${fromName}に代わって）`;
+   if(type==='守備交代' && s.position) detail+=`・守備位置：${s.position}`;
+   const ev={seq:Number(s.seq)||0,inning:Number(s.inning)||0,half:s.half||'',text:detail,kind:'選手交代'};
+   ev.commentary=type==='代打'?`${when}、${toName||'代打選手'}が打席へ。`:type==='代走'?`${when}、${toName||'代走選手'}が走者へ。`:`${when}、${toName||'交代選手'}が守備に入ります。`;
+   return ev;
+ });
  const pitchingEvents=(g.pitching?.history||[]).filter((x,i)=>i>0).map(x=>{const ev={seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`選手交代：投手 ${x.name}`,kind:'交代'};ev.commentary=`ここで投手交代！${x.name}がマウンドへ。`;return ev;});
- return [...paEvents,...standaloneRunner,...pitchingEvents].sort((a,b)=>a.seq-b.seq || a.inning-b.inning || (a.half==='表'?0:1)-(b.half==='表'?0:1));
+ return [...paEvents,...standaloneRunner,...substitutionEvents,...pitchingEvents].sort((a,b)=>a.seq-b.seq || a.inning-b.inning || (a.half==='表'?0:1)-(b.half==='表'?0:1));
 }
 function resultInningRows(g){
  const max=Math.max(1,g.innings?.length||0,Math.ceil((g.pa||[]).reduce((m,p)=>Math.max(m,Number(p.inning)||1),0)));
