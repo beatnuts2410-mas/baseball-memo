@@ -1305,6 +1305,62 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 /* v3.01.5: preserve initial inline display:none until JavaScript explicitly opens a modal. */
 .runnerModal[style*="display:none"]{display:none!important;}
 </style>
+
+<style id="v3_01_8_runner_confirm_above_bottom_tabs">
+/* v3.01.8: 下部固定タブ（記録・チーム・オーダー・データ）と確認UIの操作領域を完全分離。
+   確認画面は下部タブに重ならず、端末が小さい場合は確認カードだけ上下スクロール可能。 */
+#runnerConfirmModal{
+  z-index:100!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:8px 8px calc(82px + env(safe-area-inset-bottom))!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  box-sizing:border-box!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+#runnerConfirmModal .runnerCard{
+  width:min(560px,100%)!important;
+  max-height:calc(100dvh - 98px - env(safe-area-inset-bottom))!important;
+  height:auto!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  box-sizing:border-box!important;
+  margin:0 auto!important;
+  border-radius:18px!important;
+  padding-bottom:14px!important;
+}
+#runnerConfirmModal .runnerConfirmBtns{
+  position:sticky!important;
+  bottom:0!important;
+  z-index:4!important;
+  padding-top:8px!important;
+  padding-bottom:2px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,0),#fff 22%)!important;
+}
+#runnerConfirmModal .runnerConfirmBtns button{
+  position:relative!important;
+  z-index:5!important;
+  touch-action:manipulation!important;
+}
+@media(max-width:480px){
+  #runnerConfirmModal{
+    padding:6px 6px calc(78px + env(safe-area-inset-bottom))!important;
+  }
+  #runnerConfirmModal .runnerCard{
+    max-height:calc(100dvh - 90px - env(safe-area-inset-bottom))!important;
+  }
+}
+@media(max-height:600px){
+  #runnerConfirmModal{
+    padding-bottom:calc(74px + env(safe-area-inset-bottom))!important;
+  }
+  #runnerConfirmModal .runnerCard{
+    max-height:calc(100dvh - 84px - env(safe-area-inset-bottom))!important;
+  }
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1670,6 +1726,22 @@ function oppOut(){
 }
 function finishHalf(){pushGameHistory();const g=db.current;if(!g)return;const x=g.innings[g.inning-1]||{us:0,opp:0};x.us=Number(x.us)||0;x.opp=Number(x.opp)||0;g.innings[g.inning-1]=x;advanceHalf(g);save();render();toast(`${g.inning}回${g.half}へ`)}
 
+function normalizeCurrentGame(g){
+ if(!g)return null;
+ g.innings=Array.isArray(g.innings)?g.innings:[];
+ g.pa=Array.isArray(g.pa)?g.pa:[];
+ g.runners=Array.isArray(g.runners)?[Number(g.runners[0])||0,Number(g.runners[1])||0,Number(g.runners[2])||0]:[0,0,0];
+ g.runnerNames=Array.isArray(g.runnerNames)?[g.runnerNames[0]||null,g.runnerNames[1]||null,g.runnerNames[2]||null]:[null,null,null];
+ g.runnerMoves=Array.isArray(g.runnerMoves)?g.runnerMoves:[];
+ g.advanceResults=Array.isArray(g.advanceResults)?g.advanceResults:[];
+ g.subs=Array.isArray(g.subs)?g.subs:[];
+ g.lineup=Array.isArray(g.lineup)?g.lineup:[];
+ g.batterIndex=Number.isFinite(Number(g.batterIndex))?Number(g.batterIndex):0;
+ g.outs=Math.min(3,Math.max(0,Number(g.outs)||0));
+ g.scoreUs=Number(g.scoreUs)||0; g.scoreOpp=Number(g.scoreOpp)||0;
+ g.eventSeq=Number(g.eventSeq)||0;
+ return g;
+}
 function cloneRunners(r){return [Number(r?.[0])||0,Number(r?.[1])||0,Number(r?.[2])||0]}
 function cloneRunnerNames(r){return [r?.[0]||null,r?.[1]||null,r?.[2]||null]}
 function syncRunnerNames(g,names){g.runnerNames=cloneRunnerNames(names);}
@@ -1759,7 +1831,7 @@ function renderBaseDiamond(g){
 }
 let runnerMoveMode=null,runnerMoveFrom=null,runnerMoveJudged=false;
 function openRunnerMove(mode){
- const g=db.current;if(!g||!g.runners.some(Boolean))return toast('走者がいません');
+ const g=normalizeCurrentGame(db.current);if(!g||!g.runners.some(Boolean))return toast('走者がいません');
  if(mode==='ボーク')return applyBalk();
  runnerMoveMode=mode;runnerMoveFrom=null;runnerMoveJudged=false;
  document.getElementById('moveTarget').textContent=`${mode}：まず走者を選択してください`;
@@ -1768,7 +1840,7 @@ function openRunnerMove(mode){
  document.getElementById('runnerMoveModal').style.display='flex';
 }
 function selectRunnerToMove(i){
- const g=db.current;if(!g?.runners[i])return;
+ const g=normalizeCurrentGame(db.current);if(!g?.runners[i])return;
  runnerMoveFrom=i;runnerMoveJudged=false;
  const name=g.runnerNames?.[i]||'走者';
  document.getElementById('moveTarget').textContent=`${runnerMoveMode}：${i+1}塁 ${name} の${runnerMoveMode==='盗塁'?'判定':'進塁先'}`;
@@ -1782,7 +1854,7 @@ function renderRunnerDestinations(){
  document.getElementById('moveDest').className='runnerScore runnerMoveDest'; document.getElementById('moveDest').innerHTML=`<div class="hint">進塁先を選択してください。</div><div class="runnerActions runnerDestinationGrid">${[1,2,3,4].filter(d=>d>i+1&&(d===4||!g.runners[d-1])).map(d=>`<button class="btn runnerDestinationBtn ${d===4?'red runnerHomeBtn':''}" onclick="applyRunnerMove(${d})">${d===4?'本塁・得点':d+'塁へ'}</button>`).join('')}</div>`;
 }
 function judgeSteal(judgement){
- const g=db.current;if(runnerMoveFrom==null||!g?.runners[runnerMoveFrom])return closeRunnerMove();
+ const g=normalizeCurrentGame(db.current);if(runnerMoveFrom==null||!g?.runners[runnerMoveFrom])return closeRunnerMove();
  const from=runnerMoveFrom,before=cloneRunners(g.runners),beforeNames=cloneRunnerNames(g.runnerNames),name=beforeNames[from]||'走者';
  pushGameHistory();
  if(judgement==='アウト'){
@@ -1798,7 +1870,7 @@ function judgeSteal(judgement){
 }
 function closeRunnerMove(){document.getElementById('runnerMoveModal').style.display='none';runnerMoveMode=null;runnerMoveFrom=null;runnerMoveJudged=false}
 function applyRunnerMove(dest){
- const g=db.current;if(runnerMoveFrom==null||!g?.runners[runnerMoveFrom])return closeRunnerMove();
+ const g=normalizeCurrentGame(db.current);if(runnerMoveFrom==null||!g?.runners[runnerMoveFrom])return closeRunnerMove();
  if(runnerMoveMode==='盗塁'&&!runnerMoveJudged)return toast('先にアウト・セーフを選択してください');
  const from=runnerMoveFrom,before=cloneRunners(g.runners),beforeNames=cloneRunnerNames(g.runnerNames),name=beforeNames[from]||'走者';
  pushGameHistory();
@@ -1820,7 +1892,6 @@ function applyBalk(){
  g.runners=after;g.runnerNames=afterNames;g.scoreUs=(Number(g.scoreUs)||0)+scored;
  const balkDest=[];if(before[2])balkDest.push('本塁・得点');if(before[1])balkDest.push('3塁');if(before[0])balkDest.push('2塁');const balkDetail=`ボークで${scored?scored+'点追加・':''}${balkDest.length?balkDest.join('・')+'に進塁':'走者進塁'}`;
  g.runnerMoves=g.runnerMoves||[];g.eventSeq=(Number(g.eventSeq)||0)+1;g.runnerMoves.push({seq:g.eventSeq,type:'ボーク',inning:g.inning,half:g.half,from:'auto',dest:'auto',name:'走者自動進塁',beforeRunners:before,beforeNames,afterRunners:cloneRunners(after),afterNames:cloneRunnerNames(afterNames),runs:scored,detail:balkDetail});
- storeAdvanceResult(g,buildAdvanceResult({type:'ボーク',result:'ボーク',beforeRunners:before,beforeNames,afterRunners:after,afterNames,runs:scored,inning:g.inning,half:g.half,detail:balkDetail}));
  storeAdvanceResult(g,buildAdvanceResult({type:'ボーク',result:'ボーク',beforeRunners:before,beforeNames,afterRunners:after,afterNames,runs:scored,inning:g.inning,half:g.half,detail:balkDetail}));
  updateInningScore(g);if(checkColdGame(g,'during'))return;save();render();toast(`ボーク：${scored?scored+'点・':''}走者を自動進塁`);
 }
@@ -1855,7 +1926,7 @@ function manualConfirmDefault(g,b,result){
  return {batterDest,runnerDest,outs:defaultOuts,runs:Math.min(3,Number(mv.scored)||0)};
 }
 function pa(result){
- const g=db.current,b=g?.lineup?.[g.batterIndex%9];if(!g||!b)return;
+ const g=normalizeCurrentGame(db.current),b=g?.lineup?.[g.batterIndex%9];if(!g||!b)return;
  if(manualConfirmResult(result)){
    const d=manualConfirmDefault(g,b,result);
    g.pendingRunnerConfirm={manual:true,batterIndex:g.batterIndex,result,batter:b.name,beforeRunners:cloneRunners(g.runners),beforeNames:cloneRunnerNames(g.runnerNames),beforeOuts:Number(g.outs)||0,beforeScoreUs:Number(g.scoreUs)||0,batterDest:d.batterDest,runnerDest:d.runnerDest,afterOuts:d.outs,scored:d.runs};
@@ -1871,7 +1942,6 @@ function pa(result){
  g.eventSeq=(Number(g.eventSeq)||0)+1;
  const paIndex=g.pa.length;
  g.pa.push({seq:g.eventSeq,inning:g.inning,half:g.half,batter:b.name,batterOrder:(Number(g.batterIndex)%9)+1,result,rbi:mv.rbi,runs:mv.scored,beforeRunners:before,beforeRunnerNames:beforeNames,afterRunners:cloneRunners(g.runners),afterRunnerNames:cloneRunnerNames(g.runnerNames),outsAfter:g.outs,beforeScoreUs:Number(g.scoreUs)-mv.scored,beforeScoreUsSnapshot:Number(g.scoreUs)-mv.scored,beforeInning:g.inning,beforeHalf:g.half,beforeOuts:g.outs-out,beforeBatterIndex:g.batterIndex,detail:mv.detail||''});
- storeAdvanceResult(g,buildAdvanceResult({type:'打席',result,batterName:b.name,batterOut:['三振','犠打','犠飛','内野ゴロ','ライナー','内野フライ','外野フライ','グランドルール'].includes(result),beforeRunners:before,beforeNames,afterRunners:g.runners,afterNames:g.runnerNames,runs:mv.scored,outsDelta:out,inning:g.inning,half:g.half,detail:mv.detail||''}));
  storeAdvanceResult(g,buildAdvanceResult({type:'打席',result,batterName:b.name,batterOut:['三振','犠打','犠飛','内野ゴロ','ライナー','内野フライ','外野フライ','グランドルール'].includes(result),beforeRunners:before,beforeNames,afterRunners:g.runners,afterNames:g.runnerNames,runs:mv.scored,outsDelta:out,inning:g.inning,half:g.half,detail:mv.detail||''}));
  updateInningScore(g);
  if(checkColdGame(g,'during'))return;
@@ -1930,9 +2000,10 @@ function renderRunnerConfirmEditor(){
 function openRunnerConfirm(){renderRunnerConfirmEditor()}
 function closeRunnerConfirm(){document.getElementById('runnerConfirmModal').style.display='none'}
 function confirmRunnerAdvance(){
- const g=db.current,p=g?.pendingRunnerConfirm;
+ const g=normalizeCurrentGame(db.current),p=g?.pendingRunnerConfirm;
  if(!g||!p)return;
  if(!p.manual)return;
+ const rollback=JSON.parse(JSON.stringify(g));
  try{
    const before=cloneRunners(p.beforeRunners),beforeNames=cloneRunnerNames(p.beforeNames);
    if(!p.batterDest || p.afterOuts==null || p.scored==null){
@@ -2028,8 +2099,10 @@ function confirmRunnerAdvance(){
      : `${p.batter}：${p.result}${scored?` ${scored}点`:''} → 次の打者へ`);
  }catch(e){
    console.error('confirmRunnerAdvance failed',e);
-   // 画面を無反応にせず、現在の確定待ち状態を保持したまま原因を通知する。
-   toast(`確定処理でエラーが発生しました：${e?.message||'再確認してください'}`);
+   db.current=rollback;
+   try{closeRunnerConfirm();}catch(_){}
+   try{render();}catch(_){}
+   toast(`確定処理を取り消しました：${e?.message||'再確認してください'}`);
  }
 }
 
@@ -3393,6 +3466,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
 }
 </style>
 
+
+<!-- v3.01.8: 確認画面を下部固定タブから分離。モバイルでは確認カード内を上下スクロール可能にし、確定ボタンのタップ領域を常時確保。 -->
 </body>
 
 </html><style id="v2750-mobile-fit">
