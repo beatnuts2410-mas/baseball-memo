@@ -2007,6 +2007,40 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   #defSubStepOk{min-height:56px!important;height:56px!important;font-size:18px!important;}
 }
 </style>
+<style id="v3_01_37_ui_and_cold_x_fix">
+/* v3.01.37: 投手欄の列順、代打・選手交代の左揃え、走者イベントの上部表示＋縦スクロール、5/7回コールドX。 */
+#gameResultView .pitchingResultTable th:first-child,
+#gameResultView .pitchingResultTable td:first-child{min-width:7em!important;text-align:left!important;}
+#gameResultView .pitchingResultTable th:nth-child(2),
+#gameResultView .pitchingResultTable td:nth-child(2){min-width:8em!important;text-align:left!important;}
+#gameResultView .resultStatsTable tr.battingReplacementRow .battingReplacementName{
+ position:sticky!important;left:0!important;z-index:22!important;
+ width:calc(3.2em + var(--batting-player-col, 11em))!important;
+ min-width:calc(3.2em + var(--batting-player-col, 11em))!important;
+ max-width:calc(3.2em + var(--batting-player-col, 11em))!important;
+ box-sizing:border-box!important;padding:9px 10px!important;text-align:left!important;
+ white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+ background:#fff!important;color:#111!important;box-shadow:3px 0 0 #c8c8c3!important;vertical-align:middle!important;
+}
+#gameResultView .resultStatsTable tr.battingReplacementRow .subName{display:inline!important;text-align:left!important;}
+#gameResultView .resultStatsTable tr.battingReplacementRow .subMark{display:inline-block!important;margin-right:5px!important;}
+#stealStepModal,#passedBallStepModal{
+ align-items:flex-start!important;justify-content:center!important;
+ padding:calc(5px + env(safe-area-inset-top)) 5px calc(5px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;
+}
+#stealStepModal .stealStepCard,#passedBallStepModal .passedBallStepCard{
+ width:min(680px,100%)!important;max-width:680px!important;
+ max-height:calc(100dvh - 10px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+ overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-y:contain!important;box-sizing:border-box!important;
+}
+#passedBallStepModal .passedBallStepCard{display:block!important;}
+#passedBallStepModal #passedBallStepDestList{max-height:none!important;overflow:visible!important;-webkit-overflow-scrolling:auto!important;}
+#passedBallStepModal .passedBallStepActions{position:static!important;z-index:auto!important;margin-top:12px!important;padding-top:0!important;padding-bottom:calc(2px + env(safe-area-inset-bottom))!important;}
+@media(max-width:420px){
+ #stealStepModal,#passedBallStepModal{padding:calc(4px + env(safe-area-inset-top)) 4px calc(4px + env(safe-area-inset-bottom))!important;}
+ #stealStepModal .stealStepCard,#passedBallStepModal .passedBallStepCard{max-height:calc(100dvh - 8px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;padding:10px!important;}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -2114,13 +2148,19 @@ function gameHeader(){
 
 function getScoreboardX(g){
  if(!g)return null;
- if(g.scoreboardX&&Number(g.scoreboardX.inning)===9&&(g.scoreboardX.key==='us'||g.scoreboardX.key==='opp'))return g.scoreboardX;
+ if(g.scoreboardX&&(Number(g.scoreboardX.inning)===9||Number(g.scoreboardX.inning)===5||Number(g.scoreboardX.inning)===7)&&(g.scoreboardX.key==='us'||g.scoreboardX.key==='opp'))return g.scoreboardX;
  // 共有データなど旧形式でscoreboardXを持たない試合も、高校野球のX表記を再現する。
- if(!g.finished||Number(g.inning)!==9)return null;
+ if(!g.finished)return null;
+ const inning=Number(g.inning)||0;
  const homeKey=g.order==='後攻'?'us':'opp';
  const homeScore=homeKey==='us'?Number(g.scoreUs)||0:Number(g.scoreOpp)||0;
  const awayScore=homeKey==='us'?Number(g.scoreOpp)||0:Number(g.scoreUs)||0;
- return homeScore>awayScore?{inning:9,key:homeKey}:null;
+ if(inning===9)return homeScore>awayScore?{inning:9,key:homeKey}:null;
+ if((inning===5||inning===7)&&String(g.finishReason||'').includes('コールド')){
+   const threshold=inning===5?10:7;
+   return homeScore-awayScore>=threshold?{inning,key:homeKey}:null;
+ }
+ return null;
 }
 function ensureInning(g,index){
  if(!g)return;
@@ -2148,17 +2188,39 @@ function autoFinishGame(g,result){
  toast(result||'試合終了');
  return true;
 }
+function markColdGameScoreboardX(g,endedHalf){
+ if(!g)return false;
+ const inning=Math.max(1,Number(g.inning)||1);
+ if(inning!==5&&inning!==7)return false;
+ // 5回終了時10点差／7回終了時7点差のコールドで、未実施の後攻側イニングをX表示。
+ if(endedHalf!=='表')return false;
+ const homeKey=g.order==='後攻'?'us':'opp';
+ const awayKey=homeKey==='us'?'opp':'us';
+ const homeScore=Number(homeKey==='us'?g.scoreUs:g.scoreOpp)||0;
+ const awayScore=Number(awayKey==='us'?g.scoreUs:g.scoreOpp)||0;
+ const threshold=inning===5?10:7;
+ if(homeScore-awayScore>=threshold){
+   g.scoreboardX={inning,key:homeKey};
+   return true;
+ }
+ return false;
+}
 function checkColdGame(g,mode='during'){
  if(!g||g.finished)return false;
  const inning=Math.max(1,Number(g.inning)||1);
  const diff=Math.abs((Number(g.scoreUs)||0)-(Number(g.scoreOpp)||0));
- const own=ownHalf(g), opp=opponentHalf(g);
  // 5回：10点差。7回：7点差。
  const threshold=inning===5?10:(inning===7?7:0);
  if(!threshold||diff<threshold)return false;
- // 後攻のリード側が攻撃中に規定点差へ到達した場合は、その時点で即終了。
- if(mode==='during' && own==='裏' && g.half==='裏' && Number(g.scoreUs)>Number(g.scoreOpp)){
-   return autoFinishGame(g,`${inning}回裏・${threshold}点差コールド`);
+ // 後攻チームが裏の攻撃中に規定点差へ到達した場合は、その回の得点を実数で確定して終了。Xは付けない。
+ if(mode==='during' && g.half==='裏'){
+   const homeKey=g.order==='後攻'?'us':'opp';
+   const awayKey=homeKey==='us'?'opp':'us';
+   const homeScore=Number(homeKey==='us'?g.scoreUs:g.scoreOpp)||0;
+   const awayScore=Number(awayKey==='us'?g.scoreUs:g.scoreOpp)||0;
+   if(homeScore-awayScore>=threshold){
+     return autoFinishGame(g,`${inning}回裏・${threshold}点差コールド`);
+   }
  }
  return false;
 }
@@ -2170,6 +2232,8 @@ function checkGameEndAfterHalf(g,endedHalf){
  // 5回終了時10点差、7回終了時7点差ならゲームセット。
  if((inning===5&&diff>=10)||(inning===7&&diff>=7)){
    const threshold=inning===5?10:7;
+   // 表終了時に後攻（ホーム）が規定点差でリードしていれば、未実施の裏をX表示。
+   markColdGameScoreboardX(g,endedHalf);
    return autoFinishGame(g,`${inning}回終了・${threshold}点差コールド`);
  }
  if(inning<9)return false;
@@ -3509,7 +3573,8 @@ function renderGameResult(g){
      const typeLabel=r.type==='代打'?'代打':r.type==='代走'?'代走':'守備交代';
      const when=r.inning?`${r.inning}回${typeLabel}`:'';
      const suffix=when?`（${when}）`:'';
-     battingRows.push(statRow(r.stat,`<span class="subMark" aria-label="選手交代">◆</span><span class="subName">${esc(r.stat.name)}</span>${suffix}`,'—'));
+     const s=r.stat||{};
+     battingRows.push(`<tr class="battingReplacementRow"><td class="battingReplacementName" colspan="2"><span class="subMark" aria-label="選手交代">◆</span><span class="subName">${esc(s.name||'')}</span>${suffix}</td><td>${s.pa}</td><td>${s.ab}</td><td>${s.h}</td><td>${s.d2}</td><td>${s.d3}</td><td>${s.hr}</td><td>${s.rbi}</td><td>${s.bb}</td><td>${s.hbp}</td><td>${s.so}</td><td>${s.sh}</td><td>${s.sf}</td><td class="avg">${s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000'}</td></tr>`);
    });
  }
  if(battingData.rest.length) battingRows.push(...battingData.rest.map(s=>statRow(s,null)));
@@ -3517,8 +3582,8 @@ function renderGameResult(g){
  const longestPlayerName=Math.max(4,...allBattingNames.map(n=>Array.from(String(n)).length));
  const playerColEm=Math.min(18,Math.max(9,longestPlayerName+2));
  const batting=battingRows.length?`<div class="resultStatsWrap"><table class="resultStatsTable" style="--batting-player-col:${playerColEm}em"><thead><tr><th>打順</th><th>選手</th><th>打席</th><th>打数</th><th>安打</th><th>二塁打</th><th>三塁打</th><th>本塁打</th><th>打点</th><th>四球</th><th>死球</th><th>三振</th><th>犠打</th><th>犠飛</th><th>打率</th></tr></thead><tbody>${battingRows.join('')}</tbody></table></div>`:`<div class="empty">打席記録はありません</div>`;
- const pitchingRows=(g.pitching?.history||[]).map((p,i)=>`<tr><td>${esc(p.name)}</td><td>${i===0?'先発':'途中登板'}</td><td>${pitcherInningsText(p)}</td><td>${p.enteredInning}回${p.enteredHalf||''}</td><td>${pitcherExitText(g.pitching.history,i,g)}</td></tr>`).join('');
-  const pitchingHtml=(g.pitching?.history||[]).length?`<div class="resultStatsWrap pitchingTableWrap"><table class="resultStatsTable pitchingResultTable"><thead><tr><th>投手</th><th>登板</th><th>投球回</th><th>登板開始</th><th>降板回</th></tr></thead><tbody>${pitchingRows}</tbody></table></div>`:`<div class="empty">投手記録はありません</div>`; const max=Math.max(1,g.innings?.length||0);
+ const pitchingRows=(g.pitching?.history||[]).map((p,i)=>`<tr><td>${i===0?'先発':'途中登板'}</td><td>${esc(p.name)}</td><td>${pitcherInningsText(p)}</td><td>${p.enteredInning}回${p.enteredHalf||''}</td><td>${pitcherExitText(g.pitching.history,i,g)}</td></tr>`).join('');
+  const pitchingHtml=(g.pitching?.history||[]).length?`<div class="resultStatsWrap pitchingTableWrap"><table class="resultStatsTable pitchingResultTable"><thead><tr><th>登板</th><th>投手</th><th>投球回</th><th>登板開始</th><th>降板回</th></tr></thead><tbody>${pitchingRows}</tbody></table></div>`:`<div class="empty">投手記録はありません</div>`; const max=Math.max(1,g.innings?.length||0);
  const firstIsOwn=g.order!=='後攻';
  const firstName=firstIsOwn?myTeamName:(g.opponent||'相手');
  const secondName=firstIsOwn?(g.opponent||'相手'):myTeamName;
