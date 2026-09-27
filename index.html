@@ -3405,7 +3405,17 @@ function selectPAResult(result){
  if(!el)return pa(result);
  document.getElementById('battedBallDirectionTitle').textContent=`${result}：打球方向・種類を選択してください。`;
  document.getElementById('battedBallDirectionTarget').textContent='どの方向・どの種類の打球かを選択してください。';
- document.getElementById('battedBallDirectionGrid').innerHTML=dirs.map(d=>`<button type="button" class="directionBtn" onclick="selectBattedBallDirection('${d.replace(/'/g,"\\'")}')">${d}</button>`).join('');
+ const directionDisplay=(d)=>({
+   '1塁内野安打':'ファースト内野安打',
+   '2塁内野安打':'セカンド内野安打',
+   '3塁内野安打':'サード内野安打',
+   'ショート内野安打':'ショート内野安打',
+   '1塁':'ファースト',
+   '2塁':'セカンド',
+   '3塁':'サード',
+   'ショート':'ショート'
+ })[d]||d;
+ document.getElementById('battedBallDirectionGrid').innerHTML=dirs.map(d=>`<button type="button" class="directionBtn" onclick="selectBattedBallDirection('${d.replace(/'/g,"\\'")}')">${directionDisplay(d)}</button>`).join('');
  el.style.display='flex';
 }
 function selectBattedBallDirection(direction){
