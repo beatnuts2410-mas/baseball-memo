@@ -6700,3 +6700,28 @@ document.addEventListener('DOMContentLoaded',()=>{
   #defSubModal .defSubPreview + .subActions{margin:10px -10px -10px!important;padding:9px 10px calc(9px + env(safe-area-inset-bottom))!important;}
 }
 </style>
+<style id="v3_01_54_home_logo_top_right">
+/* v3.01.54: ホーム画面のロゴだけを右上へ固定。その他のホーム要素・ゲーム機能は変更しない。 */
+#launchScreen.homePhotoLaunch .launchIcon{
+  top:12px!important;
+  right:12px!important;
+  left:auto!important;
+  margin:0!important;
+}
+@media(max-width:430px){
+  #launchScreen.homePhotoLaunch .launchIcon{
+    top:12px!important;
+    right:12px!important;
+    width:72px!important;
+    height:72px!important;
+  }
+}
+@media(max-height:700px){
+  #launchScreen.homePhotoLaunch .launchIcon{
+    top:12px!important;
+    right:12px!important;
+    width:64px!important;
+    height:64px!important;
+  }
+}
+</style>
