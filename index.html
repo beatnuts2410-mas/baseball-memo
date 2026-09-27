@@ -1085,6 +1085,43 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 #battedBallDirectionModal .directionBtn:active{transform:scale(.98)}
 @media(max-width:360px){#battedBallDirectionModal .directionBtn{min-height:48px;font-size:13px;padding:8px 5px}}
 </style>
+<style id="v3_01_53_batted_ball_direction_top_scroll">
+/* v3.01.53: 打球方向・種類選択を他の上部表示モーダルと同じ挙動に統一。内容は縦スクロール可能。 */
+#battedBallDirectionModal{
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:calc(8px + env(safe-area-inset-top)) 8px 8px!important;
+  overflow:hidden!important;
+}
+#battedBallDirectionModal .runnerCard{
+  width:min(680px,100%)!important;
+  max-width:680px!important;
+  max-height:calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  box-sizing:border-box!important;
+  border-radius:0 0 18px 18px!important;
+  padding:14px!important;
+}
+#battedBallDirectionModal .directionGrid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+  margin-top:10px!important;
+}
+#battedBallDirectionModal .directionBtn{
+  min-height:54px!important;
+  padding:10px 8px!important;
+  border-radius:12px!important;
+  font-size:15px!important;
+  touch-action:manipulation!important;
+}
+@media(max-width:420px){
+  #battedBallDirectionModal{padding:calc(5px + env(safe-area-inset-top)) 5px 5px!important;}
+  #battedBallDirectionModal .runnerCard{padding:10px!important;}
+  #battedBallDirectionModal .directionBtn{min-height:48px!important;font-size:13px!important;padding:8px 5px!important;}
+}
+</style>
 <style id="v2_78_runner_confirm_compact">
 /* v2.78.0: 打者・走者・アウト・得点の確認をスクロールなしで1画面に収める */
 #runnerConfirmModal{align-items:center!important;padding:6px!important;overflow:hidden!important;}
@@ -3350,8 +3387,8 @@ function manualConfirmDefault(g,b,result){
 }
 const BATTED_BALL_DIRECTIONS={
  '単打':['1塁内野安打','2塁内野安打','3塁内野安打','ショート内野安打','ライト前ヒット','センター前ヒット','レフト前ヒット'],
- '二塁打':['右中間ヒット ツーベース','左中間ヒット ツーベース'],
- '三塁打':['オーバー スリーベース'],
+ '二塁打':['ライト','右中間','センター','左中間','レフト'],
+ '三塁打':['ライトオーバー','右中間オーバー','センターオーバー','左中間オーバー','レフトオーバー'],
  '犠打':['1塁線','3塁線'],
  '犠飛':['ライト','右中間','センター','左中間','レフト'],
  '内野ゴロ':['1塁','2塁','3塁','ショート'],
@@ -3366,8 +3403,8 @@ function selectPAResult(result){
  if(!dirs)return pa(result);
  const el=document.getElementById('battedBallDirectionModal');
  if(!el)return pa(result);
- document.getElementById('battedBallDirectionTitle').textContent=`${result}：打球方向を選択してください。`;
- document.getElementById('battedBallDirectionTarget').textContent='どの方向へボールが飛んだかを選択してください。';
+ document.getElementById('battedBallDirectionTitle').textContent=`${result}：打球方向・種類を選択してください。`;
+ document.getElementById('battedBallDirectionTarget').textContent='どの方向・どの種類の打球かを選択してください。';
  document.getElementById('battedBallDirectionGrid').innerHTML=dirs.map(d=>`<button type="button" class="directionBtn" onclick="selectBattedBallDirection('${d.replace(/'/g,"\\'")}')">${d}</button>`).join('');
  el.style.display='flex';
 }
@@ -4617,7 +4654,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 <div id="outsAdjustModal" class="runnerModal" style="display:none" onclick="if(event.target===this)closeOutsAdjust()"><div class="runnerCard"><h3 style="margin:0">アウトカウント修正</h3><div id="outsAdjustTarget" class="muted" style="margin-top:6px"></div><div class="corrNote" style="margin-top:8px">走者が突然アウトになった場合など、実際のアウト数に合わせて修正できます。3アウトを選ぶと自動で攻守交代します。</div><div id="outsAdjustButtons" class="runnerScore" style="margin-top:12px"></div><button class="secondaryBtn" style="width:100%;margin-top:12px" onclick="closeOutsAdjust()">キャンセル</button></div></div>
 <div id="defSubModal" class="subPanel" style="display:none" onclick="if(event.target===this)closeDefensiveSub()"><div class="subCard defSubCard"><h3 style="margin:0">自チームの守備交代</h3><div class="muted" style="margin-top:6px">1名ずつ選択して追加します。投手は投手交代から変更してください。</div><div id="defSubCount" class="hint" style="margin-top:10px">追加済み 0件</div><div id="defSubStepHint" class="defSubStepHint">① グランド内選手を選択してください。</div><div class="defSubStepSection isActive"><div class="muted"><b>グランド内選手</b></div><div id="defSubTargets" class="defSubPickGrid"></div></div><div class="defSubStepSection"><div class="muted"><b>交代選手</b></div><div id="defSubReplacements" class="defSubPickGrid"></div></div><div class="defSubStepSection"><div class="muted"><b>守備位置</b></div><div id="defSubPositions" class="defSubPosGrid"></div></div><div class="defSubSelectedSummary"><div>グランド内選手：<b id="defSubSelectedTarget">未選択</b></div><div>交代選手：<b id="defSubSelectedReplacement">未選択</b></div><div>守備位置：<b id="defSubSelectedPosition">未選択</b></div></div><div class="subActions"><button id="defSubStepOk" class="primaryBtn" onclick="defSubGoNext()">次へ</button></div><div class="defSubPreviewTitle">守備変更の確認</div><div id="defSubPreview" class="defSubPreview"><span class="hint">追加した守備変更がここに表示されます。</span></div><div class="subActions"><button class="secondaryBtn" onclick="closeDefensiveSub()">キャンセル</button><button id="defSubApplyBtn" class="primaryBtn" onclick="applyDefensiveSub()" disabled>守備変更を確定</button></div></div></div>
-<div id="battedBallDirectionModal" class="runnerModal" style="display:none" onclick="if(event.target===this)closeBattedBallDirection()"><div class="runnerCard"><h3 id="battedBallDirectionTitle" style="margin:0">打球方向を選択してください。</h3><div id="battedBallDirectionTarget" class="muted" style="margin-top:6px">どの方向へボールが飛んだかを選択してください。</div><div id="battedBallDirectionGrid" class="directionGrid"></div><button type="button" class="secondaryBtn" style="width:100%;margin-top:10px" onclick="closeBattedBallDirection()">戻る</button></div></div>
+<div id="battedBallDirectionModal" class="runnerModal" style="display:none" onclick="if(event.target===this)closeBattedBallDirection()"><div class="runnerCard"><h3 id="battedBallDirectionTitle" style="margin:0">打球方向・種類を選択してください。</h3><div id="battedBallDirectionTarget" class="muted" style="margin-top:6px">どの方向へボールが飛んだかを選択してください。</div><div id="battedBallDirectionGrid" class="directionGrid"></div><button type="button" class="secondaryBtn" style="width:100%;margin-top:10px" onclick="closeBattedBallDirection()">戻る</button></div></div>
 <div id="runnerConfirmModal" class="runnerModal" style="display:none" onclick="if(event.target===this)closeRunnerConfirm()"><div class="runnerCard"><h3 style="margin:0">打者・走者・アウト・得点を選択・確認</h3><div id="runnerConfirmTarget" class="muted" style="margin-top:6px"></div><div id="runnerConfirmSummary" class="runnerConfirmSummary"></div><div class="runnerConfirmBtns"><button class="btn primary" onclick="confirmRunnerAdvance()">すべて確認して確定 → 次の打順へ</button><button class="secondaryBtn" onclick="closeRunnerConfirm()">戻る</button></div></div></div>
 <div id="runnerMoveModal" class="runnerModal" style="display:none" onclick="if(event.target===this)closeRunnerMove()"><div class="runnerCard"><h3 style="margin:0">走者プレー</h3><div id="moveTarget" class="muted" style="margin-top:6px"></div><div class="title" style="margin-top:14px">① 走者を選択</div><div id="moveRunnerList" class="runnerScore runnerMovePick"></div><div class="title" style="margin-top:14px">② 進塁先を選択</div><div id="moveDest" class="runnerScore runnerMoveDest"><div class="hint">先に走者を選択してください。</div></div><button class="secondaryBtn" style="width:100%;margin-top:12px" onclick="closeRunnerMove()">キャンセル</button></div></div>
 <div id="stealStepModal" class="runnerModal stealStepModal" style="display:none" onclick="if(event.target===this)closeStealSteps()">
