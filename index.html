@@ -6828,3 +6828,21 @@ document.addEventListener('DOMContentLoaded',()=>{
   #launchScreen.homePhotoLaunch .launchSub{font-size:12px!important;}
 }
 </style>
+<style id="homeButtonsUp-v30159">
+/* v3.01.59 HOME BUTTON POSITION ONLY
+   Move both home action buttons upward by approximately one button-height
+   so the batter's socks remain visible. No other home/game UI or logic changed. */
+#launchScreen.homePhotoLaunch .launchActions{
+  bottom:calc(clamp(82px,12vh,122px) + 70px)!important;
+}
+@media(max-width:430px){
+  #launchScreen.homePhotoLaunch .launchActions{
+    bottom:calc(clamp(78px,11vh,108px) + 70px)!important;
+  }
+}
+@media(max-height:700px){
+  #launchScreen.homePhotoLaunch .launchActions{
+    bottom:146px!important;
+  }
+}
+</style>
