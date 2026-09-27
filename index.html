@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- v3.01.61: 試合経過・全記録「全プレー→表示文章」変換。進塁結果エンジン本体は変更しない。 -->
+<!-- v3.01.63: 試合経過・全記録「全プレー→表示文章」変換。進塁結果エンジン本体は変更しない。 -->
 <html lang="ja">
 <head>
 <meta charset="utf-8">
@@ -1818,6 +1818,16 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
   .subOpenBtn{min-height:64px!important;height:64px!important;font-size:16px!important;padding:12px!important;}
 }
 </style>
+<style id="v3_01_63_substitution_out_in_dropdown">
+/* v3.01.63: 交代を「選手OUT / 選手IN」で統一。守備は守備位置変更も同時記録。 */
+#inGameSubModal .subSelectBlock{margin-top:12px;}
+#inGameSubModal .subSelectBlock label{display:block;font-weight:900;font-size:17px;margin:0 0 6px;}
+#inGameSubModal .subSelect{width:100%;min-height:54px;font-size:17px;font-weight:800;}
+#inGameSubModal .subArrow{text-align:center;font-size:22px;font-weight:900;line-height:1;margin:4px 0;color:#159447;}
+#inGameSubModal .subTypeDetail{margin-top:10px;padding:10px 12px;border-radius:10px;background:#f3f7f4;font-size:13px;line-height:1.55;}
+#inGameSubModal .subPreview{margin-top:12px;padding:10px 12px;border:1px solid #d7d7d7;border-radius:10px;background:#fafafa;font-weight:900;text-align:center;}
+#inGameSubModal .subDefenseBlock .hint{margin-top:6px;font-size:12px;line-height:1.45;}
+</style>
 <style id="v3_01_25_substitution_top_display">
 /* v3.01.25: 選手交代モーダルを盗塁と同じく画面上段から表示。操作ロジックは変更しない。 */
 #inGameSubModal{
@@ -2977,7 +2987,7 @@ function latePA(result){
 function opponentView(){
  let g=db.current;
  let x=g.innings[g.inning-1]||{us:0,opp:0};
- return gameHeader()+`<div class="card current"><div class="muted">現在：${g.inning}回${g.half}・相手チーム攻撃</div><div style="font-size:26px;font-weight:900;margin:8px 0">相手は何点入りましたか？</div><div class="hint">得点を選ぶと、その回の相手攻撃を終了して自チームの攻撃へ切り替わります。${g.startedLate?'途中開始では、このあと前の打席でアウトになった次の打者から確認します。':''}</div><div class="grid2"><button class="btn" onclick="setOppRuns(-1)">−</button><div class="input" style="text-align:center;font-weight:900;font-size:24px">${x.opp||0} 点</div></div><div class="row" style="flex-wrap:wrap;margin-top:10px">${[0,1,2,3,4,5,6,7,8,9].map(n=>`<button class="btn ${x.opp===n?'primary':''}" onclick="setOppRuns(${n})">${n}</button>`).join('')}</div><div class="title" style="margin-top:16px">相手のアウト</div><div class="row"><button class="btn" onclick="oppOut()">アウト＋1</button><span class="badge">${g.outs} / 3</span><button class="btn small" onclick="adjustOuts()">✎ アウト修正</button></div><div class="hint" style="margin-top:8px">3アウトになると自動で次の攻撃へ切り替わります。</div><div class="card" style="margin-top:10px;margin-bottom:0;background:#0b1422"><div class="row between"><div><div class="title" style="margin:0">投手</div><div class="muted">${esc(g.pitching?.current?.name||g.pitcher?.name||'未登録')}　投球回 ${pitcherInningsText(g.pitching?.current||{})}</div></div><button class="btn small primary" onclick="changePitcher()">投手交代</button></div></div><button class="btn" style="width:100%;margin-top:10px" onclick="openDefensiveSub()">🧤 自チームの守備交代</button></div>`;
+ return gameHeader()+`<div class="card current"><div class="muted">現在：${g.inning}回${g.half}・相手チーム攻撃</div><div style="font-size:26px;font-weight:900;margin:8px 0">相手は何点入りましたか？</div><div class="hint">得点を選ぶと、その回の相手攻撃を終了して自チームの攻撃へ切り替わります。${g.startedLate?'途中開始では、このあと前の打席でアウトになった次の打者から確認します。':''}</div><div class="grid2"><button class="btn" onclick="setOppRuns(-1)">−</button><div class="input" style="text-align:center;font-weight:900;font-size:24px">${x.opp||0} 点</div></div><div class="row" style="flex-wrap:wrap;margin-top:10px">${[0,1,2,3,4,5,6,7,8,9].map(n=>`<button class="btn ${x.opp===n?'primary':''}" onclick="setOppRuns(${n})">${n}</button>`).join('')}</div><div class="title" style="margin-top:16px">相手のアウト</div><div class="row"><button class="btn" onclick="oppOut()">アウト＋1</button><span class="badge">${g.outs} / 3</span><button class="btn small" onclick="adjustOuts()">✎ アウト修正</button></div><div class="hint" style="margin-top:8px">3アウトになると自動で次の攻撃へ切り替わります。</div><div class="card" style="margin-top:10px;margin-bottom:0;background:#0b1422"><div class="row between"><div><div class="title" style="margin:0">投手</div><div class="muted">${esc(g.pitching?.current?.name||g.pitcher?.name||'未登録')}　投球回 ${pitcherInningsText(g.pitching?.current||{})}</div></div><button class="btn small primary" onclick="changePitcher()">投手交代</button></div></div><button class="btn" style="width:100%;margin-top:10px" onclick="openInGameSub();setSubType('守備交代')">🧤 自チームの守備交代</button></div>`;
 }
 function setOppRuns(n){
  const g=db.current;if(!g)return;
@@ -4196,17 +4206,22 @@ function resultEvents(g){
    return Object.assign({},p,{text:combined,html:esc(combined),commentary:build実況Text(Object.assign({},p,{text:combined}))});
  });
  const standaloneRunner=runnerRaw.filter(r=>!usedRunner.has(r.seq)).map(r=>Object.assign({},r,{commentary:build実況Text(r)}));
- const substitutionEvents=(g.subs||[]).filter(s=>['代打','代走','守備交代'].includes(s?.type)).map(s=>{
-   const type=s.type==='代打'?'代打':s.type==='代走'?'代走':'守備交代';
-   const fromName=displayPlayerName(s.from),toName=displayPlayerName(s.to),when=Number(s.inning)?`${Number(s.inning)}回～`:'交代';
-   let detail=`${when} ${type}：${toName||'交代選手'}`;
-   if(fromName) detail+=`（${fromName}に代わって）`;
-   if(type==='守備交代'&&s.position)detail+=`・守備位置：${s.position}`;
+ const substitutionEvents=(g.subs||[]).filter(s=>['代打','代走','守備交代','守備位置変更','選手交代'].includes(s?.type)).map(s=>{
+   const type=s.type==='代打'?'代打':s.type==='代走'?'代走':s.type==='守備交代'?'守備交代':s.type==='守備位置変更'?'守備位置変更':'選手交代';
+   const fromName=displayPlayerName(s.from),toName=displayPlayerName(s.to),when=Number(s.inning)?`${Number(s.inning)}回${s.half||''}`:'交代';
+   let detail=`${when}　`;
+   if(type==='代打') detail+=`代打：${toName||'交代選手'}`;
+   else if(type==='代走') detail+=`代走：${toName||'交代選手'}`;
+   else if(type==='守備交代') detail+=`守備交代：${toName||'交代選手'}`;
+   else if(type==='守備位置変更') detail+=`守備位置変更：${fromName||'選手'}・${s.fromPosition||''} → ${s.toPosition||''}`;
+   else detail+=`選手交代：${toName||'交代選手'}`;
+   if(type!=='守備位置変更'&&fromName) detail+=`（${fromName}に代わって）`;
+   if(type==='守備交代'&&s.position)detail+=`・${s.position}`;
    const ev={seq:Number(s.seq)||0,inning:Number(s.inning)||0,half:s.half||'',text:detail,kind:'選手交代'};
-   ev.commentary=type==='代打'?`${when}、${toName||'代打選手'}が打席へ。`:type==='代走'?`${when}、${toName||'代走選手'}が走者へ。`:`${when}、${toName||'交代選手'}が守備に入ります。`;
+   ev.commentary=type==='代打'?`${when}、${toName||'代打選手'}が${fromName?`${fromName}に代わって`:''}打席へ。`:type==='代走'?`${when}、${toName||'代走選手'}が${fromName?`${fromName}に代わって`:''}走者へ。`:type==='守備交代'?`${when}、${toName||'交代選手'}が${fromName?`${fromName}に代わって`:''}守備に入ります${s.position?`。守備位置は${s.position}です`:''}。`:type==='守備位置変更'?`${when}、${fromName||'選手'}の守備位置を${s.fromPosition||''}から${s.toPosition||''}へ変更。`:`${when}、${toName||'交代選手'}が${fromName?`${fromName}に代わって`:''}出場します。`;
    return ev;
  });
- const pitchingEvents=(g.pitching?.history||[]).filter((x,i)=>i>0).map(x=>{const ev={seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`選手交代：投手 ${x.name}`,kind:'交代'};ev.commentary=`ここで投手交代！${x.name}がマウンドへ。`;return ev;});
+ const pitchingEvents=(g.pitching?.history||[]).filter((x,i)=>i>0).map(x=>{const ev={seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`${Number(x.enteredInning)||''}回${x.enteredHalf||''}　投手交代：${x.name}`,kind:'選手交代'};ev.commentary=`${Number(x.enteredInning)||''}回${x.enteredHalf||''}、投手交代。${x.name}がマウンドへ。`;return ev;});
  return [...paEvents,...standaloneRunner,...substitutionEvents,...pitchingEvents].sort((a,b)=>a.seq-b.seq||a.inning-b.inning||(a.half==='表'?0:1)-(b.half==='表'?0:1));
 }
 function resultInningRows(g){
@@ -4504,13 +4519,101 @@ if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serv
   render();
 })();
 
-let inGameSubType='代打',inGameSubSlot=null;
-function openInGameSub(){let g=db.current;if(!g||!g.lineup.length)return;inGameSubSlot=g.batterIndex%9;let cur=g.lineup[inGameSubSlot];document.getElementById('subTargetLabel').textContent='交代選手を選択してください。';setSubType('代打');document.getElementById('inGameSubModal').style.display='flex';}
-function closeInGameSub(){document.getElementById('inGameSubModal').style.display='none';inGameSubSlot=null}
-function setSubType(t){inGameSubType=t;['PH','PR','DF'].forEach(x=>document.getElementById('subType'+x)?.classList.remove('active'));let id=t==='代打'?'PH':t==='代走'?'PR':'DF';document.getElementById('subType'+id)?.classList.add('active');refreshSubReplacement()}
-function refreshSubReplacement(){let sel=document.getElementById('subReplacement');if(!sel||!db.current)return;let active=new Set((db.current.lineup||[]).map(p=>p?.name));let roster=(db.team.players||[]).filter(p=>!active.has(p.name));sel.innerHTML=roster.map(p=>`<option value="${esc(p.name)}">${esc(p.name)}${p.num?' #'+p.num:''}</option>`).join('')}
-function applyInGameSub(){let g=db.current;if(!g||inGameSubSlot==null)return;let name=document.getElementById('subReplacement').value,replacement=db.team.players.find(p=>p.name===name);if(!replacement)return;let before=g.lineup[inGameSubSlot];g.subs=g.subs||[];g.eventSeq=Number(g.eventSeq)||0;g.eventSeq++;
- g.subs.push({seq:g.eventSeq,time:new Date().toISOString(),type:inGameSubType,slot:inGameSubSlot,inning:g.inning,half:g.half,from:before,to:replacement});if(g.pitching?.current?.name===before?.name){registerPitcher(g,replacement.name,'投手交代',before.name);}g.lineup[inGameSubSlot]=Object.assign({},replacement,{pos:before?.pos||''});save();closeInGameSub();render();toast(`${inGameSubType}：${replacement.name}`)}
+let inGameSubType='代打',inGameSubSlot=null,inGameSubOutName='',inGameSubInName='',inGameSubPosition='';
+function openInGameSub(){
+ const g=db.current;if(!g||!g.lineup.length)return;
+ inGameSubSlot=g.batterIndex%9;inGameSubOutName=g.lineup[inGameSubSlot]?.name||'';inGameSubInName='';inGameSubPosition='';
+ setSubType('代打');
+ document.getElementById('inGameSubModal').style.display='flex';
+ renderInGameSubModal();
+}
+function closeInGameSub(){document.getElementById('inGameSubModal').style.display='none';inGameSubSlot=null;inGameSubOutName='';inGameSubInName='';inGameSubPosition='';}
+function setSubType(t){
+ inGameSubType=t;
+ ['PH','PR','DF'].forEach(x=>document.getElementById('subType'+x)?.classList.remove('active'));
+ let id=t==='代打'?'PH':t==='代走'?'PR':'DF';document.getElementById('subType'+id)?.classList.add('active');
+ if(t==='代打'){inGameSubSlot=db.current?.batterIndex%9;inGameSubOutName=db.current?.lineup?.[inGameSubSlot]?.name||'';}
+ renderInGameSubModal();
+}
+function subActivePlayers(){return (db.current?.lineup||[]).map((p,i)=>({p,i})).filter(x=>x.p?.name);}
+function subBenchPlayers(){
+ const active=new Set((db.current?.lineup||[]).map(p=>p?.name).filter(Boolean));
+ return (db.team.players||[]).filter(p=>p?.role!=='manager'&&p?.name&&!active.has(p.name));
+}
+function refreshSubReplacement(){renderInGameSubModal()}
+function selectSubOut(name){inGameSubOutName=name;const hit=subActivePlayers().find(x=>x.p.name===name);inGameSubSlot=hit?hit.i:null;if(inGameSubType==='守備交代')inGameSubPosition='';renderInGameSubModal()}
+function selectSubIn(name){inGameSubInName=name;renderInGameSubModal()}
+function selectSubPosition(pos){inGameSubPosition=pos;renderInGameSubModal()}
+function renderInGameSubModal(){
+ const g=db.current;if(!g)return;
+ const outSel=document.getElementById('subOutPlayer'),inSel=document.getElementById('subInPlayer'),posSel=document.getElementById('subDefensePosition'),detail=document.getElementById('subTypeDetail');
+ if(!outSel||!inSel)return;
+ let active=subActivePlayers(), bench=subBenchPlayers();
+ let runnerNames=new Set([0,1,2].filter(i=>g.runners?.[i]).map(i=>g.runnerNames?.[i]).filter(Boolean));
+ if(inGameSubType==='代打'){
+   const current=g.lineup?.[g.batterIndex%9]?.name||''; if(!inGameSubOutName)inGameSubOutName=current;
+   active=active.filter(x=>x.p.name===current || x.p.name===inGameSubOutName || !runnerNames.has(x.p.name));
+ }else if(inGameSubType==='代走'){
+   active=active.filter(x=>runnerNames.has(x.p.name));
+ }else{
+   active=active.filter(x=>normalizeDefPos(x.p.pos)!=='投手' && x.p.name!==(g.pitching?.current?.name||g.pitcher?.name||''));
+   bench=bench.filter(p=>normalizeDefPos(p.pos)!=='投手' && p.name!==(g.pitching?.current?.name||g.pitcher?.name||''));
+ }
+ if(!inGameSubOutName || !active.some(x=>x.p.name===inGameSubOutName)) inGameSubOutName=active[0]?.p.name||'';
+ if(!inGameSubInName || !bench.some(p=>p.name===inGameSubInName)) inGameSubInName=bench[0]?.name||'';
+ outSel.innerHTML=`<option value="">選手OUTを選択</option>`+active.map(({p,i})=>`<option value="${esc(p.name)}" ${p.name===inGameSubOutName?'selected':''}>${esc(p.name)}${p.num?' #'+p.num:''}${inGameSubType==='代走'?'（'+((()=>{const ri=(g.runnerNames||[]).indexOf(p.name);return ri>=0?(ri+1)+'塁':''})())+'）':''}</option>`).join('');
+ inSel.innerHTML=`<option value="">選手INを選択</option>`+bench.map(p=>`<option value="${esc(p.name)}" ${p.name===inGameSubInName?'selected':''}>${esc(p.name)}${p.num?' #'+p.num:''}</option>`).join('');
+ outSel.onchange=()=>selectSubOut(outSel.value);inSel.onchange=()=>selectSubIn(inSel.value);
+ if(posSel){
+   const out=active.find(x=>x.p.name===inGameSubOutName)?.p; const currentPos=normalizeDefPos(out?.pos||'');
+   const positions=DEF_POSITIONS.filter(([v])=>v!=='投手');
+   posSel.innerHTML=`<option value="">守備位置を選択</option>`+positions.map(([v,l])=>`<option value="${v}" ${inGameSubPosition===(v)||(!inGameSubPosition&&v===currentPos)?'selected':''}>${l}${v===currentPos?'（OUT選手の位置）':''}</option>`).join('');
+   posSel.onchange=()=>selectSubPosition(posSel.value);
+   posSel.closest('.subDefenseBlock').style.display=inGameSubType==='守備交代'?'block':'none';
+ }
+ if(detail){detail.textContent=inGameSubType==='代打'?'打者を入れ替えます。選手OUT＝打席に立っている選手、選手IN＝代打選手。':inGameSubType==='代走'?'塁上の走者を選手OUT、代わって走る選手を選手INで選択します。':'選手OUT・選手INに加え、IN選手の守備位置を指定できます。別選手の守備位置を占有する場合は、守備位置変更も同時に記録します。';}
+ const outLabel=document.getElementById('subOutLabel');if(outLabel)outLabel.textContent=inGameSubType==='代走'?'選手OUT（塁上走者）':'選手OUT';
+ const preview=document.getElementById('subPreview');if(preview){
+   const outText=inGameSubOutName||'選手OUT未選択',inText=inGameSubInName||'選手IN未選択';
+   const posText=inGameSubType==='守備交代'&&inGameSubPosition?` ・ 守備位置：${DEF_POSITIONS.find(([v])=>v===inGameSubPosition)?.[1]||inGameSubPosition}`:'';
+   preview.textContent=`${outText} → ${inText}${posText}`;
+ }
+}
+function applyInGameSub(){
+ const g=db.current;if(!g)return;
+ const outName=inGameSubOutName||document.getElementById('subOutPlayer')?.value||'',inName=inGameSubInName||document.getElementById('subInPlayer')?.value||'';
+ if(!outName)return toast('選手OUTを選択してください'); if(!inName)return toast('選手INを選択してください'); if(outName===inName)return toast('OUTとINに同じ選手は選択できません');
+ const outEntry=subActivePlayers().find(x=>x.p.name===outName), replacement=(db.team.players||[]).find(p=>p.name===inName); if(!outEntry||!replacement)return toast('選手OUT/INを確認してください');
+ const before=outEntry.p; const slot=outEntry.i;
+ if(inGameSubType==='代打'){
+   const currentSlot=g.batterIndex%9;if(slot!==currentSlot)return toast('代打のOUTは現在の打者を選択してください');
+   if(g.runners?.some((v,i)=>v&&g.runnerNames?.[i]===outName))return toast('塁上の走者は代打でOUTにできません');
+ }else if(inGameSubType==='代走'){
+   const runnerIndex=(g.runnerNames||[]).indexOf(outName);if(runnerIndex<0)return toast('代走のOUTは現在塁上にいる走者を選択してください');
+ }else if(inGameSubType==='守備交代'){
+   const pitcher=defSubCurrentPitcherName();if(normalizeDefPos(before.pos)==='投手'||before.name===pitcher)return toast('投手は投手交代から変更してください');
+ }
+ pushGameHistory();g.subs=g.subs||[];g.eventSeq=Number(g.eventSeq)||0;
+ if(inGameSubType==='代走'){
+   const ri=(g.runnerNames||[]).indexOf(outName);g.eventSeq++;g.subs.push({seq:g.eventSeq,time:new Date().toISOString(),type:'代走',slot,runnerBase:ri,inning:g.inning,half:g.half,from:before,to:replacement});
+   g.runnerNames[ri]=replacement.name;g.lineup[slot]=Object.assign({},replacement,{pos:before?.pos||''});
+ }else if(inGameSubType==='代打'){
+   g.eventSeq++;g.subs.push({seq:g.eventSeq,time:new Date().toISOString(),type:'代打',slot,inning:g.inning,half:g.half,from:before,to:replacement});
+   g.lineup[slot]=Object.assign({},replacement,{pos:before?.pos||''});
+ }else{
+   const oldPos=normalizeDefPos(before.pos||''); const chosen=inGameSubPosition||oldPos;
+   if(!chosen||chosen==='投手')return toast('IN選手の守備位置を選択してください');
+   const occupant=subActivePlayers().find(x=>x.i!==slot&&normalizeDefPos(x.p.pos)===chosen);
+   if(occupant){
+     const occupantOldPos=normalizeDefPos(occupant.p.pos||'');
+     g.eventSeq++;g.subs.push({seq:g.eventSeq,time:new Date().toISOString(),type:'守備位置変更',slot:occupant.i,inning:g.inning,half:g.half,from:occupant.p,to:occupant.p,fromPosition:occupantOldPos,toPosition:oldPos,positionChanged:true});
+     g.lineup[occupant.i]=Object.assign({},occupant.p,{pos:oldPos});
+   }
+   g.eventSeq++;g.subs.push({seq:g.eventSeq,time:new Date().toISOString(),type:'守備交代',slot,position:chosen,from:before,to:replacement,inning:g.inning,half:g.half,positionChanged:chosen!==oldPos});
+   g.lineup[slot]=Object.assign({},replacement,{pos:chosen});
+ }
+ save();closeInGameSub();render();toast(`${inGameSubType}：${inName}（${outName}に代わって）`);
+}
 
 let gameOrder = '先攻';
 
@@ -4685,14 +4788,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 <div id="inGameSubModal" class="subPanel" style="display:none" onclick="if(event.target===this)closeInGameSub()">
   <div class="subCard">
-    <h3 style="margin:0">交代選手を選択してください。</h3>
-    <div id="subTargetLabel" style="display:none"></div>
+    <h3 style="margin:0">選手交代を記録</h3>
     <div class="subGrid">
       <button id="subTypePH" class="subChoice active" onclick="setSubType('代打')">代打</button>
       <button id="subTypePR" class="subChoice" onclick="setSubType('代走')">代走</button>
-      <button id="subTypeDF" class="subChoice" onclick="setSubType('守備交代')">守備交代</button>
+      <button id="subTypeDF" class="subChoice" onclick="setSubType('守備交代')">守備</button>
     </div>
-    <select id="subReplacement" class="subSelect"></select>
+    <div id="subTypeDetail" class="subTypeDetail"></div>
+    <div class="subSelectBlock"><label id="subOutLabel" for="subOutPlayer">選手OUT</label><select id="subOutPlayer" class="subSelect"><option value="">選手OUTを選択</option></select></div>
+    <div class="subArrow">↓</div>
+    <div class="subSelectBlock"><label for="subInPlayer">選手IN</label><select id="subInPlayer" class="subSelect"><option value="">選手INを選択</option></select></div>
+    <div class="subSelectBlock subDefenseBlock"><label for="subDefensePosition">③ 守備位置</label><select id="subDefensePosition" class="subSelect"><option value="">守備位置を選択</option></select><div class="hint">OUT選手の位置を引き継ぐだけでなく、別の守備位置を選択できます。その位置に選手がいる場合は守備位置変更も同時に記録します。</div></div>
+    <div class="subPreview" id="subPreview">選手OUT → 選手IN</div>
     <div class="subActions">
       <button class="secondaryBtn" onclick="closeInGameSub()">キャンセル</button>
       <button class="primaryBtn" onclick="applyInGameSub()">交代する</button>
