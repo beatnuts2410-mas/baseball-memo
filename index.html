@@ -6735,3 +6735,73 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 }
 </style>
+<style id="v3_01_56_home_layout_match_reference">
+/* v3.01.56: ホーム画面レイアウトのみ。添付②の配置に合わせ、ロゴ→タイトル→サブタイトルを中央縦配置。その他機能は変更しない。 */
+#launchScreen.homePhotoLaunch .launchInner{
+  width:100%!important;
+  max-width:430px!important;
+  height:100%!important;
+  padding:50px 16px calc(24px + env(safe-area-inset-bottom))!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  text-align:center!important;
+  box-sizing:border-box!important;
+}
+#launchScreen.homePhotoLaunch .launchIcon{
+  position:static!important;
+  width:104px!important;
+  height:104px!important;
+  margin:0 auto 12px!important;
+  flex:0 0 auto!important;
+}
+#launchScreen.homePhotoLaunch .launchInner h1{
+  width:100%!important;
+  margin:0 0 8px!important;
+  text-align:center!important;
+  font-size:clamp(38px,10vw,48px)!important;
+  line-height:1.08!important;
+  letter-spacing:.04em!important;
+  white-space:nowrap!important;
+}
+#launchScreen.homePhotoLaunch .launchSub{
+  width:100%!important;
+  margin:0!important;
+  text-align:center!important;
+  font-size:15px!important;
+  line-height:1.45!important;
+  white-space:nowrap!important;
+}
+#launchScreen.homePhotoLaunch .launchActions{
+  position:absolute!important;
+  left:16px!important;
+  right:16px!important;
+  bottom:clamp(82px,12vh,122px)!important;
+  display:grid!important;
+  gap:12px!important;
+}
+@media(max-width:430px){
+  #launchScreen.homePhotoLaunch .launchInner{
+    padding-top:50px!important;
+    padding-left:16px!important;
+    padding-right:16px!important;
+  }
+  #launchScreen.homePhotoLaunch .launchIcon{
+    width:104px!important;
+    height:104px!important;
+    margin-bottom:12px!important;
+  }
+  #launchScreen.homePhotoLaunch .launchInner h1{
+    font-size:clamp(36px,12vw,44px)!important;
+    margin-bottom:8px!important;
+  }
+  #launchScreen.homePhotoLaunch .launchSub{font-size:14px!important;}
+}
+@media(max-height:700px){
+  #launchScreen.homePhotoLaunch .launchInner{padding-top:34px!important;}
+  #launchScreen.homePhotoLaunch .launchIcon{width:82px!important;height:82px!important;margin-bottom:10px!important;}
+  #launchScreen.homePhotoLaunch .launchInner h1{font-size:34px!important;margin-bottom:6px!important;}
+  #launchScreen.homePhotoLaunch .launchSub{font-size:12px!important;}
+}
+</style>
