@@ -4013,7 +4013,7 @@ function build実況Text(e){
 function resultEvents(g){
  const baseLabel=d=>d===4?'本塁・得点':d?`${d}塁へ`:'残塁';
  const resultLabel=r=>r==='単打'?'シングルヒット':r;
- const nameOf=v=>displayPlayerName(v)||'走者';
+ const nameOf=v=>displayPlayerName(v)||'ランナー';
  const resultTypeSet=new Set(['単打','二塁打','三塁打','本塁打','犠打','犠飛','相手エラー','エラー','四球','死球','三振','内野ゴロ','ライナー','内野フライ','外野フライ','グランドルール']);
  const batterOutSet=new Set(['三振','犠打','犠飛','内野ゴロ','ライナー','内野フライ','外野フライ','グランドルール']);
  const advanceBySeq=new Map();
@@ -4029,7 +4029,7 @@ function resultEvents(g){
    const list=Array.isArray(a?.advances)?a.advances:[];
    list.filter(v=>!v?.batter && Number(v?.to)>=1 && Number(v?.to)<=3).forEach(v=>{
      const n=nameOf(v.runner);
-     if(n && n!=='走者' && !names.includes(n))names.push(n);
+     if(n && n!=='ランナー' && !names.includes(n))names.push(n);
    });
    if(names.length)return names;
    const after=pa?.afterRunners||a?.afterRunners||[];
@@ -4037,7 +4037,7 @@ function resultEvents(g){
    for(let i=0;i<3;i++){
      if(after[i]){
        const n=afterNames[i];
-       if(n && n!==pa?.batter && n!=='走者' && !names.includes(n))names.push(n);
+       if(n && n!==pa?.batter && n!=='ランナー' && !names.includes(n))names.push(n);
      }
    }
    return names;
@@ -4100,7 +4100,7 @@ function resultEvents(g){
    if(['単打','二塁打','三塁打','本塁打'].includes(result)){
      parts.push(`${resultLabel(result)}${x.direction?`（${x.direction}）`:''}`);
      if(scored.length)parts.push(`${scored.join('、')}${runs?` → ${runs}点${rbi?`（打点${rbi}）`:''}`:''}`);
-     if(moved.length){if(parts.length)parts[parts.length-1]+=`。ランナー：${moved.join('、')}`;else parts.push(`ランナー：${moved.join('、')}`);}
+     if(moved.length){if(parts.length)parts[parts.length-1]+=`　※ランナー：${moved.join('、')}`;else parts.push(`ランナー：${moved.join('、')}`);}
      if(result!=='本塁打'&&!adv.batterOut)parts.push(`${result==='単打'?'1':result==='二塁打'?'2':'3'}塁へ`);
      if(loadedSuffix)parts.push(loadedSuffix);
      return parts.join(' → ');
@@ -4115,7 +4115,7 @@ function resultEvents(g){
    if(result==='犠飛'){
      parts.push(`犠飛${x.direction?`（${x.direction}）`:''}`);
      if(scored.length)parts.push(`${scored.join('、')} → 追加点${runs||scored.length}点${rbi?`（打点${rbi}）`:''}`);
-     if(moved.length){if(parts.length)parts[parts.length-1]+=`。ランナー：${moved.join('、')}`;else parts.push(`ランナー：${moved.join('、')}`);}
+     if(moved.length){if(parts.length)parts[parts.length-1]+=`　※ランナー：${moved.join('、')}`;else parts.push(`ランナー：${moved.join('、')}`);}
      if(!scored.length&&!moved.length&&remainingRunnerNames(x,a).length)parts.push('ランナー残塁');
      if(loadedSuffix)parts.push(loadedSuffix);
      return parts.join(' → ');
@@ -4144,7 +4144,7 @@ function resultEvents(g){
      parts.push(result);
      if(!adv.batterOut)parts.push('1塁へ');
      if(scored.length)parts.push(`${scored.join('、')}生還 → ${runs||scored.length}点${rbi?`（打点${rbi}）`:''}`);
-     if(moved.length){if(parts.length)parts[parts.length-1]+=`。ランナー：${moved.join('、')}`;else parts.push(`ランナー：${moved.join('、')}`);}
+     if(moved.length){if(parts.length)parts[parts.length-1]+=`　※ランナー：${moved.join('、')}`;else parts.push(`ランナー：${moved.join('、')}`);}
      if(loadedSuffix)parts.push(loadedSuffix);
      return parts.join(' → ');
    }
@@ -4167,18 +4167,18 @@ function resultEvents(g){
    const batterName=displayPlayerName(x.batter); const sub=replacementMap.get(batterName);
    const mark=sub?'◆ ':'';
    let text=`${order}${mark}`;
-   if(sub){const typ=sub.type==='代打'?'代打':sub.type==='代走'?'代走':'守備交代';text+=`「${batterName}」（${Number(sub.inning)||x.inning||''}回${typ}） `;} else { text+=`「${batterName}」 `; }
+   if(sub){const typ=sub.type==='代打'?'代打':sub.type==='代走'?'代走':'守備交代';text+=`「${batterName}」（${Number(sub.inning)||x.inning||''}回${typ}） `;} else { text+=`${batterName} `; }
    const actionText=buildBattingAction(x);
    const beforeRunners=Array.isArray(x.beforeRunners)?x.beforeRunners:[];
    const beforeRunnerNames=Array.isArray(x.beforeRunnerNames)?x.beforeRunnerNames:[];
    const hadRunners=beforeRunners.some(Boolean);
    const afterRunners=Array.isArray(x.afterRunners)?x.afterRunners:[];
    const afterRunnerNames=Array.isArray(x.afterRunnerNames)?x.afterRunnerNames:[];
-   // 試合経過では打席結果までを簡潔に表示し、最終走者状態の重複表示は省略。
+   // 試合経過では打席結果までを簡潔に表示し、最終ランナー状態の重複表示は省略。
    text+=actionText;
    return {seq:Number(x.seq)||0,inning:x.inning,half:x.half,text,kind:'打席'};
  });
- const runnerRaw=(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:moveText(x),kind:'走者',name:x.name||'走者',dest:x.dest}));
+ const runnerRaw=(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:moveText(x),kind:'ランナー',name:x.name||'ランナー',dest:x.dest}));
  const usedRunner=new Set();
  const paEvents=paRaw.map((p,i)=>{
    const nextSeq=i<paRaw.length-1?Number(paRaw[i+1].seq)||Infinity:Infinity;
@@ -4199,7 +4199,7 @@ function resultEvents(g){
    else if(type==='守備位置変更') detail+=`守備位置変更：「${fromName||'選手'}」 ${s.fromPosition||''} → ${s.toPosition||''}`;
    else detail+=`選手交代：${fromName||'選手OUT'}に代わって 「${toName||'交代選手'}」`;
    const ev={seq:Number(s.seq)||0,inning:Number(s.inning)||0,half:s.half||'',text:detail,kind:'選手交代'};
-   ev.commentary=type==='代打'?`${when}、${toName||'代打選手'}が${fromName?`${fromName}に代わって`:''}打席へ。`:type==='代走'?`${when}、${toName||'代走選手'}が${fromName?`${fromName}に代わって`:''}走者へ。`:type==='守備交代'?`${when}、${toName||'交代選手'}が${fromName?`${fromName}に代わって`:''}守備に入ります${s.position?`。守備位置は${s.position}です`:''}。`:type==='守備位置変更'?`${when}、${fromName||'選手'}の守備位置を${s.fromPosition||''}から${s.toPosition||''}へ変更。`:`${when}、${toName||'交代選手'}が${fromName?`${fromName}に代わって`:''}出場します。`;
+   ev.commentary=type==='代打'?`${when}、${toName||'代打選手'}が${fromName?`${fromName}に代わって`:''}打席へ。`:type==='代走'?`${when}、${toName||'代走選手'}が${fromName?`${fromName}に代わって`:''}ランナーへ。`:type==='守備交代'?`${when}、${toName||'交代選手'}が${fromName?`${fromName}に代わって`:''}守備に入ります${s.position?`。守備位置は${s.position}です`:''}。`:type==='守備位置変更'?`${when}、${fromName||'選手'}の守備位置を${s.fromPosition||''}から${s.toPosition||''}へ変更。`:`${when}、${toName||'交代選手'}が${fromName?`${fromName}に代わって`:''}出場します。`;
    return ev;
  });
  const pitchingEvents=(g.pitching?.history||[]).filter((x,i)=>i>0).map((x,i)=>{const history=g.pitching?.history||[];const prev=history[history.indexOf(x)-1];const fromName=displayPlayerName(prev?.name);const toName=displayPlayerName(x.name);const ev={seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`${Number(x.enteredInning)||''}回${x.enteredHalf||''}　投手交代：${fromName||'選手OUT'}に代わって 「${toName||'交代投手'}」`,kind:'選手交代'};ev.commentary=`${Number(x.enteredInning)||''}回${x.enteredHalf||''}、投手交代。${toName||'交代投手'}が${fromName?`${fromName}に代わって`:''}マウンドへ。`;return ev;});
