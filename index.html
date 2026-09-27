@@ -4012,6 +4012,28 @@ function resultEvents(g){
  });
  const runnerNameAt=(pa,i)=>nameOf(pa?.beforeRunnerNames?.[i]||pa?.afterRunnerNames?.[i]);
  const advanceNameAt=(a,idx)=>nameOf(a?.advances?.find(x=>Number(x.from)===idx+1)?.runner);
+ const remainingRunnerNames=(pa,a)=>{
+   const names=[];
+   const list=Array.isArray(a?.advances)?a.advances:[];
+   list.filter(v=>!v?.batter && Number(v?.to)>=1 && Number(v?.to)<=3).forEach(v=>{
+     const n=nameOf(v.runner);
+     if(n && n!=='走者' && !names.includes(n))names.push(n);
+   });
+   if(names.length)return names;
+   const after=pa?.afterRunners||a?.afterRunners||[];
+   const afterNames=pa?.afterRunnerNames||a?.afterNames||[];
+   for(let i=0;i<3;i++){
+     if(after[i]){
+       const n=afterNames[i];
+       if(n && n!==pa?.batter && n!=='走者' && !names.includes(n))names.push(n);
+     }
+   }
+   return names;
+ };
+ const residualText=(pa,a)=>{
+   const names=remainingRunnerNames(pa,a);
+   return names.length?`ランナー${names.join('・')}残塁`:'';
+ };
  const describeAdvance=(a,pa)=>{
    const list=Array.isArray(a?.advances)?a.advances:[];
    const runnerMoves=[],runnerOuts=[];
@@ -4055,7 +4077,7 @@ function resultEvents(g){
    const diff=runnerDiff(x);
    const rbi=Number(x.rbi)||0, runs=Number(x.runs)||0;
    const parts=[];
-   const outSuffix=adv.batterOut||batterOutSet.has(result)?' → 打者アウト':'';
+   const outSuffix=adv.batterOut||batterOutSet.has(result)?` → ${batter}アウト`:'';
    if(result==='単打'||result==='二塁打'||result==='三塁打'||result==='本塁打'){
      parts.push(`${batter} ${resultLabel(result)}${x.direction?`（${x.direction}）`:''}`);
      const scoreNames=adv.runnerMoves.filter(v=>/生還$/.test(v)).map(v=>v.replace(/生還$/,''));
@@ -4065,7 +4087,7 @@ function resultEvents(g){
      if(runs)parts.push(`${runs}点${rbi?`（打点${rbi}）`:''}`);
      if(result!=='本塁打'){
        const dest=result==='単打'?'1塁':result==='二塁打'?'2塁':'3塁';
-       parts.push(`打者${dest}へ`);
+       parts.push(`${batter} ${dest}へ`);
      }
      return parts.join(' → ');
    }
@@ -4078,15 +4100,16 @@ function resultEvents(g){
        if(scored.length)parts.push(`${scored.join('・')}生還 → ${runs||scored.length}点`);
        return parts.join(' → ')+outSuffix;
      }
-     return `${batter} 犠打（バント）失敗 → ランナー残塁${outSuffix}`;
+     const residual=residualText(x,a);
+     return `${batter} 犠打（バント）失敗${residual?` → ${residual}`:''}${outSuffix}`;
    }
    if(result==='犠飛'){
      const scored=adv.runnerMoves.filter(v=>/生還$/.test(v)).map(v=>v.replace(/生還$/,''));
      const moved=adv.runnerMoves.filter(v=>!/生還$/.test(v));
-     parts.push(`${batter} 犠飛${x.direction?`（${x.direction}）`:''}`);
-     if(scored.length)parts.push(`${scored.join('・')}生還 → ${runs||scored.length}点${rbi?`（打点${rbi}）`:''}`);
+     parts.push(x.direction ? `${batter} ${x.direction}へ犠飛` : `${batter} 犠飛`);
+     if(scored.length)parts.push(`${scored.join('・')}生還 → 追加点${runs||scored.length}点${rbi?`（打点${rbi}）`:''}`);
      if(moved.length)parts.push(`ランナー${moved.join('・')}`);
-     if(!scored.length&&!moved.length)parts.push('ランナー残塁');
+     if(!scored.length&&!moved.length){const residual=residualText(x,a);if(residual)parts.push(residual);}
      return parts.join(' → ')+outSuffix;
    }
    if(result==='内野ゴロ'){
@@ -4097,19 +4120,19 @@ function resultEvents(g){
      if(moved.length)parts.push(`内野ゴロの間に${moved.join('・')}`);
      if(scored.length)parts.push(`${scored.join('・')}生還 → ${runs||scored.length}点`);
      if(outs.length)parts.push(`${outs.join('・')}アウト`);
-     if(!moved.length&&!scored.length&&!outs.length)parts.push('ランナー残塁');
+     if(!moved.length&&!scored.length&&!outs.length){const residual=residualText(x,a);if(residual)parts.push(residual);}
      return parts.join(' → ')+outSuffix;
    }
    if(result==='ライナー'){
-     parts.push(`${batter} ライナー${x.direction?`（${x.direction}）`:''}`);
+     parts.push(x.direction ? `${batter} ${x.direction}ライナー` : `${batter} ライナー`);
      if(adv.runnerOuts.length)parts.push(`ライナーで${adv.runnerOuts.join('・')}戻れずアウト`);
-     if(!adv.runnerOuts.length)parts.push('打者アウト');
+     if(!adv.runnerOuts.length)parts.push(`${batter}アウト`);
      return parts.join(' → ');
    }
    if(result==='内野フライ'||result==='外野フライ'){
      parts.push(`${batter} ${result}${x.direction?`（${x.direction}）`:''}`);
      if(adv.runnerOuts.length)parts.push(`${adv.runnerOuts.join('・')}戻れずアウト`);
-     else parts.push('打者アウト');
+     else parts.push(`${batter}アウト`);
      return parts.join(' → ');
    }
    if(result==='相手エラー'||result==='エラー'){
@@ -4124,8 +4147,8 @@ function resultEvents(g){
      if(scoreNames.length)parts.push(`${scoreNames.join('・')}生還 → ${runs}点`);
      return parts.join(' → ');
    }
-   if(result==='三振') return `${batter} 三振 → 打者アウト`;
-   if(result==='グランドルール') return `${batter} グランドルール → 打者アウト`;
+   if(result==='三振') return `${batter} 三振 → ${batter}アウト`;
+   if(result==='グランドルール') return `${batter} グランドルール → ${batter}アウト`;
    return `${batter} ${result}${runs?` → ${runs}点`:''}`;
  };
  const moveText=x=>{
@@ -4143,8 +4166,8 @@ function resultEvents(g){
    const batterName=displayPlayerName(x.batter); const sub=replacementMap.get(batterName);
    const mark=sub?'◆ ':'';
    let text=`${order}${mark}`;
-   if(sub){const typ=sub.type==='代打'?'代打':sub.type==='代走'?'代走':'守備交代';text+=`${batterName}（${Number(sub.inning)||x.inning||''}回${typ}）`;}
-   else text+=buildBattingAction(x);
+   if(sub){const typ=sub.type==='代打'?'代打':sub.type==='代走'?'代走':'守備交代';text+=`${batterName}（${Number(sub.inning)||x.inning||''}回${typ}） `;}
+   text+=buildBattingAction(x);
    return {seq:Number(x.seq)||0,inning:x.inning,half:x.half,text,kind:'打席'};
  });
  const runnerRaw=(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:moveText(x),kind:'走者',name:x.name||'走者',dest:x.dest}));
