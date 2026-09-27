@@ -4167,7 +4167,19 @@ function resultEvents(g){
    const mark=sub?'◆ ':'';
    let text=`${order}${mark}`;
    if(sub){const typ=sub.type==='代打'?'代打':sub.type==='代走'?'代走':'守備交代';text+=`${batterName}（${Number(sub.inning)||x.inning||''}回${typ}） `;}
-   text+=buildBattingAction(x);
+   const actionText=buildBattingAction(x);
+   const beforeRunners=Array.isArray(x.beforeRunners)?x.beforeRunners:[];
+   const beforeRunnerNames=Array.isArray(x.beforeRunnerNames)?x.beforeRunnerNames:[];
+   const runnerContext=[];
+   for(let ri=0;ri<3;ri++){
+     if(!beforeRunners[ri])continue;
+     const rn=nameOf(beforeRunnerNames[ri]);
+     if(rn && rn!=='走者') runnerContext.push(`${rn}${ri+1}塁`);
+   }
+   if(runnerContext.length){
+     text+=`ランナー${runnerContext.join('・')} `;
+   }
+   text+=actionText;
    return {seq:Number(x.seq)||0,inning:x.inning,half:x.half,text,kind:'打席'};
  });
  const runnerRaw=(g.runnerMoves||[]).map(x=>({seq:Number(x.seq)||0,inning:x.inning,half:x.half,text:moveText(x),kind:'走者',name:x.name||'走者',dest:x.dest}));
