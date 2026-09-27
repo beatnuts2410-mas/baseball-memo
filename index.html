@@ -1820,6 +1820,7 @@ input,select,textarea,.input,.select,.subSelect,.rosterTextarea{background:#fff!
 </style>
 <style id="v3_01_63_substitution_out_in_dropdown">
 /* v3.01.63: 交代を「選手OUT / 選手IN」で統一。守備は守備位置変更も同時記録。 */
+/* v3.01.69: 交代確認欄を「選手名（OUT） → 選手名（IN）」表記に変更。 */
 #inGameSubModal .subSelectBlock{margin-top:12px;}
 #inGameSubModal .subSelectBlock label{display:block;font-weight:900;font-size:17px;margin:0 0 6px;}
 #inGameSubModal .subSelect{width:100%;min-height:54px;font-size:17px;font-weight:800;}
@@ -4556,7 +4557,7 @@ function renderInGameSubModal(){
  const preview=document.getElementById('subPreview');if(preview){
    const outText=inGameSubOutName||'選手OUT未選択',inText=inGameSubInName||'選手IN未選択';
    const posText=inGameSubType==='守備交代'&&inGameSubPosition?` ・ 守備位置：${DEF_POSITIONS.find(([v])=>v===inGameSubPosition)?.[1]||inGameSubPosition}`:'';
-   preview.textContent=`選手OUT（${outText}）　　 →　　 選手IN（${inText}）${posText}`;
+   preview.textContent=`${outText}（OUT）　　 →　　 ${inText}（IN）${posText}`;
  }
 }
 function applyInGameSub(){
