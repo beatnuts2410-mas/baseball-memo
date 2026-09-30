@@ -4859,7 +4859,7 @@ function renderInGameSubModal(){
  }else if(inGameSubType==='代走'){
    active=active.filter(x=>runnerNames.has(x.p.name));
  }else if(inGameSubType==='守備位置変更'){
-   active=active.filter(x=>normalizeDefPos(x.p.pos)!=='投手'); bench=active.map(x=>x.p);
+   active=active; bench=active.map(x=>x.p);
  }else{
    active=active.filter(x=>normalizeDefPos(x.p.pos)!=='投手' && x.p.name!==(g.pitching?.current?.name||g.pitcher?.name||''));
    bench=bench.filter(p=>normalizeDefPos(p.pos)!=='投手' && p.name!==(g.pitching?.current?.name||g.pitcher?.name||''));
@@ -4876,7 +4876,7 @@ function renderInGameSubModal(){
    posSel.onchange=()=>selectSubPosition(posSel.value);
    posSel.closest('.subDefenseBlock').style.display=inGameSubType==='守備交代'?'block':'none';
  }
- if(detail){detail.textContent=inGameSubType==='代打'?'打者を入れ替えます。選手OUT＝打席に立っている選手、選手IN＝代打選手。':inGameSubType==='代走'?'塁上の走者を選手OUT、代わって走る選手を選手INで選択します。' :inGameSubType==='守備位置変更'?'現在出場中の2選手を選択し、守備位置を入れ替えます。選手交代は発生しません。':'選手OUT・選手INに加え、IN選手の守備位置を指定できます。別選手の守備位置を占有する場合は、守備位置変更も同時に記録します。';}
+ if(detail){detail.textContent=inGameSubType==='代打'?'打者を入れ替えます。選手OUT＝打席に立っている選手、選手IN＝代打選手。':inGameSubType==='代走'?'塁上の走者を選手OUT、代わって走る選手を選手INで選択します。' :inGameSubType==='守備位置変更'?'守備位置を変更する選手と変更先の選手を選択します。内野手から投手への変更も可能です。選手はベンチに戻らず、2名の守備位置を入れ替えます。':'選手OUT・選手INに加え、IN選手の守備位置を指定できます。別選手の守備位置を占有する場合は、守備位置変更も同時に記録します。';}
  const outLabel=document.getElementById('subOutLabel');if(outLabel)outLabel.textContent=inGameSubType==='代走'?'選手OUT（塁上走者）':'選手OUT';
  const preview=document.getElementById('subPreview');if(preview){
    const outText=inGameSubOutName||'選手OUT未選択',inText=inGameSubInName||'選手IN未選択';
@@ -4891,7 +4891,7 @@ function applyInGameSub(){
    const a=subActivePlayers().find(x=>x.p.name===outName), b=subActivePlayers().find(x=>x.p.name===inName);
    if(!a||!b)return toast('守備位置を変更する選手を2名選択してください');
    if(a.i===b.i)return toast('異なる選手を選択してください');
-   if(normalizeDefPos(a.p.pos)==='投手'||normalizeDefPos(b.p.pos)==='投手')return toast('投手の守備位置変更は投手交代から行ってください');
+   
    pushGameHistory();g.subs=g.subs||[];g.eventSeq=Number(g.eventSeq)||0;
    const ap=normalizeDefPos(a.p.pos||''), bp=normalizeDefPos(b.p.pos||'');
    g.eventSeq++;g.subs.push({seq:g.eventSeq,time:new Date().toISOString(),type:'守備位置変更',slot:a.i,inning:g.inning,half:g.half,from:a.p,to:a.p,fromPosition:ap,toPosition:bp,positionChanged:true});
