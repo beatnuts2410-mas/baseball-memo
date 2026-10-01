@@ -3150,7 +3150,17 @@ function advanceRunners(g,result,batterName){
     after[0]=1;afterNames[0]=batterName;syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:scored?`押し出しで${scored}点`:''};
   }
   if(result==='犠飛'){if(before[2])score(1);keep(0,0);keep(1,1);syncRunnerNames(g,afterNames);return {runners:after,names:afterNames,scored,rbi,detail:scored?`犠飛で${scored}点追加`:'犠飛'};}
-  if(result==='バント'||result==='犠打'){if(before[2])score(1);else if(before[1])keep(1,2);keep(0,1);syncRunnerNames(g,afterNames);const moved=runnerProgressText(before,after);const success=moved.length>0||scored>0;return {runners:after,names:afterNames,scored,rbi,detail:success?`犠打成功！${scored?scored+'点追加・':''}${moved.length?moved.join('・')+'に進塁':''}`:'犠打失敗'};}
+  if(result==='バント'||result==='犠打'){
+    // 犠打の標準初期進塁：各走者を1つ進め、三塁走者は得点。
+    // 満塁・一三塁・二三塁を含め、塁状況ごとの分岐漏れを防ぐ。
+    if(before[2])score(1);
+    if(before[1])keep(1,2);
+    if(before[0])keep(0,1);
+    syncRunnerNames(g,afterNames);
+    const moved=runnerProgressText(before,after);
+    const success=moved.length>0||scored>0;
+    return {runners:after,names:afterNames,scored,rbi,detail:success?`犠打成功！${scored?scored+'点追加・':''}${moved.length?moved.join('・')+'に進塁':''}`:'犠打失敗'};
+  }
   if(result==='相手エラー'||result==='エラー'){
     // 相手の守備エラー：打者は1塁へ進み、既存走者は1つずつ進塁。3塁走者は生還。
     if(before[2])score(1,false);
@@ -3709,7 +3719,11 @@ function defaultManualRunnerDest(before,beforeNames,after,afterNames,idx){
 function manualConfirmDefault(g,b,result){
  const temp={...g,runners:cloneRunners(g.runners),runnerNames:cloneRunnerNames(g.runnerNames),scoreUs:Number(g.scoreUs)||0};
  const mv=advanceRunners(temp,result,b.name);
- const runnerDest=[0,1,2].map(i=>defaultManualRunnerDest(g.runners,g.runnerNames,mv.runners,mv.names,i));
+ const runnerDest=[0,1,2].map(i=>{
+   if(!g.runners[i])return null;
+   if(result==='犠打'||result==='バント')return i===2?'4':String(i+2);
+   return defaultManualRunnerDest(g.runners,g.runnerNames,mv.runners,mv.names,i);
+ });
  const batterFound=(mv.names||[]).findIndex(n=>n===b.name);
  const batterDest=batterFound>=0?String(batterFound+1):'out';
  const beforeOuts=Number(g.outs)||0;
@@ -3870,6 +3884,8 @@ function confirmRunnerAdvance(){
  if(afterOuts<Number(p.beforeOuts)||afterOuts>3)return toast('アウトカウントを確認してください');
  if(afterOuts===Number(p.beforeOuts) && batterOut)return toast('打者をアウトにする場合はアウトカウントを増やしてください');
  const runnerOuts=runnerDest.filter((d,i)=>before[i]&&String(d)==='out').length;
+ const homeRunners=runnerDest.filter((d,i)=>before[i]&&String(d)==='4').length;
+ if(Number(p.scored)!==homeRunners)return toast(`得点数（${Number(p.scored)||0}点）とホームイン走者数（${homeRunners}人）が一致していません。走者の進塁先と得点を確認してください`);
  const expectedOuts=runnerOuts+(batterOut?1:0);
  if(afterOuts-Number(p.beforeOuts)!==expectedOuts)return toast('打者・走者のアウトとアウトカウントが一致していません');
  pushGameHistory();
