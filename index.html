@@ -4325,17 +4325,20 @@ function build実況Text(e){
  const raw=String(e.text||'').replace(/\s+/g,' ').trim();
  if(!raw)return 'プレーが記録されました。';
  const runnerPart=raw.includes(' ｜ ')?raw.split(' ｜ ').slice(1).join(' ｜ '):'';
- const main=raw.split(' ｜ ')[0];
- const m=main.match(/^(?:\d+番\s*)?(?:◆\s*)?(.+?)(?:\s*（[^）]+）)?\s*→\s*(.+)$/);
- const player=m?m[1].replace(/^◆\s*/,'').trim():'';
- const result=m?m[2].trim():main;
- const who=player||'打者';
+ const main=raw.split(' ｜ ')[0].trim();
+ // 試合経過の標準形式「1番　選手名：打席結果」と旧形式「選手名 → 打席結果」の両方に対応。
+ const header=main.match(/^(?:(\d+)番\s*)?(?:◆\s*)?(.+?)\s*[：:]\s*(.+)$/);
+ const legacy=main.match(/^(?:\d+番\s*)?(?:◆\s*)?(.+?)\s*→\s*(.+)$/);
+ const player=header?header[2].replace(/^◆\s*/,'').trim():legacy?legacy[1].replace(/^◆\s*/,'').trim():'';
+ const order=header?.[1]||'';
+ const result=header?header[3].trim():legacy?legacy[2].trim():main;
+ const who=player?(order?`${order}番 ${player}`:player):'打者';
  let lead='';
  switch(true){
-   case /本塁打/.test(result): lead=`${who}、打った！ホームラン！` ; break;
-   case /三塁打/.test(result): lead=`${who}、三塁打！一気に三塁まで到達！`; break;
-   case /二塁打/.test(result): lead=`${who}、二塁打！鋭い打球で二塁へ！`; break;
-   case /シングルヒット|単打/.test(result): lead=`${who}、シングルヒット！まずは出塁！`; break;
+   case /本塁打/.test(result): lead=`${who}、打った！ホームラン！`; break;
+   case /三塁打|スリーベース/.test(result): lead=`${who}、三塁打！一気に三塁まで到達！`; break;
+   case /二塁打|ツーベース/.test(result): lead=`${who}、二塁打！鋭い打球で二塁へ！`; break;
+   case /シングルヒット|単打|ライト前ヒット|レフト前ヒット|センター前ヒット/.test(result): lead=`${who}、シングルヒット！まずは出塁！`; break;
    case /四球/.test(result): lead=`${who}、四球を選んで出塁！`; break;
    case /死球/.test(result): lead=`${who}、死球で出塁！`; break;
    case /三振/.test(result): lead=`${who}、三振！ここは打ち取られました。`; break;
@@ -4349,7 +4352,7 @@ function build実況Text(e){
  }
  if(/\d+点/.test(main) || /本塁打/.test(result)) lead += ' 得点が動きます！';
  if(runnerPart) lead += ` ${runnerPart.replace(/盗塁：/g,'盗塁！').replace(/：/g,'、')}`;
- if(/走者/.test(e.kind||'') && !m) {
+ if(/走者/.test(e.kind||'') && !header && !legacy) {
    if(/盗塁/.test(raw)) return raw.includes('アウト')?`盗塁を仕掛ける！${raw}`:`盗塁！${raw}`;
    if(/暴投/.test(raw)) return `暴投！走者が動きます。${raw}`;
    if(/パスボール/.test(raw)) return `捕逸！走者が進みます。${raw}`;
