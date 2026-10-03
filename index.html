@@ -3100,13 +3100,23 @@ function buildAdvanceResult(spec){
  const before=cloneRunners(spec.beforeRunners), beforeNames=cloneRunnerNames(spec.beforeNames);
  const after=cloneRunners(spec.afterRunners), afterNames=cloneRunnerNames(spec.afterNames);
  const advances=[];
+ // 明示指定がない打席では、塁上から消えた走者を得点数の範囲で生還として補完する。
+ // 「消えた＝アウト」とは扱わない。走者アウトは outByRunner で明示された場合のみ記録。
+ const missing=[];
  for(let i=0;i<3;i++){
    if(!before[i]) continue;
    const name=beforeNames[i]||'走者';
-   const to=after[i]?i+1:null;
+   const found=afterNames.findIndex((n)=>n===name);
+   if(found<0 && !spec.scoredByRunner?.[i] && !spec.outByRunner?.[i]) missing.push(i);
+ }
+ let inferredRuns=Math.max(0,Number(spec.runs)||0)-missing.filter(i=>spec.scoredByRunner?.[i]).length;
+ const inferredScorers=new Set(missing.slice().sort((a,b)=>b-a).slice(0,inferredRuns));
+ for(let i=0;i<3;i++){
+   if(!before[i]) continue;
+   const name=beforeNames[i]||'走者';
    // 現在位置に残っていない走者は、afterNamesから移動先を探す。
    const found=afterNames.findIndex((n)=>n===name);
-   const dest=found>=0?found+1:(spec.scoredByRunner?.[i]?4:(spec.outByRunner?.[i]?'out':null));
+   const dest=found>=0?found+1:(spec.scoredByRunner?.[i]||inferredScorers.has(i)?4:(spec.outByRunner?.[i]?'out':null));
    advances.push({runner:name,from:i+1,to:dest});
  }
  if(spec.batterName){
@@ -4389,7 +4399,8 @@ function resultEvents(g){
    list.filter(x=>!x.batter).forEach(x=>{
      const n=nameOf(x.runner);
      const from=Number(x.from)||0,to=x.to;
-     if(to==='out'||to===0||to==null){runnerOuts.push(n);return;}
+     if(to==='out'||to===0){runnerOuts.push(n);return;}
+     if(to==null)return; // 行き先未特定をアウトと誤表示しない
      const dest=Number(to);
      if(dest===4) runnerMoves.push(`${n}生還`);
      else if(dest>0 && dest!==(Number(x.from)||0)) runnerMoves.push(`${n}${dest}塁へ進塁`);
