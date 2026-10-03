@@ -2572,7 +2572,6 @@ html,body{max-width:100%;overflow-x:hidden!important;}
 #stealStepModal .stealStepSection{min-width:0;}
 @media(max-width:420px){.stealMultiRunnerRow,.stealMultiDestRow{padding:7px;gap:6px}.stealMultiRunnerHead strong,.stealMultiDestRow strong{font-size:12px}.stealMultiJudgeGrid,.stealMultiDestGrid{gap:5px}}
 </style>
-<style id="uguisu-inning-score-style">.uguisuInningScore{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin:12px 0;padding:10px 8px;border-top:1px solid #9aa7b4;border-bottom:1px solid #9aa7b4;background:#eef3f7;color:#182532;text-align:center}.uguisuInningScore strong{font-weight:800}.uguisuInningScore span{font-weight:800}</style>
 </head>
 <body>
 <div class="app">
@@ -4326,20 +4325,17 @@ function build実況Text(e){
  const raw=String(e.text||'').replace(/\s+/g,' ').trim();
  if(!raw)return 'プレーが記録されました。';
  const runnerPart=raw.includes(' ｜ ')?raw.split(' ｜ ').slice(1).join(' ｜ '):'';
- const main=raw.split(' ｜ ')[0].trim();
- // 試合経過の標準形式「1番　選手名：打席結果」と旧形式「選手名 → 打席結果」の両方に対応。
- const header=main.match(/^(?:(\d+)番\s*)?(?:◆\s*)?(.+?)\s*[：:]\s*(.+)$/);
- const legacy=main.match(/^(?:\d+番\s*)?(?:◆\s*)?(.+?)\s*→\s*(.+)$/);
- const player=header?header[2].replace(/^◆\s*/,'').trim():legacy?legacy[1].replace(/^◆\s*/,'').trim():'';
- const order=header?.[1]||'';
- const result=header?header[3].trim():legacy?legacy[2].trim():main;
- const who=player?(order?`${order}番 ${player}`:player):'打者';
+ const main=raw.split(' ｜ ')[0];
+ const m=main.match(/^(?:\d+番\s*)?(?:◆\s*)?(.+?)(?:\s*（[^）]+）)?\s*→\s*(.+)$/);
+ const player=m?m[1].replace(/^◆\s*/,'').trim():'';
+ const result=m?m[2].trim():main;
+ const who=player||'打者';
  let lead='';
  switch(true){
-   case /本塁打/.test(result): lead=`${who}、打った！ホームラン！`; break;
-   case /三塁打|スリーベース/.test(result): lead=`${who}、三塁打！一気に三塁まで到達！`; break;
-   case /二塁打|ツーベース/.test(result): lead=`${who}、二塁打！鋭い打球で二塁へ！`; break;
-   case /シングルヒット|単打|ライト前ヒット|レフト前ヒット|センター前ヒット/.test(result): lead=`${who}、シングルヒット！まずは出塁！`; break;
+   case /本塁打/.test(result): lead=`${who}、打った！ホームラン！` ; break;
+   case /三塁打/.test(result): lead=`${who}、三塁打！一気に三塁まで到達！`; break;
+   case /二塁打/.test(result): lead=`${who}、二塁打！鋭い打球で二塁へ！`; break;
+   case /シングルヒット|単打/.test(result): lead=`${who}、シングルヒット！まずは出塁！`; break;
    case /四球/.test(result): lead=`${who}、四球を選んで出塁！`; break;
    case /死球/.test(result): lead=`${who}、死球で出塁！`; break;
    case /三振/.test(result): lead=`${who}、三振！ここは打ち取られました。`; break;
@@ -4353,7 +4349,7 @@ function build実況Text(e){
  }
  if(/\d+点/.test(main) || /本塁打/.test(result)) lead += ' 得点が動きます！';
  if(runnerPart) lead += ` ${runnerPart.replace(/盗塁：/g,'盗塁！').replace(/：/g,'、')}`;
- if(/走者/.test(e.kind||'') && !header && !legacy) {
+ if(/走者/.test(e.kind||'') && !m) {
    if(/盗塁/.test(raw)) return raw.includes('アウト')?`盗塁を仕掛ける！${raw}`:`盗塁！${raw}`;
    if(/暴投/.test(raw)) return `暴投！走者が動きます。${raw}`;
    if(/パスボール/.test(raw)) return `捕逸！走者が進みます。${raw}`;
@@ -4572,16 +4568,16 @@ function resultEvents(g){
    const type=s.type==='代打'?'代打':s.type==='代走'?'代走':s.type==='守備交代'?'守備交代':s.type==='守備位置変更'?'守備位置変更':'選手交代';
    const fromName=displayPlayerName(s.from),toName=displayPlayerName(s.to),when=Number(s.inning)?`${Number(s.inning)}回${s.half||''}`:'交代';
    let detail=`${when}　`;
-   if(type==='代打') detail+=`ここでピンチヒッター登場です。${fromName?`${fromName}に代わりまして、`:''}${toName||'代打選手'}。`;
-   else if(type==='代走') detail+=`代走、${fromName?`${fromName}に代わりまして、`:''}${toName||'代走選手'}が${s.runnerBase>=0?`${Number(s.runnerBase)+1}塁`:''}に入ります。`;
-   else if(type==='守備交代') detail+=`選手の交代ならびにシートの変更をお知らせします。${fromName?`${fromName}に代わりまして、`:''}${toName||'交代選手'}が${s.position||'守備'}に入ります。`;
-   else if(type==='守備位置変更') detail+=`シートの変更をお知らせいたします。${fromName||'選手'} ${s.fromPosition||''} から ${s.toPosition||''} へ変わります。`;
-   else detail+=`選手の交代ならびにシートの変更をお知らせします。${fromName?`${fromName}に代わりまして、`:''}${toName||'交代選手'}。`;
+   if(type==='代打') detail+=`代打：${fromName||'選手OUT'}に代わって ${toName||'交代選手'}`;
+   else if(type==='代走') detail+=`代走：${fromName||'選手OUT'}に代わって 「${toName||'交代選手'}」`;
+   else if(type==='守備交代') detail+=`守備交代：${fromName||'選手OUT'}に代わって 「${toName||'交代選手'}」${s.position?`・守備位置：${s.position}`:''}`;
+   else if(type==='守備位置変更') detail+=`守備位置変更：「${fromName||'選手'}」 ${s.fromPosition||''} → ${s.toPosition||''}`;
+   else detail+=`選手交代：${fromName||'選手OUT'}に代わって 「${toName||'交代選手'}」`;
    const ev={seq:Number(s.seq)||0,inning:Number(s.inning)||0,half:s.half||'',text:detail,kind:'選手交代'};
-   ev.commentary=detail;
+   ev.commentary=type==='代打'?`${when}、${toName||'代打選手'}が${fromName?`${fromName}に代わって`:''}打席へ。`:type==='代走'?`${when}、${toName||'代走選手'}が${fromName?`${fromName}に代わって`:''}走者へ。`:type==='守備交代'?`${when}、${toName||'交代選手'}が${fromName?`${fromName}に代わって`:''}守備に入ります${s.position?`。守備位置は${s.position}です`:''}。`:type==='守備位置変更'?`${when}、${fromName||'選手'}の守備位置を${s.fromPosition||''}から${s.toPosition||''}へ変更。`:`${when}、${toName||'交代選手'}が${fromName?`${fromName}に代わって`:''}出場します。`;
    return ev;
  });
- const pitchingEvents=(g.pitching?.history||[]).filter((x,i)=>i>0).map((x,i)=>{const history=g.pitching?.history||[];const prev=history[history.indexOf(x)-1];const fromName=displayPlayerName(prev?.name);const toName=displayPlayerName(x.name);const ev={seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`ピッチャー${fromName||''}に代わりまして、${toName||'交代投手'}。`,kind:'選手交代'};ev.commentary=ev.text;return ev;});
+ const pitchingEvents=(g.pitching?.history||[]).filter((x,i)=>i>0).map((x,i)=>{const history=g.pitching?.history||[];const prev=history[history.indexOf(x)-1];const fromName=displayPlayerName(prev?.name);const toName=displayPlayerName(x.name);const ev={seq:Number(x.seq)||0,inning:x.enteredInning,half:x.enteredHalf,text:`${Number(x.enteredInning)||''}回${x.enteredHalf||''}　投手交代：${fromName||'選手OUT'}に代わって 「${toName||'交代投手'}」`,kind:'選手交代'};ev.commentary=`${Number(x.enteredInning)||''}回${x.enteredHalf||''}、投手交代。${toName||'交代投手'}が${fromName?`${fromName}に代わって`:''}マウンドへ。`;return ev;});
  return [...paEvents,...standaloneRunner,...substitutionEvents,...pitchingEvents].sort((a,b)=>a.seq-b.seq||a.inning-b.inning||(a.half==='表'?0:1)-(b.half==='表'?0:1));
 }
 function resultInningRows(g){
@@ -4615,26 +4611,10 @@ function renderUguisuMode(g){
  const activeId=g?.id??'shared';
  if(uguisuModeGameId!==activeId)return '';
  const events=(resultEvents(g)||[]).slice().sort((a,b)=>(Number(a.seq)||0)-(Number(b.seq)||0));
- const myName=String(g.sharedTeamName||g.sourceTeamName||db.team.name||'西春高校');
- const oppName=String(g.opponent||'相手校');
- const firstIsOwn=g.order!=='後攻';
- const scoreAtEndOfInning=n=>{
-   let us=0,opp=0;
-   (Array.isArray(g.innings)?g.innings:[]).slice(0,Math.max(0,n)).forEach(v=>{us+=Number(v?.us)||0;opp+=Number(v?.opp)||0;});
-   return firstIsOwn?{away:us,home:opp}:{away:opp,home:us};
- };
- let priorInning=null;
  const lines=events.map(e=>{
    const inning=Number(e.inning)||1,half=e.half==='裏'?'裏':'表';
-   let transition='';
-   if(priorInning!==null&&inning>priorInning){
-     const score=scoreAtEndOfInning(priorInning);
-     const awayName=firstIsOwn?myName:oppName,homeName=firstIsOwn?oppName:myName;
-     transition=`<div class="uguisuInningScore"><strong>${priorInning}回終了</strong><span>${esc(awayName)} ${score.away} 対 ${score.home} ${esc(homeName)}</span></div>`;
-   }
-   priorInning=Math.max(priorInning||0,inning);
    const words=String(e.commentary||build実況Text(e)||'プレーが記録されました。').trim();
-   return `${transition}<div class="uguisuLine"><span class="uguisuWhen">${inning}回${half}</span><p>${esc(words)}</p></div>`;
+   return `<div class="uguisuLine"><span class="uguisuWhen">${inning}回${half}</span><p>${esc(words)}</p></div>`;
  }).join('');
  return `<section class="uguisuMode" role="dialog" aria-modal="true" aria-label="ウグイス嬢モード"><div class="uguisuHead"><div><strong>🎙 ウグイス嬢モード</strong><small>${esc(g.sharedTeamName||g.sourceTeamName||db.team.name||'西春高校')}　${esc(g.opponent||'相手校')}</small></div><button class="btn" onclick="closeUguisuMode()" aria-label="閉じる">閉じる ✕</button></div><div class="uguisuBody">${lines||'<p class="empty">読み上げる試合記録がありません。</p>'}</div><p class="uguisuNote">記録済みの試合経過から文章を表示しています。音声読み上げは未実装です。</p></section>`;
 }
