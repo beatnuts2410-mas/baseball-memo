@@ -1,0 +1,9 @@
+{
+  "version": "v3.03.02",
+  "source_bytes": 1923026,
+  "gzip_bytes": 1109837,
+  "base64_bytes": 1479784,
+  "chunks": 30,
+  "chunk_size": 50000,
+  "sha256": "a013afaf63fb7760ccb31b9f69a13b1acae71f9c95c0aae14813a8b291db6463"
+}
