@@ -1,0 +1,11 @@
+{
+  "version": "v3.03.02",
+  "source_file": "index.html",
+  "original_bytes": 1923026,
+  "gzip_bytes": 1109837,
+  "base64_chars": 1479784,
+  "chunk_size": 50000,
+  "chunks": 30,
+  "sha256": "a013afaf63fb7760ccb31b9f69a13b1acae71f9c95c0aae14813a8b291db6463",
+  "gzip_sha256": "574cb19b19e7c0c3bbcb76fe7f1adebe292eff7397d5d0b8eae56fdf5be3bf78"
+}
