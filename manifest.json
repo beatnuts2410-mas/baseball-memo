@@ -1,11 +1,10 @@
 {
-  "version": "v3.03.02",
-  "source_file": "index.html",
-  "original_bytes": 1923026,
-  "gzip_bytes": 1109837,
-  "base64_chars": 1479784,
+  "version": "v3.03.14",
+  "source_sha256": "e9577dd7f16a27ea5f12e447523591126c1a7997646fdaa7d3ef6b427dbc11b1",
+  "source_bytes": 2671752,
+  "gzip_sha256": "ca048f4b2282e072a232cc12ce76a31b38d7f4359d46f0381ea755a28b949b27",
+  "gzip_bytes": 1676851,
+  "base64_chars": 2235804,
   "chunk_size": 50000,
-  "chunks": 30,
-  "sha256": "a013afaf63fb7760ccb31b9f69a13b1acae71f9c95c0aae14813a8b291db6463",
-  "gzip_sha256": "574cb19b19e7c0c3bbcb76fe7f1adebe292eff7397d5d0b8eae56fdf5be3bf78"
+  "chunks": 45
 }
