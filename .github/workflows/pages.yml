@@ -17,8 +17,16 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout app files only
         uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            /index.html
+            /v30315-latest.html
+            /v30315-runtime-patch.js
+            /chunk-*.txt
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
