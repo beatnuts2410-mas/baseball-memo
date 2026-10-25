@@ -23,6 +23,7 @@ jobs:
           sparse-checkout: |
             /index.html
             /v30315-latest.html
+            /野球メモ_v3.03.15_更新版.html
             /v30315-runtime-patch.js
             /chunk-*.txt
           sparse-checkout-cone-mode: false
