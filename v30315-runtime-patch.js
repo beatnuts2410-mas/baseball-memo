@@ -9,10 +9,24 @@ function seasonBattingStats315(games){
   const m=String(g.date||'').match(/(?:^|\D)((?:19|20)\d{2})(?:\D|$)/);const year=m?m[1]:'年度不明';
   if(!seasons.has(year))seasons.set(year,new Map());const players=seasons.get(year);
   let stats=null;try{stats=typeof battingStats==='function'?battingStats(g):null;}catch(e){stats=null;}
-  const all=[...(stats?.starters||[]),...(stats?.replacements||[]).map(x=>x.stat),...(stats?.rest||[])];
+  const all=[...(stats?.starters||[]),...(stats?.replacements||[]).map(x=>x?.stat),...(stats?.rest||[])];
   const appeared=new Set();
-  all.forEach(s=>{if(!s?.name)return;if(!players.has(s.name))players.set(s.name,{name:s.name,games:0,pa:0,ab:0,h:0,hr:0,rbi:0,sb:0});const t=players.get(s.name);if(!appeared.has(s.name)){t.games++;appeared.add(s.name)};['pa','ab','h','hr','rbi'].forEach(k=>t[k]+=Number(s[k])||0)});
-  (Array.isArray(g.runnerMoves)?g.runnerMoves:[]).forEach(r=>{if(r?.type!=='盗塁')return;const n=nameOf(r.name)||'不明';if(!players.has(n))players.set(n,{name:n,games:0,pa:0,ab:0,h:0,hr:0,rbi:0,sb:0});const t=players.get(n);if(!appeared.has(n)){t.games++;appeared.add(n)}if(r.judgement==='セーフ')t.sb++});
+  all.forEach(s=>{
+   if(!s?.name)return;
+   if(!players.has(s.name))players.set(s.name,{name:s.name,games:0,pa:0,ab:0,h:0,hr:0,rbi:0,sb:0});
+   const t=players.get(s.name);
+   if(!appeared.has(s.name)){t.games++;appeared.add(s.name);}
+   ['pa','ab','h','hr','rbi'].forEach(k=>t[k]+=Number(s[k])||0);
+  });
+  (Array.isArray(g.runnerMoves)?g.runnerMoves:[]).forEach(r=>{
+   if(r?.type!=='盗塁'||r?.judgement!=='セーフ')return;
+   const n=nameOf(r.name);
+   if(!n)return;
+   if(!players.has(n))players.set(n,{name:n,games:0,pa:0,ab:0,h:0,hr:0,rbi:0,sb:0});
+   const t=players.get(n);
+   if(!appeared.has(n)){t.games++;appeared.add(n);}
+   t.sb++;
+  });
  });
  return [...seasons.entries()].sort((a,b)=>b[0].localeCompare(a[0])).map(([year,ps])=>({year,players:[...ps.values()].sort((a,b)=>a.name.localeCompare(b.name,'ja')).map(s=>({...s,avg:s.ab?s.h/s.ab:0}))}));
 }
