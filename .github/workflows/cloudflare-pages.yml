@@ -16,8 +16,19 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout production assets
+      - name: Checkout production assets only
         uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            /index.html
+            /chunk-*.txt
+            /v30315-runtime-patch.js
+            /manifest.webmanifest
+            /sw.js
+            /icon-192.png
+            /icon-512.png
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
       - name: Assemble complete static site
         shell: bash
         run: |
@@ -30,7 +41,7 @@ jobs:
           done
           test -f deploy/index.html
           test -f deploy/v30315-runtime-patch.js
-          for i in $(seq -w 0 44); do test -f "deploy/chunk-$i.txt"; done
+          for n in $(seq 0 44); do i=$(printf '%02d' "$n"); test -s "deploy/chunk-$i.txt"; done
           echo "Validated $(find deploy -maxdepth 1 -type f | wc -l) files for same-origin deployment."
       - name: Deploy to the existing Cloudflare Pages project
         uses: cloudflare/wrangler-action@v3
