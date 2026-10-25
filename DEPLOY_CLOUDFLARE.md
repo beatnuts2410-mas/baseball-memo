@@ -1,38 +1,31 @@
-# 野球メモ 本番公開手順（Cloudflare Pages）
+# 野球メモ 本番公開・復旧手順（Cloudflare Pages）
 
-Cloudflare Pages の Direct Upload は、完成済みの静的ファイルをドラッグ&ドロップまたはCLIで公開できます。
+## 最重要：既存プロジェクトを更新する
 
-## 1. Cloudflareにログイン
-Cloudflareのダッシュボードで Workers & Pages を開きます。
+本番URL `https://baseball-memo.pages.dev/` と過去の記録を守るため、**新しいPagesプロジェクトを作成しない**でください。既存の `baseball-memo` プロジェクトを更新します。別ドメインへ切り替えると、ブラウザの localStorage に保存された記録は自動では引き継がれません。
 
-## 2. 新規作成
-Create application → Pages → Direct Upload / Drag and drop を選択。
+## 公開に必要なファイル
 
-## 3. プロジェクト名
-例：`baseball-memo`
+現在の `index.html` は、同じディレクトリから次のファイルを読み込みます。
 
-公開URLは通常 `https://baseball-memo.pages.dev` の形式になります。名前が使用済みなら別名になります。
+- `chunk-00.txt` ～ `chunk-44.txt`（45ファイルすべて）
+- `v30315-runtime-patch.js`
+- `manifest.webmanifest`
+- `sw.js`
+- `icon-192.png`
+- `icon-512.png`
+- `index.html`
 
-## 4. アップロード
-このZIPを解凍し、次のファイルをサイト直下の状態でアップロードします。
+すべてをサイトのルート直下に置いてください。**index.html だけ、または以前の手順にある5ファイルだけでは不十分**です。チャンクやランタイムパッチが欠けるとアプリは起動しません。
 
-- index.html
-- manifest.webmanifest
-- sw.js
-- icon-192.png
-- icon-512.png
+## 更新前の安全確認
 
-README等は公開サイトに不要なので、アップロード対象から外して構いません。
+1. 既存の本番URLを開き、過去の試合記録が表示されるか確認します。
+2. 表示される場合は、既存の保存データを消去せずに作業します。ブラウザデータ・localStorage・サイトデータを削除しないでください。
+3. Cloudflare の既存 `baseball-memo` プロジェクトで最新のアップロードを行います。新規プロジェクトを作らないでください。
+4. 更新後、本番URL `https://baseball-memo.pages.dev/` を開き、起動、記録一覧、既存記録の表示、試合追加、データタブの操作を確認します。
+5. 過去の記録が表示されない場合は、初期化や新規データ保存をせずに停止し、元データの復旧を先に行います。
 
-## 5. 動作確認
-HTTPSの公開URLをAndroid ChromeまたはiPhone Safariで開きます。
+## 注意
 
-Android：ブラウザメニュー → ホーム画面に追加 / アプリをインストール
-
-iPhone：共有 → ホーム画面に追加
-
-アイコンが以前のキャッシュになっている場合は、古いショートカットを削除してから再追加してください。
-
-## 6. 更新
-Direct Uploadプロジェクトは、同じプロジェクトに新しいファイルをアップロードして更新できます。
-将来的にGitHub連携で自動更新したい場合は、最初からGit integration方式で別プロジェクトを作る方が安全です。
+この文書は公開ファイルの要件を記したものです。GitHubへのコミットだけではCloudflare Pagesの本番URLは更新されません。Cloudflare側で既存プロジェクトへのアップロードが完了し、本番URLで実機確認するまでは復旧完了と判断しないでください。
