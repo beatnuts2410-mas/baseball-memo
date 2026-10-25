@@ -38,43 +38,8 @@ if(typeof window.dataView==='function'){
  const oldDataView=window.dataView;
  window.dataView=function(){const html=oldDataView.apply(this,arguments);if(window.sharedGame||window.resultGameId)return html;try{const games=(window.db&&Array.isArray(db.games))?db.games.slice().reverse():[];return renderSeason315(games)+html}catch(e){console.warn('v30315 season patch',e);return html;}};
 }
-/* Mobile bottom navigation fix: make tab taps reliable and explicitly route Data taps through render(). */
-const navStyle=document.createElement('style');
-navStyle.textContent='.tabs{position:fixed!important;z-index:2147483646!important;pointer-events:auto!important;touch-action:manipulation!important}.tabs .tab{position:relative!important;z-index:2147483647!important;pointer-events:auto!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important;cursor:pointer!important}';
-document.head.appendChild(navStyle);
-function hardTabSwitch(next){
- const nextTab=String(next||'');
- if(!['record','team','lineup','data'].includes(nextTab))return;
- try{tab=nextTab;}catch(e){window.__v30315Tab=nextTab;}
- if(nextTab==='data'){
-  try{resultGameId=null;sharedGame=null;history.replaceState(null,'',location.pathname+location.search);}catch(e){}
- }
- try{render();}catch(e){console.warn('v30315 tab switch',e);}
-}
-function installTabGuard(){
- const tabs=document.querySelector('.tabs');
- if(!tabs)return;
- tabs.style.pointerEvents='auto';
- document.querySelectorAll('.tabs .tab').forEach(b=>{b.style.pointerEvents='auto';b.style.touchAction='manipulation';});
- if(window.__v30315TabGuardInstalled)return;
- window.__v30315TabGuardInstalled=true;
- document.addEventListener('click',function(ev){
-  const b=ev.target?.closest?.('.tabs .tab[data-tab]');
-  if(!b)return;
-  ev.preventDefault();
-  ev.stopImmediatePropagation();
-  hardTabSwitch(b.dataset.tab);
- },true);
- document.addEventListener('touchend',function(ev){
-  const b=ev.target?.closest?.('.tabs .tab[data-tab]');
-  if(!b)return;
-  ev.preventDefault();
-  ev.stopImmediatePropagation();
-  hardTabSwitch(b.dataset.tab);
- },{capture:true,passive:false});
-}
-installTabGuard();
-new MutationObserver(installTabGuard).observe(document.documentElement,{childList:true,subtree:true});
+/* Do not intercept tab events here. The app's own click handlers must switch tabs.
+   The previous capture-phase click/touchend guard could swallow native tab handling. */
 const style=document.createElement('style');style.textContent='.seasonStatsCard315{margin-bottom:12px}.seasonStatsSection315{margin-top:12px}.seasonStatsSection315 h3{margin:0 0 8px;font-size:16px}.seasonStatsTable315{min-width:760px}.seasonStatsTable315 th,.seasonStatsTable315 td{white-space:nowrap}.seasonStatsTable315 td{text-align:center}.seasonStatsTable315 td:first-child,.seasonStatsTable315 th:first-child{text-align:left;position:sticky;left:0;background:#fff;z-index:2}.seasonStatsTable315 th{position:sticky;top:0;z-index:3}';document.head.appendChild(style);
 
 /* Restore the original Home control: return to the main recording screen. */
