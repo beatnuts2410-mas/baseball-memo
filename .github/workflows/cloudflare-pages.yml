@@ -1,0 +1,40 @@
+name: Deploy existing Cloudflare Pages project
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-pages-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout production assets
+        uses: actions/checkout@v4
+      - name: Assemble complete static site
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p deploy
+          cp index.html v30315-runtime-patch.js deploy/
+          cp chunk-*.txt deploy/
+          for f in manifest.webmanifest sw.js icon-192.png icon-512.png; do
+            if [ -f "$f" ]; then cp "$f" deploy/; fi
+          done
+          test -f deploy/index.html
+          test -f deploy/v30315-runtime-patch.js
+          for i in $(seq -w 0 44); do test -f "deploy/chunk-$i.txt"; done
+          echo "Validated $(find deploy -maxdepth 1 -type f | wc -l) files for same-origin deployment."
+      - name: Deploy to the existing Cloudflare Pages project
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy deploy --project-name=baseball-memo --branch=main
