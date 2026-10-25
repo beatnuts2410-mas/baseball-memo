@@ -47,5 +47,5 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          accountId: af4a32465631a47f6e1375ba64a9cbcb
           command: pages deploy deploy --project-name=baseball-memo --branch=main
