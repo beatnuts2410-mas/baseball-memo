@@ -38,8 +38,32 @@ if(typeof window.dataView==='function'){
  const oldDataView=window.dataView;
  window.dataView=function(){const html=oldDataView.apply(this,arguments);if(window.sharedGame||window.resultGameId)return html;try{const games=(window.db&&Array.isArray(db.games))?db.games.slice().reverse():[];return renderSeason315(games)+html}catch(e){console.warn('v30315 season patch',e);return html;}};
 }
-/* Do not intercept tab events here. The app's own click handlers must switch tabs.
-   The previous capture-phase click/touchend guard could swallow native tab handling. */
+/* Reliable tab routing: delegate click only; avoid touchend+click double firing.
+   Keep hit targets limited to the actual tab buttons and do not force a fixed overlay. */
+function hardTabSwitch(next){
+ const nextTab=String(next||'');
+ if(!['record','team','lineup','data'].includes(nextTab))return;
+ try{tab=nextTab;}catch(e){window.__v30315Tab=nextTab;}
+ if(nextTab==='data'){
+  try{resultGameId=null;sharedGame=null;history.replaceState(null,'',location.pathname+location.search);}catch(e){}
+ }
+ try{render();}catch(e){console.warn('v30315 tab switch',e);}
+}
+function installTabGuard(){
+ if(window.__v30315TabGuardInstalled)return;
+ window.__v30315TabGuardInstalled=true;
+ document.addEventListener('click',function(ev){
+  const b=ev.target?.closest?.('.tabs .tab[data-tab]');
+  if(!b)return;
+  const next=b.dataset.tab;
+  if(!['record','team','lineup','data'].includes(next))return;
+  ev.preventDefault();
+  ev.stopImmediatePropagation();
+  hardTabSwitch(next);
+ },true);
+}
+installTabGuard();
+
 const style=document.createElement('style');style.textContent='.seasonStatsCard315{margin-bottom:12px}.seasonStatsSection315{margin-top:12px}.seasonStatsSection315 h3{margin:0 0 8px;font-size:16px}.seasonStatsTable315{min-width:760px}.seasonStatsTable315 th,.seasonStatsTable315 td{white-space:nowrap}.seasonStatsTable315 td{text-align:center}.seasonStatsTable315 td:first-child,.seasonStatsTable315 th:first-child{text-align:left;position:sticky;left:0;background:#fff;z-index:2}.seasonStatsTable315 th{position:sticky;top:0;z-index:3}';document.head.appendChild(style);
 
 /* Restore the original Home control: return to the main recording screen. */
