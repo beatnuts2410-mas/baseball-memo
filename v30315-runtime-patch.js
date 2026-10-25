@@ -76,4 +76,34 @@ function installTabGuard(){
 installTabGuard();
 new MutationObserver(installTabGuard).observe(document.documentElement,{childList:true,subtree:true});
 const style=document.createElement('style');style.textContent='.seasonStatsCard315{margin-bottom:12px}.seasonStatsSection315{margin-top:12px}.seasonStatsSection315 h3{margin:0 0 8px;font-size:16px}.seasonStatsTable315{min-width:760px}.seasonStatsTable315 th,.seasonStatsTable315 td{white-space:nowrap}.seasonStatsTable315 td{text-align:center}.seasonStatsTable315 td:first-child,.seasonStatsTable315 th:first-child{text-align:left;position:sticky;left:0;background:#fff;z-index:2}.seasonStatsTable315 th{position:sticky;top:0;z-index:3}';document.head.appendChild(style);
+
+/* Restore the original Home control: return to the main recording screen. */
+function installHomeGuard(){
+ if(window.__v30315HomeGuardInstalled)return;
+ window.__v30315HomeGuardInstalled=true;
+ function handleHome(ev){
+  const el=ev.target?.closest?.('button,a,[role="button"],[data-action],[data-tab]');
+  if(!el)return;
+  if(el.closest?.('.tabs .tab[data-tab]'))return;
+  const label=String(el.getAttribute('aria-label')||el.getAttribute('title')||el.dataset?.action||el.textContent||'').replace(/\\s+/g,'').toLowerCase();
+  const isHome=label==='ホーム'||label.includes('ホームに戻る')||label.includes('ホームへ戻る')||label==='home'||label.includes('gohome')||el.dataset?.action==='home';
+  if(!isHome)return;
+  ev.preventDefault();
+  ev.stopImmediatePropagation();
+  hardTabSwitch('record');
+ }
+ document.addEventListener('click',handleHome,true);
+ document.addEventListener('touchend',function(ev){
+  const el=ev.target?.closest?.('button,a,[role="button"],[data-action],[data-tab]');
+  if(!el)return;
+  const label=String(el.getAttribute('aria-label')||el.getAttribute('title')||el.dataset?.action||el.textContent||'').replace(/\\s+/g,'').toLowerCase();
+  const isHome=label==='ホーム'||label.includes('ホームに戻る')||label.includes('ホームへ戻る')||label==='home'||label.includes('gohome')||el.dataset?.action==='home';
+  if(!isHome||el.closest?.('.tabs .tab[data-tab]'))return;
+  ev.preventDefault();
+  ev.stopImmediatePropagation();
+  hardTabSwitch('record');
+ },{capture:true,passive:false});
+}
+installHomeGuard();
+
 })();
