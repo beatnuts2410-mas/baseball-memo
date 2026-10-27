@@ -1,0 +1,50 @@
+name: Deploy Cloudflare Pages preview
+
+on:
+  push:
+    branches: [test/v3.03.16-opponent-attack]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-pages-preview-v30316
+  cancel-in-progress: false
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preview assets only
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            /index.html
+            /chunk-*.txt
+            /v30315-runtime-patch.js
+            /manifest.webmanifest
+            /sw.js
+            /icon-192.png
+            /icon-512.png
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+      - name: Assemble complete static site
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p deploy
+          cp index.html v30315-runtime-patch.js deploy/
+          cp chunk-*.txt deploy/
+          for f in manifest.webmanifest sw.js icon-192.png icon-512.png; do
+            if [ -f "$f" ]; then cp "$f" deploy/; fi
+          done
+          test -f deploy/index.html
+          test -f deploy/v30315-runtime-patch.js
+          for n in $(seq 0 44); do i=$(printf '%02d' "$n"); test -s "deploy/chunk-$i.txt"; done
+      - name: Deploy preview branch
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: af4a32465631a47f6e1375ba64a9cbcb
+          command: pages deploy deploy --project-name=baseball-memo --branch=test-v3-03-16-opponent-attack
