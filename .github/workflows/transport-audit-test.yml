@@ -16,17 +16,19 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           import gzip, base64, hashlib
-          payload = ('<html><body>TRANSPORT-AUDIT-v3.03.16\n' + ('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' * 50000) + '</body></html>\n').encode()
+          blocks=[]
+          for i in range(60000):
+              blocks.append(hashlib.sha256(f'transport-audit-v3.03.16-{i}'.encode()).digest())
+          payload = b'TRANSPORT-AUDIT-v3.03.16\n' + b''.join(blocks)
           with gzip.GzipFile('/tmp/payload.gz', 'wb', mtime=0) as f:
               f.write(payload)
           encoded = base64.b64encode(open('/tmp/payload.gz','rb').read()).decode('ascii')
-          assert len(encoded) > 44 * 50000
-          assert len(encoded) <= 45 * 50000
-          open('/tmp/payload.b64','w').write(encoded)
-          open('/tmp/source.sha256','w').write(hashlib.sha256(payload).hexdigest()+'\n')
           print('source_bytes=',len(payload))
           print('gzip_bytes=',len(open('/tmp/payload.gz','rb').read()))
           print('base64_bytes=',len(encoded))
+          assert 44 * 50000 < len(encoded) <= 45 * 50000
+          open('/tmp/payload.b64','w').write(encoded)
+          open('/tmp/source.sha256','w').write(hashlib.sha256(payload).hexdigest()+'\n')
           PY
           rm -rf /tmp/chunks && mkdir /tmp/chunks
           split -b 50000 -d -a 2 /tmp/payload.b64 /tmp/chunks/chunk-
@@ -49,6 +51,6 @@ jobs:
           print('actual_sha256=',got)
           print('reconstructed_bytes=',len(actual))
           assert got == expected
-          assert actual.startswith(b'<html><body>TRANSPORT-AUDIT-v3.03.16')
+          assert actual.startswith(b'TRANSPORT-AUDIT-v3.03.16')
           PY
           echo 'TRANSPORT_AUDIT_PASS'
