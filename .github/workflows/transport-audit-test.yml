@@ -1,0 +1,54 @@
+name: transport-audit-test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - test/v3.03.16-transport
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build deterministic 45-chunk payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import gzip, base64, hashlib
+          payload = ('<html><body>TRANSPORT-AUDIT-v3.03.16\n' + ('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' * 50000) + '</body></html>\n').encode()
+          with gzip.GzipFile('/tmp/payload.gz', 'wb', mtime=0) as f:
+              f.write(payload)
+          encoded = base64.b64encode(open('/tmp/payload.gz','rb').read()).decode('ascii')
+          assert len(encoded) > 44 * 50000
+          assert len(encoded) <= 45 * 50000
+          open('/tmp/payload.b64','w').write(encoded)
+          open('/tmp/source.sha256','w').write(hashlib.sha256(payload).hexdigest()+'\n')
+          print('source_bytes=',len(payload))
+          print('gzip_bytes=',len(open('/tmp/payload.gz','rb').read()))
+          print('base64_bytes=',len(encoded))
+          PY
+          rm -rf /tmp/chunks && mkdir /tmp/chunks
+          split -b 50000 -d -a 2 /tmp/payload.b64 /tmp/chunks/chunk-
+          count=$(find /tmp/chunks -type f | wc -l)
+          test "$count" -eq 45
+          echo "chunk_count=$count"
+      - name: Reassemble and verify SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat /tmp/chunks/chunk-* > /tmp/reassembled.b64
+          cmp /tmp/payload.b64 /tmp/reassembled.b64
+          base64 -d /tmp/reassembled.b64 > /tmp/reassembled.gz
+          python3 - <<'PY'
+          import gzip, hashlib
+          actual = gzip.open('/tmp/reassembled.gz','rb').read()
+          expected = open('/tmp/source.sha256').read().strip()
+          got = hashlib.sha256(actual).hexdigest()
+          print('expected_sha256=',expected)
+          print('actual_sha256=',got)
+          print('reconstructed_bytes=',len(actual))
+          assert got == expected
+          assert actual.startswith(b'<html><body>TRANSPORT-AUDIT-v3.03.16')
+          PY
+          echo 'TRANSPORT_AUDIT_PASS'
