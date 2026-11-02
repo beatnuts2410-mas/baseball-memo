@@ -54,3 +54,32 @@ jobs:
           assert actual.startswith(b'TRANSPORT-AUDIT-v3.03.16')
           PY
           echo 'TRANSPORT_AUDIT_PASS'
+      - name: Verify live Cloudflare 45-chunk transport
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://baseball-memo.pages.dev/'
+          rm -rf /tmp/live && mkdir /tmp/live
+          curl -fsSL --retry 3 --retry-all-errors "${base}" -o /tmp/live/index.html
+          grep -q "Array.from({length:45}" /tmp/live/index.html
+          for i in $(seq -w 0 44); do
+            curl -fsSL --retry 3 --retry-all-errors "${base}chunk-${i}.txt" -o "/tmp/live/chunk-${i}.txt"
+          done
+          cat /tmp/live/chunk-*.txt > /tmp/live/reassembled.b64
+          python3 - <<'PY'
+          import base64, gzip, hashlib, pathlib
+          idx=pathlib.Path('/tmp/live/index.html').read_text(encoding='utf-8')
+          encoded=pathlib.Path('/tmp/live/reassembled.b64').read_text().strip()
+          raw=base64.b64decode(encoded, validate=True)
+          html=gzip.decompress(raw)
+          digest=hashlib.sha256(html).hexdigest()
+          print('live_index_bytes=',len(idx.encode()))
+          print('live_base64_bytes=',len(encoded))
+          print('live_gzip_bytes=',len(raw))
+          print('live_reconstructed_html_bytes=',len(html))
+          print('live_reconstructed_sha256=',digest)
+          assert len(encoded) > 44*50000
+          assert len(encoded) <= 45*50000
+          assert b'(async function bootApp(){' in html
+          PY
+          echo 'LIVE_TRANSPORT_AUDIT_PASS'
