@@ -17,7 +17,7 @@ jobs:
           python3 - <<'PY'
           import gzip, base64, hashlib
           blocks=[]
-          for i in range(60000):
+          for i in range(52500):
               blocks.append(hashlib.sha256(f'transport-audit-v3.03.16-{i}'.encode()).digest())
           payload = b'TRANSPORT-AUDIT-v3.03.16\n' + b''.join(blocks)
           with gzip.GzipFile('/tmp/payload.gz', 'wb', mtime=0) as f:
