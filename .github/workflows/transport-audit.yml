@@ -26,9 +26,20 @@ jobs:
           cat chunk-*.txt > /tmp/payload.b64
           python3 - <<'PY'
           import base64, gzip, hashlib, pathlib
+          EXPECTED_RAW='c1e517ce548dba366439090b694e3960e50b13e1c05ac0c009808da38c2b5674'
+          EXPECTED_B64='bd695d1d35f396029f904e3ace96010dd63889c6c0c986dded90c6db70fb19ca'
           b64 = pathlib.Path('/tmp/payload.b64').read_text().strip()
+          b64_sha = hashlib.sha256(b64.encode()).hexdigest()
           raw = gzip.decompress(base64.b64decode(b64))
+          raw_sha = hashlib.sha256(raw).hexdigest()
+          print('base64_bytes=', len(b64))
+          print('base64_sha256=', b64_sha)
           print('reconstructed_bytes=', len(raw))
-          print('reconstructed_sha256=', hashlib.sha256(raw).hexdigest())
+          print('reconstructed_sha256=', raw_sha)
+          assert len(b64) == 2240944
+          assert b64_sha == EXPECTED_B64
+          assert len(raw) == 2684522
+          assert raw_sha == EXPECTED_RAW
           assert b'(async function bootApp(){' in raw
           PY
+          echo 'V30316_TRANSPORT_SHA_PASS'
