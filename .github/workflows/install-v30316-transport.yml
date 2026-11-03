@@ -1,0 +1,60 @@
+name: Install exact v3.03.16 transport
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'v3.03.16-transport/baseball_memo_v3.03.16*.zip'
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout test branch
+        uses: actions/checkout@v4
+        with:
+          ref: test/v3.03.16-transport
+          fetch-depth: 0
+
+      - name: Rebuild exact 45 transport chunks
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP=$(find v3.03.16-transport -maxdepth 1 -type f -name 'baseball_memo_v3.03.16*.zip' | head -n 1)
+          test -n "$ZIP"
+          rm -rf /tmp/v30316
+          mkdir -p /tmp/v30316
+          unzip -q "$ZIP" -d /tmp/v30316
+          HTML=$(find /tmp/v30316 -type f -name 'baseball_memo_v3.03.16*.html' | head -n 1)
+          test -n "$HTML"
+          python3 - "$HTML" <<'PY'
+          import base64, gzip, hashlib, pathlib, sys
+          src = pathlib.Path(sys.argv[1]).read_bytes()
+          expected = 'c1e517ce548dba366439090b694e3960e50b13e1c05ac0c009808da38c2b5674'
+          assert hashlib.sha256(src).hexdigest() == expected
+          gz = gzip.compress(src, mtime=0)
+          b64 = base64.b64encode(gz).decode('ascii')
+          assert hashlib.sha256(b64.encode()).hexdigest() == 'bd695d1d35f396029f904e3ace96010dd63889c6c0c986dd90c6db70fb19ca'
+          assert len(src) == 2684522 and len(gz) == 1680707 and len(b64) == 2240944
+          for p in pathlib.Path('.').glob('chunk-*.txt'):
+              p.unlink()
+          for i in range(45):
+              part = b64[i*50000:(i+1)*50000]
+              assert part
+              pathlib.Path(f'chunk-{i:02d}.txt').write_text(part, encoding='utf-8')
+          assert len(list(pathlib.Path('.').glob('chunk-*.txt'))) == 45
+          print('Exact v3.03.16 transport chunks rebuilt successfully')
+          PY
+
+      - name: Commit exact chunks
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add chunk-*.txt
+          git commit -m 'Install exact v3.03.16 transport chunks' || echo 'No chunk changes to commit'
+          git push origin HEAD:test/v3.03.16-transport
