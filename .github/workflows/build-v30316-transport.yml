@@ -1,0 +1,60 @@
+name: build-v30316-transport
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - test/v3.03.16-transport
+    paths:
+      - 'v3.03.16-transport/*.zip'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify supplied ZIP and rebuild transport chunks
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          zips=(v3.03.16-transport/*.zip)
+          test "${#zips[@]}" -eq 1
+          mkdir -p /tmp/v30316
+          unzip -q "${zips[0]}" -d /tmp/v30316
+          htmls=(/tmp/v30316/*.html)
+          test "${#htmls[@]}" -eq 1
+          python3 - "${htmls[0]}" <<'PY'
+          import sys, gzip, base64, hashlib, pathlib
+          p=pathlib.Path(sys.argv[1])
+          data=p.read_bytes()
+          expected='c1e517ce548dba366439090b694e3960e50b13e1c05ac0c009808da38c2b5674'
+          actual=hashlib.sha256(data).hexdigest()
+          print('html_bytes=',len(data))
+          print('html_sha256=',actual)
+          assert len(data)==2684522, 'unexpected HTML byte length'
+          assert actual==expected, 'HTML SHA-256 mismatch'
+          gz=gzip.compress(data,mtime=0)
+          encoded=base64.b64encode(gz).decode('ascii')
+          assert len(encoded)==2240944, 'unexpected base64 length'
+          assert hashlib.sha256(encoded.encode()).hexdigest()=='bd695d1d35f396029f904e3ace96010dd63889c6c0c986dded90c6db70fb19ca', 'base64 SHA mismatch'
+          out=pathlib.Path('v3.03.16-transport/chunks')
+          out.mkdir(parents=True,exist_ok=True)
+          for f in out.glob('chunk-*.txt'): f.unlink()
+          for i in range(0,len(encoded),50000):
+              (out/f'chunk-{i//50000:02d}.txt').write_text(encoded[i:i+50000],encoding='ascii')
+          print('chunk_count=',len(list(out.glob('chunk-*.txt'))))
+          PY
+          test "$(find v3.03.16-transport/chunks -name 'chunk-*.txt' | wc -l)" -eq 45
+      - name: Commit verified chunks
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add v3.03.16-transport/chunks
+          git diff --cached --quiet || git commit -m "Build verified v3.03.16 transport chunks"
+          git push
