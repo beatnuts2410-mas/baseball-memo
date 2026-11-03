@@ -54,11 +54,13 @@ jobs:
           assert actual.startswith(b'TRANSPORT-AUDIT-v3.03.16')
           PY
           echo 'TRANSPORT_AUDIT_PASS'
-      - name: Verify live Cloudflare 45-chunk transport
+      - name: Verify live Cloudflare is exact v3.03.16 payload
         shell: bash
         run: |
           set -euo pipefail
           base='https://baseball-memo.pages.dev/'
+          expected_sha='c1e517ce548dba366439090b694e3960e50b13e1c05ac0c009808da38c2b5674'
+          expected_b64='bd695d1d35f396029f904e3ace96010dd63889c6c0c986dded90c6db70fb19ca'
           rm -rf /tmp/live && mkdir /tmp/live
           curl -fsSL --retry 3 --retry-all-errors "${base}" -o /tmp/live/index.html
           grep -q "Array.from({length:45}" /tmp/live/index.html
@@ -68,18 +70,20 @@ jobs:
           cat /tmp/live/chunk-*.txt > /tmp/live/reassembled.b64
           python3 - <<'PY'
           import base64, gzip, hashlib, pathlib
-          idx=pathlib.Path('/tmp/live/index.html').read_text(encoding='utf-8')
           encoded=pathlib.Path('/tmp/live/reassembled.b64').read_text().strip()
+          b64_sha=hashlib.sha256(encoded.encode()).hexdigest()
           raw=base64.b64decode(encoded, validate=True)
           html=gzip.decompress(raw)
           digest=hashlib.sha256(html).hexdigest()
-          print('live_index_bytes=',len(idx.encode()))
           print('live_base64_bytes=',len(encoded))
+          print('live_base64_sha256=',b64_sha)
           print('live_gzip_bytes=',len(raw))
           print('live_reconstructed_html_bytes=',len(html))
           print('live_reconstructed_sha256=',digest)
-          assert len(encoded) > 44*50000
-          assert len(encoded) <= 45*50000
+          assert len(encoded) == 2240944
+          assert b64_sha == 'bd695d1d35f396029f904e3ace96010dd63889c6c0c986dded90c6db70fb19ca'
+          assert len(html) == 2684522
+          assert digest == 'c1e517ce548dba366439090b694e3960e50b13e1c05ac0c009808da38c2b5674'
           assert b'(async function bootApp(){' in html
           PY
-          echo 'LIVE_TRANSPORT_AUDIT_PASS'
+          echo 'LIVE_V30316_EXACT_SHA_PASS'
